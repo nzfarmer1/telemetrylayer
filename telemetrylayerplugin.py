@@ -1,64 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- telemetrylayer
-                                 A QGIS plugin
- Interface to Telemetry Layer sensor network
-                              -------------------
-        begin                : 2014-05-30
-        copyright            : (C) 2014 by Andrew McClure
-        email                : andrew@southweb.co.nz
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-To Do
-Add Notifications panels - SMS, Email
-Add Devices Tab
-Add Sensors Tab
-Sensors not shown unless configured (under devices)
-Location -> Device
-Save data in Memory Layer on server
-
-Device dialog:
- - One tab per sensor
- - Name/Location/LastUpdated
-
-
-
-
-"""
-# Import the PyQt and QGIS libraries
-from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot,SIGNAL,SLOT
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-
-
-import pdb 
-# Initialize Qt resources from file resources.py
-import os.path,sys, time, traceback
-import webbrowser
-import resources_rc
-# Import the code for the dialog
-
-from tlbrokers import tlBrokers as Brokers
-from telemetrylayermanager import layerManager
-from lib.tlsettings import tlSettings as Settings
-from lib.tllogging import tlLogging as Log
-from telemetrylayer import TelemetryLayer
-import sys,os
-
-"""
-/***************************************************************************
  Telemetry Layer
                                  A QGIS plugin
                              -------------------
@@ -87,6 +29,28 @@ Stabilty and feature dialog for Windows and Linux
 
 
 """
+
+from PyQt4 import QtCore
+from PyQt4.QtCore import pyqtSlot,SIGNAL,SLOT
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
+
+
+import pdb 
+# Initialize Qt resources from file resources.py
+import os.path,sys, time, traceback
+import webbrowser
+import resources_rc
+# Import the code for the dialog
+
+from tlbrokers import tlBrokers as Brokers
+from telemetrylayermanager import layerManager
+from lib.tlsettings import tlSettings as Settings
+from lib.tllogging import tlLogging as Log
+from telemetrylayer import TelemetryLayer
+import sys,os
+
 
 
 class TelemetryLayerPlugin(QObject):
