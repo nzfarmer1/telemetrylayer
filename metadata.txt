@@ -29,9 +29,9 @@ tags=SCADA, Telemetry,  MQTT, IoT
 
 homepage=http://digisense.net.nz
 download=http://digisense.net.nz/TelemetryLayer.zip
-tracker=
-repository=
-icon=icon.png
+tracker=https://github.com/nzfarmer1/telemetrylayer/issues
+repository=https://github.com/nzfarmer1/telemetrylayer
+icon=icons/icon.png
 # experimental flag
 experimental=True
 
