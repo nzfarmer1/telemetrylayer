@@ -1,0 +1,55 @@
+# This file contains metadata for your plugin. Beginning
+# with version 1.8 this is the preferred way to supply information about a
+# plugin. The current method of embedding metadata in __init__.py will
+# be supported until version 2.0
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+
+[general]
+name=Telemetry Layer
+qgisMinimumVersion=2.4
+qgisMaximumVersion=2.5
+description=MQTT Messaging integration with support for custom Topic Managers - including DigiSense
+version=0.9
+author=Andrew McClure
+email=andrew@southweb.co.nz
+
+# end of mandatory metadata
+
+# Optional items:
+
+# Uncomment the following line and add your changelog entries:
+# changelog=
+
+# tags are comma separated with spaces allowed
+tags=SCADA, Telemetry,  MQTT, IoT
+
+homepage=http://digisense.net.nz
+download=http://digisense.net.nz/TelemetryLayer.zip
+tracker=
+repository=
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version
+deprecated=False
+
+helpURL=http://southweb.co.nz/digisense/help
+layerName=TelemetryLayer
+deviceTypes=lib/dsdevices.xml
+
+# Layer feature IDs
+[fids]
+brokerId=0
+type=1
+name=2
+topic=3
+payload=4
+updated=5
+changed=6
+connected=7
+

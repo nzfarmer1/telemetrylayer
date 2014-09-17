@@ -20,6 +20,12 @@ Usage:
 3. Create a New Telemetry (Point) Layer - selecting the Broker and Topic Type
 4. Add Features based on topics generated via the Topic Manager (i.e. Broker Uptime)
 
+Installation:
+
+To install and run locally, copy recursively into a ~/.qgis2/python/plugins/TelemetryLayer directory then enable the plugin
+
+A public repo will be created soon
+
 Issues:
 
 This is very alpha software and still has many features not implemented.
