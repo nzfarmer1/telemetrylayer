@@ -27,7 +27,7 @@ email=andrew@southweb.co.nz
 # tags are comma separated with spaces allowed
 tags=SCADA, Telemetry,  MQTT, IoT
 
-homepage=http://digisense.net.nz
+homepage=http://www.southweb.co.nz/telemetrylayer
 download=http://digisense.net.nz/TelemetryLayer.zip
 tracker=https://github.com/nzfarmer1/telemetrylayer/issues
 repository=https://github.com/nzfarmer1/telemetrylayer
