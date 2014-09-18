@@ -5,7 +5,7 @@
   
   Layers are children of MQTT Client and of course represent a single QGIS layer
   
-  Broker connetions are established when layer is visible
+  Broker connections are established when layer is visible
 
   ***************************************************************************/
 """
@@ -61,7 +61,8 @@ class tLayer(MQTTClient):
                 self.brokerFid      = int(Settings.getMeta('brokerId','fids'))
                 self.nameFid        = int(Settings.getMeta('name','fids'))
                 self.typeFid        = int(Settings.getMeta('type','fids'))
-                self.topicFid       = int(Settings.getMeta('topic','fids'))
+                self.topicFid     = int(Settings.getMeta('topic','fids'))
+                self.matchFid     = int(Settings.getMeta('match','fids'))
                 self.payloadFid     = int(Settings.getMeta('payload','fids'))
                 self.updatedFid     = int(Settings.getMeta('updated','fids'))
                 self.changedFid     = int(Settings.getMeta('changed','fids'))
@@ -124,13 +125,9 @@ class tLayer(MQTTClient):
                 while iter.nextFeature(feat):
                             topic = str(feat.attribute("topic"))
                             if topic != None:
-                                Log.debug("Subscribitng " + topic)
+                                Log.debug("Subscribing " + topic)
                                 self.subscribe(topic,1)
                 self._layer.triggerRepaint()
-                palyr = QgsPalLayerSettings() 
-                palyr.readFromLayer(self.layer())
-                exp =  palyr.getLabelExpression()          
-               # Log.debug(exp.dump())
 
 
 
@@ -187,6 +184,7 @@ class tLayer(MQTTClient):
                 else:
                         fmt = self._topicManager.formatPayload(self._topicType,payload)
                         Log.status("Telemetry Layer " + self._broker.name() + ":" + self._layer.name() + ":" +  feat.attribute("name") + ": now " + fmt)
+                        self.changeAttributeValue (feat.id(), self.matchFid, topic,False)
                         self.changeAttributeValue (feat.id(), self.payloadFid, payload,False)
                         self.changeAttributeValue (feat.id(), self.updatedFid, int(time.time()),False)
                         self.changeAttributeValue (feat.id(), self.changedFid, int(time.time()),False)
@@ -282,14 +280,15 @@ class tLayer(MQTTClient):
                 # Set key fields uneditable http://qgis.org/api/classQgsVectorLayer.html#aa1585c854a22d545111a3a32d717c02f
 
                 """
-                attributes = [ QgsField("brokerId",        QVariant.Int),
+                attributes = [ QgsField("brokerId",         QVariant.Int),
                                     QgsField("type",        QVariant.String),
                                     QgsField("name",        QVariant.String),
                                     QgsField("topic",       QVariant.String),
+                                    QgsField("match",       QVariant.String),
                                     QgsField("payload",     QVariant.String),
                                     QgsField("updated",     QVariant.Int),
                                     QgsField("changed",     QVariant.Int),
-                                    QgsField("connected",   QVariant.Int)];
+                                    QgsField("connected",   QVariant.Int) ];
                 
                         
                 # Add Params
@@ -336,6 +335,7 @@ class tLayer(MQTTClient):
                                         self._topicType,
                                         topic['name'],
                                         topic['topic'],
+                                        topic['topic'], # gets updated with topic
                                         "No updates",
                                         int(time.time()),
                                         int(time.time()),
