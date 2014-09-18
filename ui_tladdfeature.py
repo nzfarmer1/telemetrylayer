@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tladdfeature.ui'
 #
-# Created: Wed Sep 10 08:16:19 2014
+# Created: Fri Sep 19 09:53:47 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,7 +33,6 @@ class Ui_tlAddFeature(object):
         sizePolicy.setHeightForWidth(tlAddFeature.sizePolicy().hasHeightForWidth())
         tlAddFeature.setSizePolicy(sizePolicy)
         tlAddFeature.setMaximumSize(QtCore.QSize(300, 16777215))
-        tlAddFeature.setProperty("currentTabName", _fromUtf8("Fubar"))
         self.selectTopic = QtGui.QComboBox(tlAddFeature)
         self.selectTopic.setGeometry(QtCore.QRect(70, 60, 191, 26))
         self.selectTopic.setObjectName(_fromUtf8("selectTopic"))
@@ -48,7 +47,7 @@ class Ui_tlAddFeature(object):
         QtCore.QMetaObject.connectSlotsByName(tlAddFeature)
 
     def retranslateUi(self, tlAddFeature):
-        tlAddFeature.setWindowTitle(_translate("tlAddFeature", "Device Mapping", None))
+        tlAddFeature.setWindowTitle(_translate("tlAddFeature", "Add Feature", None))
         self.selectTopicLabel.setToolTip(_translate("tlAddFeature", "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>", None))
         self.selectTopicLabel.setText(_translate("tlAddFeature", "Topic", None))
         self.buttonAdd.setText(_translate("tlAddFeature", "Add Feature", None))

@@ -13,7 +13,7 @@ name=Telemetry Layer
 qgisMinimumVersion=2.4
 qgisMaximumVersion=2.5
 description=MQTT Messaging integration with support for custom Topic Managers - including DigiSense
-version=0.9
+version=0.901
 author=Andrew McClure
 email=andrew@southweb.co.nz
 

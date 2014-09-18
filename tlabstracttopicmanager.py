@@ -142,10 +142,20 @@ class tlAbstractTopicManager(QDialog,QObject):
        super(tlAbstractTopicManager,self).setupUi(self)
 
     def getTopics(self,topics = []):
+        uniq = []
+        _topics = []
+        Log.debug("get Tipucs" + str(topics))
+        for topic in topics:
+           if not topic['topic'] in uniq:
+                _topics.append(topic)
+                uniq.append(topic['topic'])
+
         for topic in self._systopics:
-           topics.append( topic )
-        
-        return topics
+           if not topic['topic'] in uniq:
+                _topics.append( topic )
+                uniq.append(topic['topic'])
+
+        return _topics
             
     def getWidget(self):
         pass

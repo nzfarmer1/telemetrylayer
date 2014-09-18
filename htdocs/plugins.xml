@@ -1,7 +1,7 @@
-<pyqgis_plugin name="Telemetry Layer" version="0.9" plugin_id="1">
+<pyqgis_plugin name="Telemetry Layer" version="0.901" plugin_id="1">
         <description><![CDATA[MQTT Messaging integration with support for custom Topic Managers - including DigiSense]]></description>
         <about></about>
-        <version>0.9</version>
+        <version>0.901</version>
         <qgis_minimum_version>"2.4"</qgis_minimum_version>
         <qgis_maximum_version>2.5</qgis_maximum_version>
         <homepage><![CDATA[http://digisense.net.nz]]></homepage>
@@ -10,8 +10,8 @@
         <author_name><![CDATA[Andrew McClure]]></author_name>
         <download_url>http://digisense.net.nz/TelemetryLayer.zip</download_url>
         <uploaded_by><![CDATA[nzfarmer]]></uploaded_by>
-        <create_date>2014-09-17NZST22:34:46</create_date>
-        <update_date>2014-09-17NZST22:34:46</update_date>
+        <create_date>2014-09-19NZST10:09:26</create_date>
+        <update_date>2014-09-19NZST10:09:26</update_date>
         <experimental>True</experimental>
         <deprecated>False</deprecated>
         <tracker><![CDATA[]]></tracker>

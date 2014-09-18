@@ -303,14 +303,12 @@ class tLayer(MQTTClient):
        # Respond to add Feature
 
         def beforeRollBack(self):
-                Log.debug("before rollback")
-                Log.debug(self._fid)
+#                Log.debug("before rollback")
+#                Log.debug(self._fid)
                 self._layer.dataProvider().deleteFeatures([self._fid])
 #        self._layer.destroyEditCommand()
 
         def addFeature(self,fid):
-                Log.debug(self._fid)
-                Log.debug(fid)
                 if (fid < 0 and self._fid != fid):
                         self._fid = fid
                 elif (fid >0 or fid == self._fid):

@@ -15,7 +15,7 @@
         <Type>$SYS</Type>
     </Topic>
     <Topic value="$SYS/broker/messages/sent">
-        <Name>XX Messages Sent</Name>
+        <Name>Messages Sent</Name>
         <Description>MQTT Broker Messages Sent</Description>
         <Units>String</Units>
         <Type>$SYS</Type>
