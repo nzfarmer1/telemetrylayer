@@ -99,8 +99,9 @@ class MQTTClient(QtCore.QObject):
             self._thread.finished.disconnect(self.run)
             self._restarting =  False
 
-        self._thread.start()
-    
+        self._thread.start(QThread.LowestPriority)
+        self._thread.yieldCurrentThread()
+
     def stop(self):
       #  self._loopTimer.stop()
         self._thread.quit() # emits finished
@@ -111,6 +112,8 @@ class MQTTClient(QtCore.QObject):
 
     def _loop(self):
         self.loop()
+        self._thread.yieldCurrentThread()
+
         
     def setHost(self,host):
         self._host = host
