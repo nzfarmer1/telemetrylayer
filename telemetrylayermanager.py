@@ -262,8 +262,9 @@ class layerManager(QObject):
         """
         self.rebuildLegend()
         
-    def brokersLoaded(self):
+    def brokersLoaded(self,changed = []):
         remove = []
+        Log.debug("Brokers Loaded")
         for lid,tLayer in self.getTLayers().iteritems():
             old_broker = tLayer.getBroker()
             broker = Brokers.instance().find(old_broker.id())
@@ -278,6 +279,10 @@ class layerManager(QObject):
                 self.removeLayer(tLayer.layer(),False)
 
         self.rebuildLegend()
+        for lid,tLayer in self.getTLayers().iteritems():
+            if tLayer.isRunning() and tLayer.getBroker().id() in changed:
+                Log.debug("Restarting  " + tLayer.getBroker().name() )
+                tLayer.restart()
         
     def layerPropertiesChanged(self,val = 0):
         Log.debug("Layer Properties Changed " + str(val))

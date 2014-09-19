@@ -25,7 +25,8 @@ from lib.tllogging import tlLogging as Log
 
 class MQTTClient(QtCore.QObject):
 
-    MAX_ATTEMPTS = 3
+    kMaxAttempts  = 3
+    kMinKeepAlive = 5
 
     mqttOnConnect       = SIGNAL('mqttOnConnect(QObject,QObject,QObject)')
     mqttOnDisConnect    = SIGNAL('mqttOnDisconnect(QObject,QObject,QObject)')
@@ -72,7 +73,7 @@ class MQTTClient(QtCore.QObject):
         self._host = host
         self._port = int(port)
         self._poll = int(poll)
-        self._keepAlive = int(keepAlive) + int(poll)
+        self.setKeepAlive(keepAlive)
         self._attempts = 0
         self._connected =False
         self._thread = QThread(self)
@@ -122,6 +123,9 @@ class MQTTClient(QtCore.QObject):
 
     def setPoll(self,poll):
         self._poll = int(poll)
+
+    def setKeepAlive(self,keepAlive):
+        self._keepAlive =  max(int(keepAlive) + int(self._poll),self.kMinKeepAlive)
 
     def getClientId(self):
         return self._clientId
@@ -240,7 +244,7 @@ class MQTTClient(QtCore.QObject):
     def _connect(self):
         try:
            if self._connected == False:
-               if not self._attempts < self.MAX_ATTEMPTS:
+               if not self._attempts < self.kMaxAttempts:
                     Log.warn("Max connection attempts reached.")
                     self._resetTimer.start(5000) # 1 minute parameterise
                     self.stop()

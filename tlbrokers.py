@@ -18,7 +18,7 @@ class BrokerNotFound(Exception):
 class tlBrokers(QObject):
 	
 	_this = None
-	brokersLoaded  = pyqtSignal()
+	brokersLoaded  = pyqtSignal(object)
 
 	@staticmethod
 	def instance():
@@ -29,7 +29,10 @@ class tlBrokers(QObject):
 		self._jsonfile	= None
 		self._loaded 	= False
 		self._dirty		= False
-		self._brokers	= {}
+		self._brokers	= None
+		self._oldBrokers = None
+		self._dirty = 	False
+		self._dirtyList = []
 		self._jsonfile = filename
 		tlBrokers._this = self
 		self.load()
@@ -43,7 +46,9 @@ class tlBrokers(QObject):
 				qfile.close()
 				self._brokers = json.loads(jsonstr)
 				self._validate()
-				self.brokersLoaded.emit()
+				self.brokersLoaded.emit(self._dirtyList)
+				self._dirtyList[:] = []
+				self._dirty  = False
 		except Exception as e:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			Log.debug(repr(traceback.format_exception(exc_type, exc_value,
@@ -123,6 +128,7 @@ class tlBrokers(QObject):
 	def update(self,broker):
 		self._brokers[broker.id()] = broker.properties()
 		self._dirty = True
+		self._dirtyList.append(broker.id())
 		pass
 
 	def delete(self,broker):
@@ -132,6 +138,7 @@ class tlBrokers(QObject):
 	
 	
 	def _validate(self):
+
 		pass
 
 

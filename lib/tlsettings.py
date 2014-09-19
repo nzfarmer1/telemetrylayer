@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
  tlSettings
+ 
+ Wrapper for Settings related functions
 """
 
 from PyQt4.QtCore import QSettings, QObject

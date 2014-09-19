@@ -354,7 +354,12 @@ class tLayer(MQTTClient):
         def setBroker(self,broker,updateFeatures = True):
             Log.debug("Updating broker object ")
             self._broker = broker # update broker object
+            self.setPoll(broker.poll())
+            self.setHost(broker.host())
+            self.setPort(broker.port())
+            self.setKeepAlive(broker.keepAlive())
             self._topicManager = topicManagerFactory.getTopicManager(broker)
+            
             # Todo:
             # For each topic
             # Find features with feat.attrib[topic] == topic
