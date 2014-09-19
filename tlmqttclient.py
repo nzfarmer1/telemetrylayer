@@ -75,6 +75,7 @@ class MQTTClient(QtCore.QObject):
         self._attempts = 0
         self._connected =False
         self._thread = QThread(self)
+        self._thread.setPriority(QThread.IdlePriority)
         self._thread.started.connect(self._loopTimer.start)
         self._thread.finished.connect(self._loopTimer.stop)
         self._restarting = False

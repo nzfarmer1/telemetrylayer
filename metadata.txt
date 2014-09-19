@@ -28,7 +28,7 @@ email=andrew@southweb.co.nz
 tags=SCADA, Telemetry,  MQTT, IoT
 
 homepage=http://www.southweb.co.nz/telemetrylayer
-download=http://digisense.net.nz/TelemetryLayer.zip
+download=http://southweb.co.nz/sites/default/files/TelemetryLayer.zip
 tracker=https://github.com/nzfarmer1/telemetrylayer/issues
 repository=https://github.com/nzfarmer1/telemetrylayer
 icon=icons/icon.png
