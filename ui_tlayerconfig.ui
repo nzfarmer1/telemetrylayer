@@ -80,7 +80,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the Topic Types able to be shown on this layer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Select the Topic Types able to be shown on this layer</string>
    </property>
   </widget>
   <widget class="QLabel" name="title">
@@ -93,7 +93,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Create new Telemetry Layer&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Create new Telemetry Layer</string>
    </property>
   </widget>
   <widget class="QPushButton" name="buttonCreate">

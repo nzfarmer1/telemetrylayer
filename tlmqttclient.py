@@ -75,8 +75,7 @@ class MQTTClient(QtCore.QObject):
         self._attempts = 0
         self._connected =False
         self._thread = QThread(self)
-        self._thread.setPriority(QThread.IdlePriority) # try and fix windows freeze
-        self._thread.started.connect(self._loopTimer.start)
+        self._thread.started.connect(lambda: self._loopTimer.start(self._poll))
         self._thread.finished.connect(self._loopTimer.stop)
         self._restarting = False
         self.mqttc = mosquitto.Mosquitto( self._clientId, self._cleanSession)
@@ -100,7 +99,6 @@ class MQTTClient(QtCore.QObject):
             self._restarting =  False
 
         self._thread.start(QThread.LowestPriority)
-        self._thread.yieldCurrentThread()
 
     def stop(self):
       #  self._loopTimer.stop()
@@ -112,7 +110,6 @@ class MQTTClient(QtCore.QObject):
 
     def _loop(self):
         self.loop()
-        self._thread.yieldCurrentThread()
 
         
     def setHost(self,host):
