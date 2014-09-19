@@ -44,8 +44,14 @@ Constructive feedback is welcome
 
 TODO:
 
-Too many things to list, but getting it stable across platforms and getting the custom feature dialog working
-is high on the list
+This is my top list. There's lots more of course!
+
+- setEditForm and setEditFormInit only seem to work on my Mac.  See tlabstracttopicmanager.py
+- replace mosquitto client with paho.Client()
+- on windows, labels are not shown until layer settings are entered, and clicked Ok
+- rules based symbology is required, and needs to be configured programatically with changes
+for 'updated','changed' etc. again, see tlabstracttopicmanager.
+
 
 
 Andrew McClure <andrew@southweb.co.nz>

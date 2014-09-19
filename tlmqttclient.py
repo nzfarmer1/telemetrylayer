@@ -13,6 +13,7 @@ from PyQt4 import QtCore
 from PyQt4.QtCore import QTimer, QThread, QObject, SIGNAL
 
 from lib import mosquitto
+#import paho.mqtt.client as paho
 import sys
 import traceback
 import socket
@@ -79,6 +80,7 @@ class MQTTClient(QtCore.QObject):
         self._thread.finished.connect(self._loopTimer.stop)
         self._restarting = False
         self.mqttc = mosquitto.Mosquitto( self._clientId, self._cleanSession)
+#        self.mqttc = paho.Client( self._clientId, self._cleanSession)
         
         self.mqttc.on_connect = self.on_connect
         self.mqttc.on_disconnect = self.on_disconnect

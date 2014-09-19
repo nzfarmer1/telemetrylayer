@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tlayerconfig.ui'
 #
-# Created: Wed Sep 10 08:31:31 2014
+# Created: Fri Sep 19 19:09:30 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,8 +68,8 @@ class Ui_tLayerConfig(object):
         self.selectBrokerLabel.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select broker from list</p></body></html>", None))
         self.selectBrokerLabel.setText(_translate("tLayerConfig", "Select Broker", None))
         self.selectTopicTypeLabel.setText(_translate("tLayerConfig", "Select Topic Type", None))
-        self.selectTopicType.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select the Topic Types able to be shown on this layer</p></body></html>", None))
-        self.title.setText(_translate("tLayerConfig", "<html><head/><body><p><span style=\" font-size:14pt;\">Create new Telemetry Layer</span></p></body></html>", None))
+        self.selectTopicType.setToolTip(_translate("tLayerConfig", "Select the Topic Types able to be shown on this layer", None))
+        self.title.setText(_translate("tLayerConfig", "Create new Telemetry Layer", None))
         self.buttonCreate.setText(_translate("tLayerConfig", "Create", None))
         self.buttonCancel.setText(_translate("tLayerConfig", "Cancel", None))
 

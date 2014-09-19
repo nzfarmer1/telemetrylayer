@@ -142,23 +142,21 @@ class tlAbstractTopicManager(QDialog,QObject):
        super(tlAbstractTopicManager,self).setupUi(self)
 
     def getTopics(self,topics = []):
-        uniq = []
+        uniq    = []
         _topics = []
-        Log.debug("get Tipucs" + str(topics))
-        for topic in topics:
+        for topic in topics + self._systopics:
            if not topic['topic'] in uniq:
                 _topics.append(topic)
-                uniq.append(topic['topic'])
-
-        for topic in self._systopics:
-           if not topic['topic'] in uniq:
-                _topics.append( topic )
                 uniq.append(topic['topic'])
 
         return _topics
             
     def getWidget(self):
         pass
+
+# Todo
+# Label not showing in Windows initially
+# Add symbols (rules based)
 
     def setFormatter(self,layer,topicType):
         palyr = QgsPalLayerSettings()
