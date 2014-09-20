@@ -12,9 +12,9 @@
 name=Telemetry Layer
 qgisMinimumVersion=2.4
 qgisMaximumVersion=2.5
-about=MQTT Messaging integration with support for custom Topic Managers
 description=MQTT Messaging integration with support for custom Topic Managers
-version=0.9094
+about="Manage a list of brokers. Define a set of topics for each broker. Create a new Telemetry Layer (Layers are placed under a Broker Group and represent a set of topics by type).   Add topics as features.  Apply Rules based formatting.  Note: Plugin is at an alpha stage of development and being actively improved.  Please ensure to check regularly for updates and get in touch if you are keen to join the project." 
+version=0.90961
 author=Andrew McClure
 email=andrew@southweb.co.nz
 
@@ -39,7 +39,7 @@ experimental=True
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False
 
-helpURL=http://southweb.co.nz/digisense/help
+helpURL=http://southweb.co.nz/telemetrylayer
 layerName=TelemetryLayer
 deviceTypes=lib/dsdevices.xml
 
