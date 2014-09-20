@@ -7,7 +7,7 @@ Store, retrieve, list and find Brokers. Broker get and set params
 
 import json
 from lib.tllogging import tlLogging as Log
-import os.path,sys
+import os.path,sys, shutil
 from PyQt4.QtCore import QFile,QIODevice, QObject, pyqtSignal
 import traceback
 
@@ -19,6 +19,8 @@ class tlBrokers(QObject):
 	
 	_this = None
 	brokersLoaded  = pyqtSignal(object)
+	
+	kDefaultExt = ".default"
 
 	@staticmethod
 	def instance():
@@ -39,6 +41,8 @@ class tlBrokers(QObject):
 
 	def load(self):
 		try:
+			if not os.path.exists(self._jsonfile):
+				shutil.copyfile(self._jsonfile + self.kDefaultExt,self._jsonfile)
 			if os.path.exists(self._jsonfile):
 				qfile = QFile(self._jsonfile)
 				qfile.open(QIODevice.ReadOnly)

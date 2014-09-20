@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 qgisMaximumVersion=2.5
 about=MQTT Messaging integration with support for custom Topic Managers
 description=MQTT Messaging integration with support for custom Topic Managers
-version=0.909
+version=0.9091
 author=Andrew McClure
 email=andrew@southweb.co.nz
 
