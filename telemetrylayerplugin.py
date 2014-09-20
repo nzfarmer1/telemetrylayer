@@ -174,10 +174,10 @@ class TelemetryLayerPlugin(QObject):
     
     def about(self):
         
-#       webbrowser.open(Settings.getMeta("homepage"))
-        for broker in Brokers.instance().list():
-            Log.debug(broker.topicManager())
-        return
+       webbrowser.open(Settings.getMeta("homepage"))
+#        for broker in Brokers.instance().list():
+#            Log.debug(broker.topicManager())
+#        return
         
 
     def configure(self):
