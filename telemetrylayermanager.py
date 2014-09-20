@@ -142,7 +142,6 @@ class layerManager(QObject):
             for lid in root.findLayerIds():
                 layer = QgsMapLayerRegistry.instance().mapLayer(lid)
                 if TLayer.isTLayer(layer):
-                    Log.debug("TLayer Found " + lid)
                     bid = TLayer.getBrokerId(layer)
                     if Brokers.instance().find(bid) == None:
                         Log.debug("Broker not found")
@@ -233,8 +232,7 @@ class layerManager(QObject):
         layerManager._this = self
         
     def legendPressed(self,item):
-        Log.debug("Legend Pressed " + str(item))
-        return
+        pass
             
     def legendDblClicked(self,item):
 
@@ -250,9 +248,6 @@ class layerManager(QObject):
                 # handle missing broker
                 pass
 
-            
-#        Log.debug("Legend Double Clicled " + str(dir(item.model().index2node().name())))
-        #self.rebuildLegend()
     
     def legendRelationsChanged(self):
         """
@@ -398,15 +393,14 @@ class layerManager(QObject):
 
                 self.delTLayer(lid)
             except Exception as e:
-                Log.debug(e)
-                Log.debug("Layer removed")
+                Log.debug("Layer removed " + str(e))
         elif not confirm:
             QgsProject.instance().layerTreeRoot().removeLayer(layer)
         
 #         QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
             self.delTLayer(lid)
 
-        Log.debug("xLayer removed")
+        Log.debug("Layer removed")
         # Todo Restart layer if broker details changed
         
     def layerWillBeRemoved(self,layerId):

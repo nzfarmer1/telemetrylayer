@@ -343,7 +343,6 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
 
 
     def _buildDevicesTableCallback(self,mqClient,status,response,fu="bar"):
-        Log.debug("xGot " + str(status))
         self.devicesRefresh.setEnabled(True)
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         if status:

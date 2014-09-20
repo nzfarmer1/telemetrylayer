@@ -147,9 +147,9 @@ class MQTTClient(QtCore.QObject):
 
 
     def on_disconnect(self,mosq, obj, rc):
-        Log.debug("xdisconnecting rc: "+str(rc) + " " + str(self._connected))
+        Log.debug("disconnecting rc: "+str(rc) + " " + str(self._connected))
         self._connected = False
-        Log.debug("_killing")
+        Log.debug("killing")
         if self._killing:
             self._kill()
         self.onDisConnect(mosq,obj,rc)
@@ -224,12 +224,12 @@ class MQTTClient(QtCore.QObject):
      
      
     def _kill(self):
-        Log.debug("_kill")
         self._loopTimer.stop() # Stopped in self.stop but lets preempt this to avoid self.loop being called by running thread
         self._resetTimer.stop()
         self._killTimer.stop()
         self._killing = False
         self.stop()
+        Log.debug("killed")
      
     def kill(self):
         try:
@@ -306,7 +306,7 @@ class tlMqttSingleShot(MQTTClient):
                                         str(self), 
                                         host,
                                         port,
-                                        1000,
+                                        0,
                                         60,
                                         True)
 
@@ -349,7 +349,7 @@ class tlMqttTest(MQTTClient):
                  creator,
                  host,
                  port = 1883,
-                 poll = 5000):
+                 poll = 0):
 
         super(tlMqttTest,self).__init__(creator,
                                         str(self), # Add randown

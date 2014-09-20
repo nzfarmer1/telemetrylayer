@@ -103,7 +103,6 @@ class tLayer(MQTTClient):
                                                                                 self._broker.keepAlive(),
                                                                                 True)
 
-                Log.debug("tLayer _init__  LayerID = " + str(self._layer.id()) )
                 self.updateConnected(False)
                 
 
@@ -414,9 +413,6 @@ class tLayer(MQTTClient):
         def topicType(self):
                 return self._topicType
         
-        
-        def _topicsUpdated(self):
-                Log.debug("_topicsUpdated")
         
         def tearDown(self):
                 Log.debug("tLayer Tear down")
