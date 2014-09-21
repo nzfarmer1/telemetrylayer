@@ -131,7 +131,7 @@ class tlAbstractTopicManager(QDialog,QObject):
        self._create = create
        self._featureDialog = None
        
-       systopicxml = os.path.join(Settings.get('plugin_dir'),'lib','systopics.xml')
+       systopicxml = os.path.join(Settings.get('plugin_dir'),'data','systopics.xml')
        
        self._systopics = XMLTopicParser(systopicxml).getTopics()
 

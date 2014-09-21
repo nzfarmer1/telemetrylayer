@@ -75,7 +75,7 @@ class TelemetryLayerPlugin(QObject):
         # Initialise Settings and Log handlers
         Settings(self)
         Log(self)
-        Brokers(os.path.join(self.plugin_dir,'lib','brokers.json'))
+        Brokers(os.path.join(self.plugin_dir,'data','brokers.json'))
 
         # initialize locale
         self.translator = QTranslator()
