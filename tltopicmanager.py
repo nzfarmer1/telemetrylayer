@@ -32,6 +32,7 @@ class tlFeatureDialog(QObject):
         self._tLayer        = tLayer
         self._layer         = tLayer.layer()
         self._feature       = feature
+        self._editable      = dialog.editable()
         self._widgets = {}
         super(tlFeatureDialog,self).__init__()
         
@@ -94,7 +95,7 @@ class tlFeatureDialog(QObject):
 
     def __del__(self):
         self._tLayer.featureUpdated.disconnect(self._update)
-        if dialog.editable():
+        if self._editable:
             self._tLayer.featureDialogClosed.emit(self._tLayer)
         pass
         
