@@ -60,9 +60,7 @@
       <bool>true</bool>
      </property>
      <property name="plainText">
-      <string>This topic manager mnages a list of MQTT $SYS topics.
-
-It provides a set of default format functions for these.</string>
+      <string>This topic manager provides a list of MQTT $SYS topics and a set of default format functions for these.</string>
      </property>
     </widget>
    </widget>
