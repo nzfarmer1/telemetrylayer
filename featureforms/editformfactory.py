@@ -33,7 +33,7 @@ this = None
 
 def featureDialog(dialog,layer,feature):
     try:
-        layer.startEditing() # Doesn't work
+#        layer.startEditing() # Doesn't work
         tLayer = this.layerManager.getTLayer(layer.id())
         myDialogHandler = tLayer.topicManager().featureDialog(dialog,tLayer,feature)
         myDialogHandler.show()

@@ -150,6 +150,8 @@ class layerManager(QObject):
              Log.debug("Moving node to group " + broker.name())
              root = QgsProject.instance().layerTreeRoot()
              nodeLayer = root.findLayer(layer.id())
+             if nodeLayer == None:
+                return None
              newNodeLayer = nodeLayer.clone()
              nodeGrp.insertChildNode(1,newNodeLayer)
              nodeGrp.setCustomProperty(layerManager.kBrokerId,broker.id())

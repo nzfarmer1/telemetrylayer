@@ -12,7 +12,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from tlabstracttopicmanager import tlAbstractTopicManager
+from tltopicmanager import tlTopicManager
 from ui_dstopicmanager import Ui_dsTopicManager 
 from lib.tlsettings import tlSettings as Settings, tlConstants
 from lib.tllogging import tlLogging as Log
@@ -36,7 +36,7 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
+class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     
     kDeviceMapsTabId     = 0
     kDeviceLogicalTabId  = 1

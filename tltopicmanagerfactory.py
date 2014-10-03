@@ -12,7 +12,7 @@ from PyQt4.QtCore import QObject
 from PyQt4.QtGui  import QDialog
 
 
-from tlabstracttopicmanager import tlAbstractTopicManager as TopicManager, tlAbstractFeatureDialog  as DialogManager
+from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
 from tlfiletopicmanager import tlFileTopicManager
 from tlgenerictopicmanager import tlGenericTopicManager
 from dstopicmanager import dsTopicManager

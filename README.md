@@ -32,27 +32,30 @@ This is very alpha software and still has many features not implemented.
 It is recommended for developers only and must NOT be used on production projects!
 We accept no liability
 
-The code has been developed on a Mac using OSX 10.9.4 and although it runs on Windows and Linux, it is not stable.
+The code has been developed on a Mac using OSX 10.9.4.
 
 Am looking for assistance to bring the plugin to an improved state of maturity.
 
-Note: please forgive my coding. This was my first major python development and you will see
-the some variance in style as I matured in its use and became more familiar with the QGIS APIs
-and python libraries.
+The latest release fixes a lot of issues. See the commit change log in GIT
 
 Constructive feedback is welcome
 
 TODO:
 
+
 This is my top list. There's lots more of course!
 
-- setEditForm and setEditFormInit only seem to work on my Mac.  See tlabstracttopicmanager.py
 - replace mosquitto client with paho.Client()
-- on windows, labels are not shown until layer settings are entered, and clicked Ok
-- rules based symbology is required, and needs to be configured programatically with changes
-for 'updated','changed' etc. again, see tlabstracttopicmanager.
+- configure attribute types (currently these are all editable - should be hidden)
+- introduce invisible features for no geo specific sensors
+- programmatically create rules based renderer for layers
+- icons for symbols and application - including sensor state symbology
+- refactor topicmanager classes so these can be located in their own sub directories
+- support to add / edit parameters as additional feature attributes
+- add support for roll back when adding/deleting features
+- integrate with QGIS native help with splash screen showing new features
 
-
+If you want to help with any of this, please get in touch!!!
 
 Andrew McClure <andrew@southweb.co.nz>
 

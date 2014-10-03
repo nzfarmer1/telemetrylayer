@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- tlAbstractTopicManager
+ tlTopicManager
  
  Parent class for Topic Managers - not really Abstract
  ***************************************************************************/
@@ -20,7 +20,7 @@ from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
-class tlAbstractFeatureDialog(QObject):
+class tlFeatureDialog(QObject):
     
     kOverviewTabId = 0
     kSettingsTabId = 1
@@ -33,12 +33,16 @@ class tlAbstractFeatureDialog(QObject):
         self._layer         = tLayer.layer()
         self._feature       = feature
         self._widgets = {}
-        super(tlAbstractFeatureDialog,self).__init__()
+        super(tlFeatureDialog,self).__init__()
         
         Log.debug("Dialog Editable " + str(dialog.editable()))
 
         self._tLayer.featureUpdated.connect(self._update)
         self._dialog.adjustSize()
+        self.topicManager = self._tLayer.topicManager()
+        self.topicType = self._tLayer.topicType()
+        topic = self._find(QLineEdit,"topic")
+        topic.setEnabled(False)
 
 
     def _update(self,tLayer,feature):
@@ -62,10 +66,15 @@ class tlAbstractFeatureDialog(QObject):
             return delta
         hours = int(delta / 3600)
         mins = int((delta - hours) / 60)
-        secs  = (delta - hours) % 60
+        secs  = int((delta - hours) % 60)
         
-        fmtStr =  str(int(hours)) + "H " + str(int(mins)) + "M "  + str(int(secs)) + "S"
-        Log.debug(fmtStr)
+        fmtStr = ""
+        if hours > 0:
+            fmtStr = fmtStr + str(hours) + 'hours '
+
+        fmtStr = fmtStr + str(mins) + 'min '  
+        fmtStr = fmtStr + str(secs) + 'secs ago'  
+        
         return fmtStr
 
     
@@ -90,7 +99,7 @@ class tlAbstractFeatureDialog(QObject):
 
 
 
-class tlSysFeatureDialog(tlAbstractFeatureDialog):
+class tlSysFeatureDialog(tlFeatureDialog):
     
     def __init__(self,dialog,tLayer,feature):
         super(tlSysFeatureDialog,self).__init__(dialog,tLayer,feature)
@@ -110,7 +119,6 @@ class tlSysFeatureDialog(tlAbstractFeatureDialog):
 #        name.setEnabled(True)
        
         buttonBox = self._find(QDialogButtonBox,"buttonBox")
-        buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
         buttonBox.accepted.connect(lambda : tlSysFeatureDialog.validate(self))
         
         buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
@@ -118,8 +126,12 @@ class tlSysFeatureDialog(tlAbstractFeatureDialog):
         
         
     def update(self):
-        updated = self._find(QLineEdit,'updated')
+        updated = self._find(QLabel,'updatedValue')
         updated.setText(self._since(int(self._feature['updated'])))
+        changed = self._find(QLabel,'changedValue')
+        changed.setText(self._since(int(self._feature['changed'])))
+        payload = self._find(QLabel,'payloadValue')
+        payload.setText(self.topicManager.formatPayload(self.topicType,self._feature['payload']))
         
     @staticmethod    
     def clicked(self,btn = None):
@@ -144,13 +156,13 @@ class tlSysFeatureDialog(tlAbstractFeatureDialog):
 
 
 
-class tlAbstractTopicManager(QDialog,QObject):
+class tlTopicManager(QDialog,QObject):
     
     topicManagerReady       = QtCore.SIGNAL('topicManagerReady(QObject,QObject)')
     topicManagerError       = QtCore.SIGNAL('topicManagerError(QObject,QObject)')
 
     def __init__(self,broker,create=False):
-       super(tlAbstractTopicManager, self).__init__()
+       super(tlTopicManager, self).__init__()
 
        self._broker = broker
        self._create = create
@@ -164,7 +176,7 @@ class tlAbstractTopicManager(QDialog,QObject):
          return tlSysFeatureDialog(dialog,tLayer,featureId)
 
     def setupUi(self):
-       super(tlAbstractTopicManager,self).setupUi(self)
+       super(tlTopicManager,self).setupUi(self)
 
     def getTopics(self,topics = []):
         uniq    = []

@@ -16,13 +16,13 @@ from qgis.utils import qgsfunction,QgsExpression
 from qgis.core import *
 import os
 
-from tlabstracttopicmanager import tlAbstractTopicManager,tlAbstractFeatureDialog
+from tltopicmanager import tlTopicManager,tlFeatureDialog
 from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager 
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
  
 
-class tlGenericTopicManager(tlAbstractTopicManager, Ui_tlGenericTopicManager):
+class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     
     def __init__(self,broker,create=False):
         super(tlGenericTopicManager,self).__init__(broker,create)

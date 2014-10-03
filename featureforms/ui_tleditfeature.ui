@@ -51,23 +51,13 @@
      <property name="geometry">
       <rect>
        <x>242</x>
-       <y>80</y>
+       <y>110</y>
        <width>56</width>
        <height>13</height>
       </rect>
      </property>
      <property name="text">
       <string>Changed</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="changed">
-     <property name="geometry">
-      <rect>
-       <x>304</x>
-       <y>70</y>
-       <width>81</width>
-       <height>22</height>
-      </rect>
      </property>
     </widget>
     <widget class="QLabel" name="imageWidget">
@@ -78,19 +68,6 @@
        <width>200</width>
        <height>200</height>
       </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="updated">
-     <property name="geometry">
-      <rect>
-       <x>304</x>
-       <y>40</y>
-       <width>81</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
     <widget class="QLabel" name="labelUpdated">
@@ -109,19 +86,9 @@
     <widget class="QLineEdit" name="name">
      <property name="geometry">
       <rect>
-       <x>256</x>
+       <x>236</x>
        <y>10</y>
-       <width>131</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="last">
-     <property name="geometry">
-      <rect>
-       <x>304</x>
-       <y>100</y>
-       <width>81</width>
+       <width>151</width>
        <height>22</height>
       </rect>
      </property>
@@ -130,13 +97,52 @@
      <property name="geometry">
       <rect>
        <x>242</x>
-       <y>110</y>
+       <y>170</y>
        <width>56</width>
        <height>13</height>
       </rect>
      </property>
      <property name="text">
       <string>Last</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="payloadValue">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>190</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="changedValue">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>130</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="updatedValue">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>70</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </widget>
@@ -225,13 +231,13 @@ Note: all features that share this topic will be updated.
    <property name="geometry">
     <rect>
      <x>213</x>
-     <y>310</y>
+     <y>303</y>
      <width>211</width>
      <height>32</height>
     </rect>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
  </widget>

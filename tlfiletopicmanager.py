@@ -14,7 +14,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from tlabstracttopicmanager import tlAbstractTopicManager
+from tltopicmanager import tlTopicManager
 from ui_tlfiletopicmanager import Ui_tlFileTopicManager 
 
 from lib.tlsettings import tlSettings as Settings
@@ -22,7 +22,7 @@ from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 import os
 
-class tlFileTopicManager(tlAbstractTopicManager, Ui_tlFileTopicManager):
+class tlFileTopicManager(tlTopicManager, Ui_tlFileTopicManager):
     
     def __init__(self,broker,create=False):
         super(tlFileTopicManager,self).__init__(broker,create)
