@@ -75,8 +75,7 @@ class TelemetryLayerPlugin(QObject):
         # Initialise Settings and Log handlers
         Settings(self)
         Log(self)
-        Brokers(os.path.join(self.plugin_dir,'data','brokers.json'))
-
+        Brokers(os.path.join(self.plugin_dir,'data'))
         # initialize locale
         self.translator = QTranslator()
         
@@ -89,12 +88,11 @@ class TelemetryLayerPlugin(QObject):
         if qVersion() > '4.3.3':
             QCoreApplication.installTranslator(self.translator)
             
+
         
     def initGui(self):
         # Tree Widget test
         
-
-
         # Create action that will start plugin configuration
         self.aboutA = QAction(
             QIcon(":/plugins/"+ self.plugin_basename + "/icons/icon.png"),
@@ -122,7 +120,7 @@ class TelemetryLayerPlugin(QObject):
 #        for f in QgsExpression.Functions():
 #            print (str(f.group()) + " " + str(f.name()))
         
-      
+          
         try:
             self.layerManager   = layerManager(self )
             self.telemetryLayer = TelemetryLayer(self) 
@@ -144,9 +142,6 @@ class TelemetryLayerPlugin(QObject):
 
         mw = self.iface.mainWindow()
 #        lgd.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu);
-
-        
-
 
 
     def unload(self):

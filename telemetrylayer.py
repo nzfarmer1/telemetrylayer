@@ -69,6 +69,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
        self.plugin_dir = creator.plugin_dir
        self._brokerDlg = None
        self._brokers = Brokers.instance()
+       self._layerManager = creator.layerManager
        self._setup = False
        self.dockWidget = None
        TelemetryLayer._this = self
@@ -92,7 +93,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 #            if self._brokerDlg.dockWidget.isVisible():
 #                self._brokerDlg.dockWidget.setVisible(False)
             # Add check to see if _brokerDlg is currently open and a prompt to change it if dirty!
-            self._updateBroker(broker)
+            self._updateBroker(broker,True)
         
 
     def hide(self):
@@ -150,7 +151,9 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             logStates |= Log.DEBUG
             
         Log.setLogStates(logStates)
+        Settings.set('logStates',logStates)
 
+        Settings.set('logStates',logStates)
 
     def _buildBrokerTable(self):
         brokers = self._brokers.list()
@@ -195,7 +198,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             return lambda: self._delBroker(param)
         return None
 
-    def _updateBroker(self,broker):
+    def _updateBroker(self,broker,groupClicked = False):
         if self._brokerDlg != None:
             self._brokerDlg.dockWidget.setVisible(False)
             self._brokerDlg = None
@@ -204,6 +207,8 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self._brokerDlg.connectCancel.clicked.connect(self._addBrokerCancel)
         self.dockWidget.setFixedHeight(25) # paramterise
         #self.dockWidget.setMaximumHeight(25) # paramterise
+        if groupClicked == True:
+            self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kFeatureListTabId)
         self.dockWidget.repaint()
         self.iface.addDockWidget( Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget )
 

@@ -394,7 +394,6 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self._deviceMap.set('model',dtype.model()) 
             self._deviceMap.set('units',dtype.units()) 
             self._deviceMap.set('params',params) 
-            Log.debug(self._deviceMap.dumps())
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
             self.applyButton.setDisabled(True)
             

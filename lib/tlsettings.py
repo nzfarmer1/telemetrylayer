@@ -9,6 +9,8 @@ from PyQt4.QtCore import QSettings, QObject
 import os.path
 from ConfigParser import ConfigParser
 
+from HTMLParser import HTMLParser
+
 # set and get settings
 
 # check Loglevel settings and restrict accordingly
@@ -18,16 +20,21 @@ class tlConstants:
     Update =1
     Deleted =2
 
+ 
+
+
 class tlSettings(QObject):
     settings    = None
     metadata = ConfigParser()
     iface = None
+ 
     
     def __init__(self,creator):
         super(tlSettings,self).__init__()
         tlSettings.metadata.read(os.path.join( creator.plugin_dir,'metadata.txt'))
         tlSettings.set('plugin_dir',creator.plugin_dir)
         tlSettings._iface = creator.iface
+        
         
     @staticmethod
     def getMeta(key,realm = 'general',default = ''):

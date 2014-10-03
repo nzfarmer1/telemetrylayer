@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tlgenerictopicmanager.ui'
 #
-# Created: Wed Sep 10 08:16:19 2014
+# Created: Wed Oct  1 12:20:36 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,7 +39,7 @@ class Ui_tlGenericTopicManager(object):
         self.tabTopics = QtGui.QWidget()
         self.tabTopics.setObjectName(_fromUtf8("tabTopics"))
         self.plainTextEdit = QtGui.QPlainTextEdit(self.tabTopics)
-        self.plainTextEdit.setGeometry(QtCore.QRect(40, 40, 211, 61))
+        self.plainTextEdit.setGeometry(QtCore.QRect(20, 30, 261, 191))
         self.plainTextEdit.setReadOnly(True)
         self.plainTextEdit.setObjectName(_fromUtf8("plainTextEdit"))
         self.Tabs.addTab(self.tabTopics, _fromUtf8(""))
@@ -52,6 +52,8 @@ class Ui_tlGenericTopicManager(object):
         tlGenericTopicManager.setWindowTitle(_translate("tlGenericTopicManager", "Edit Feature", None))
         tlGenericTopicManager.setToolTip(_translate("tlGenericTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         tlGenericTopicManager.setProperty("text", _translate("tlGenericTopicManager", "Edit Feature", None))
-        self.plainTextEdit.setPlainText(_translate("tlGenericTopicManager", "This topic manager returns a list of $SYS topics and provides a set of default format functions.", None))
+        self.plainTextEdit.setPlainText(_translate("tlGenericTopicManager", "This topic manager mnages a list of MQTT $SYS topics.\n"
+"\n"
+"It provides a set of default format functions for these.", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.tabTopics), _translate("tlGenericTopicManager", "Topics", None))
 

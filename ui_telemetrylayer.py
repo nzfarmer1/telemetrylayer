@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_telemetrylayer.ui'
 #
-# Created: Wed Sep 10 08:45:11 2014
+# Created: Sat Sep 27 13:51:48 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,7 +49,7 @@ class Ui_TelemetryLayer(object):
         self.globalSettings = QtGui.QWidget()
         self.globalSettings.setObjectName(_fromUtf8("globalSettings"))
         self.groupBox = QtGui.QGroupBox(self.globalSettings)
-        self.groupBox.setGeometry(QtCore.QRect(20, 0, 171, 151))
+        self.groupBox.setGeometry(QtCore.QRect(20, 0, 231, 161))
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.logInfo = QtGui.QCheckBox(self.groupBox)
         self.logInfo.setGeometry(QtCore.QRect(10, 30, 85, 18))

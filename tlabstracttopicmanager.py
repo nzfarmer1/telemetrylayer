@@ -6,19 +6,18 @@
  Parent class for Topic Managers - not really Abstract
  ***************************************************************************/
 """
-
+import sip
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QObject,QTimer
 from PyQt4.QtGui  import QDialog, QTabWidget, QLabel, QDialogButtonBox, QPixmap,QLineEdit
 
-from qgis.core import QgsPalLayerSettings,QgsVectorLayer
+from qgis.core import QgsPalLayerSettings,QgsVectorLayer,QgsFeatureRequest
 from qgis.utils import qgsfunction
 
-import os
+import os,sys,math,time
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
-
 
 
 class tlAbstractFeatureDialog(QObject):
@@ -27,33 +26,48 @@ class tlAbstractFeatureDialog(QObject):
     kSettingsTabId = 1
     kHistoryTabId  = 2
     
+    
     def __init__(self,dialog,tLayer,feature):
         self._dialog        = dialog
         self._tLayer        = tLayer
         self._layer         = tLayer.layer()
         self._feature       = feature
         self._widgets = {}
-
-        self._qtimer = QTimer()    
-#        self._qtimer.setSingleShot(False)
-#        self._qtimer.timeout.connect( self._front )
-#        self._qtimer.start(1000)
-
-        Log.debug(dialog.editable())
-
-        #for widget in dialog.children():
-        #    for _widget in widget.children():
-        #        if len(_widget.objectName()) >0:
-        #            Log.debug(_widget.objectName())
-
-#        for a in self._feature.fields().toList():
-#            Log.debug(str(a.name()))
-#            Log.debug(self._feature.attribute(a.name()))
-
+        super(tlAbstractFeatureDialog,self).__init__()
         
+        Log.debug("Dialog Editable " + str(dialog.editable()))
+
+        self._tLayer.featureUpdated.connect(self._update)
+        self._dialog.adjustSize()
+
+
+    def _update(self,tLayer,feature):
+        if feature.id() == self._feature.id():
+            self._feature = feature
+            self.update()
+    
+    def update(self):
+        pass
+    
     def show(self):
         # form is ready to be opened
         pass
+    
+    def _since(self,when,fmt = True):
+        if not int(when)>=0:
+            return ""
+        
+        delta = time.time() - when
+        if not fmt:
+            return delta
+        hours = int(delta / 3600)
+        mins = int((delta - hours) / 60)
+        secs  = (delta - hours) % 60
+        
+        fmtStr =  str(int(hours)) + "H " + str(int(mins)) + "M "  + str(int(secs)) + "S"
+        Log.debug(fmtStr)
+        return fmtStr
+
     
     def _find(self,qtype,name):
         if name in self._widgets:
@@ -64,19 +78,15 @@ class tlAbstractFeatureDialog(QObject):
             self._widgets[name] = obj
             return obj
         
-    """
-    Keep dialog in front
-    """
-    def _front(self):
-        if self._dialog !=None and self._dialog.isVisible():
-            self._dialog.setWindowState(self._dialog.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-            self._dialog.activateWindow()
-        else:
-            self._qtimer.stop()
 
     def accept(self):
         Log.debug("Accept")
         self._dialog.save()
+
+    def __del__(self):
+        self._tLayer.disfeatureUpdated.connect(self._update)
+        pass
+        
 
 
 
@@ -84,6 +94,7 @@ class tlSysFeatureDialog(tlAbstractFeatureDialog):
     
     def __init__(self,dialog,tLayer,feature):
         super(tlSysFeatureDialog,self).__init__(dialog,tLayer,feature)
+
         
     def show(self):
         Log.debug("Dialog Creating")
@@ -97,12 +108,26 @@ class tlSysFeatureDialog(tlAbstractFeatureDialog):
         image.setPixmap(pixmap)
 #        name = self._find(QLineEdit,"name")
 #        name.setEnabled(True)
+       
         buttonBox = self._find(QDialogButtonBox,"buttonBox")
         buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
         buttonBox.accepted.connect(lambda : tlSysFeatureDialog.validate(self))
-        Log.debug(buttonBox)
-
+        
+        buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
+        self.update()
+        
+        
+    def update(self):
+        updated = self._find(QLineEdit,'updated')
+        updated.setText(self._since(int(self._feature['updated'])))
+        
     @staticmethod    
+    def clicked(self,btn = None):
+        Log.debug(btn)
+        pass
+
+ 
+    @staticmethod
     def validate(self):
         Log.debug("Validating " + str(self._dialog))
         # Works but don't use
@@ -135,7 +160,7 @@ class tlAbstractTopicManager(QDialog,QObject):
        
        self._systopics = XMLTopicParser(systopicxml).getTopics()
 
-    def featureDialog(self,dialog,tLayer,featureId):
+    def featureDialog(self,dialog,tLayer,featureId): # Check SYS type?
          return tlSysFeatureDialog(dialog,tLayer,featureId)
 
     def setupUi(self):
@@ -173,6 +198,7 @@ class tlAbstractTopicManager(QDialog,QObject):
 
     def formatPayload(self,topicType,payload):
       return str(payload)
+
         
     @staticmethod
     def register():

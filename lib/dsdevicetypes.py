@@ -6,12 +6,9 @@ import xml.etree.ElementTree as ETree
 # add bool hasMap()
 
 try:
-	if 'fsd.py' == sys.argv[0]:
-		import logging as Log
-	else:
-		from tllogging import tlLogging as Log
-except:
 	from tllogging import tlLogging as Log
+except:
+	import logging as Log
 
 
 

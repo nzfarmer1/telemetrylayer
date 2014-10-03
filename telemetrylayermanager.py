@@ -28,8 +28,8 @@ from qgis.core import QGis
 
 _this = None
 
-def featureDialog(dialog,layerid,featureid):
-    Log.debug("Layer Manager " + str(_this))
+#def featureDialog(dialog,layerid,featureid):
+#    Log.debug("Layer Manager " + str(_this))
     
 
 class layerManager(QObject):
@@ -284,6 +284,7 @@ class layerManager(QObject):
     def renderStarting(self):
         for lid,tLayer in self.getTLayers().iteritems():
                 visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
+                    
                #if not visible:
                 #    self.actions['pause' + lid].setEnabled(False)
                 #    self.actions['resume' + lid].setEnabled(False)
@@ -375,7 +376,7 @@ class layerManager(QObject):
         layer.editingStarted.connect(tLayer.layerEditStarted) # change to when layer is loaded also!
         layer.editingStopped.connect(tLayer.layerEditStopped)
         QApplication.instance().focusChanged.connect(tLayer.focusChange)
- 
+        
         layer.triggerRepaint()
         return self.getTLayer(layer.id(),False)
     
@@ -402,7 +403,9 @@ class layerManager(QObject):
     def layerWillBeRemoved(self,layerId):
         layer = QgsMapLayerRegistry.instance().mapLayer(layerId)
         try:
+            self._iface.legendInterface().setLayerVisible(layer,False)
             tLayer =  self.getTLayer(layerId)
+            
             if tLayer !=None:
                 tLayer.tearDown()
                 self.delTLayer(layerId)
@@ -487,7 +490,7 @@ class layerManager(QObject):
         layer = self._iface.activeLayer()
         tLayer = self.getTLayer(layer.id())
         Log.debug("Feature Deleted " + str(fid))
-        self.delTLayer(layer.id())
+        tLayer.restart()
 
         
     def currentLayerChanged(self):

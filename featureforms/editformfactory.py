@@ -32,35 +32,12 @@ this = None
 
 
 def featureDialog(dialog,layer,feature):
-	try:
-		tLayer = this.layerManager.getTLayer(layer.id())
-		myDialogHandler = tLayer.topicManager().featureDialog(dialog,tLayer,feature)
-		myDialogHandler.show()
-		
-	except Exception as e:
-		print "Problem loading custom feature dialog for " + layer.name()
-		print str(e)
-		
+    try:
+        layer.startEditing() # Doesn't work
+        tLayer = this.layerManager.getTLayer(layer.id())
+        myDialogHandler = tLayer.topicManager().featureDialog(dialog,tLayer,feature)
+        myDialogHandler.show()
+    except Exception as e:
+      print "Problem loading custom feature dialog for " + layer.name()
+      print str(e)
 
-
-
-
-def _featureDialog(dialog,layer,feature):
-    global myDialog
-    myDialog = dialog
-    global nameField
-    nameField = dialog.findChild(QLineEdit,"name")
-    buttonBox = dialog.findChild(QDialogButtonBox,"buttonBox")
-
-    # Disconnect the signal that QGIS has wired up for the dialog to the button box.
-    buttonBox.accepted.disconnect(myDialog.accept)
-
-    # Wire up our own signals.
-    buttonBox.rejected.connect(validate)
-    #buttonBox.rejected.connect(myDialog.reject)
-
-def validate():
-	 msgBox = QMessageBox()
-	 msgBox.setText("Validating.")
-	 msgBox.exec_()
-	 myDialog.accept()

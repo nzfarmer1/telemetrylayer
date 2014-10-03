@@ -12,7 +12,7 @@ from PyQt4.QtCore import QObject
 from PyQt4.QtGui  import QDialog
 
 
-from tlabstracttopicmanager import tlAbstractTopicManager as TopicManager
+from tlabstracttopicmanager import tlAbstractTopicManager as TopicManager, tlAbstractFeatureDialog  as DialogManager
 from tlfiletopicmanager import tlFileTopicManager
 from tlgenerictopicmanager import tlGenericTopicManager
 from dstopicmanager import dsTopicManager
@@ -23,7 +23,15 @@ from lib.tllogging import tlLogging as Log
 class tlTopicManagerFactory():
     
     registered = []
-
+    featureDialogs = []
+    
+    @staticmethod
+    def featureUpdated(layer,feature):
+        pass
+    #    dlg = DialogManager.findDialog(layer,feature)
+    #    if dlg !=None:
+    #        dlg.update(feature)
+            
     @staticmethod
     def registerAll():
         for _id in tlTopicManagerFactory.getTopicManagerIds():

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_dstopicmanager.ui'
 #
-# Created: Wed Sep 10 08:45:11 2014
+# Created: Wed Oct  1 12:20:36 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,15 +26,15 @@ except AttributeError:
 class Ui_dsTopicManager(object):
     def setupUi(self, dsTopicManager):
         dsTopicManager.setObjectName(_fromUtf8("dsTopicManager"))
-        dsTopicManager.resize(300, 380)
+        dsTopicManager.resize(295, 380)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(dsTopicManager.sizePolicy().hasHeightForWidth())
         dsTopicManager.setSizePolicy(sizePolicy)
-        dsTopicManager.setMaximumSize(QtCore.QSize(300, 16777215))
+        dsTopicManager.setMaximumSize(QtCore.QSize(295, 16777215))
         self.Tabs = QtGui.QTabWidget(dsTopicManager)
-        self.Tabs.setGeometry(QtCore.QRect(0, 40, 301, 331))
+        self.Tabs.setGeometry(QtCore.QRect(0, 40, 295, 331))
         self.Tabs.setObjectName(_fromUtf8("Tabs"))
         self.tabDevices = QtGui.QWidget()
         self.tabDevices.setObjectName(_fromUtf8("tabDevices"))

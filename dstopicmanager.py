@@ -80,7 +80,7 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
             self.deviceTabs.setCurrentIndex(dsTopicManager.kDeviceLogicalTabId); # First index
      
         QObject.connect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
-        QObject.connect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
+#        QObject.connect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
         
         if self._deviceTypes == None:
              Log.debug("Loading device types")  
@@ -116,7 +116,7 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
     def __del__(self):
         self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
         QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
-        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
+#        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
 
     def getWidget(self):
         self.setupUi()
@@ -214,7 +214,7 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
         devicemaps = self.getDeviceMaps()
         tbl = self.tableLogical
 
-        columns = ["Name","Topic","Type"]
+        columns = ["Type","Name","Topic"]
         tbl.clear()
         tbl.setRowCount(0)
         tbl.setStyleSheet("font: 10pt \"System\";") 
@@ -225,7 +225,6 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
         tbl.setShowGrid(True)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
         tbl.setSelectionMode(QAbstractItemView.SingleSelection)
-        
         
 
         row=0
@@ -239,29 +238,31 @@ class dsTopicManager(tlAbstractTopicManager, Ui_dsTopicManager):
             dtype = self._deviceTypes.getDeviceTypeById(devicemap.getDeviceTypeId())
  
             tbl.setRowCount(row+1)
-            #item.setFlags(Qt.ItemIsSelectable)
-            item = QtGui.QLabel(devicemap.getName())
+
+            item = QtGui.QLabel(dtype.op())
             item.setToolTip(devicemap.getTopic())
             item.setStyleSheet("padding: 4px")
             tbl.setCellWidget(row,0,item)
             item = QTableWidgetItem()
             item.setData(0,devicemap)
             tbl.setItem(row,0,item)
-            
 
-            item = QtGui.QLabel(devicemap.getTopic())
+            #item.setFlags(Qt.ItemIsSelectable)
+            item = QtGui.QLabel(devicemap.getName())
             item.setToolTip(devicemap.getTopic())
             item.setStyleSheet("padding: 4px")
             tbl.setCellWidget(row,1,item)
 
-            item = QtGui.QLabel(dtype.op())
+            item = QtGui.QLabel(devicemap.getTopic())
             item.setToolTip(devicemap.getTopic())
             item.setStyleSheet("padding: 4px")
             tbl.setCellWidget(row,2,item)
 
             row = row+1
+
         tbl.resizeColumnsToContents()   
         tbl.horizontalHeader().setStretchLastSection(True)
+        
  
 
     def _buildPhysicalDevicesTable(self):

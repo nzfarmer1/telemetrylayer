@@ -21,7 +21,8 @@ from socket import error as socket_error
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 
-        
+    # TODO
+    # Add eExceptions for 32 Broke Pioe and 54 Connection Reset by Peer
 
 class MQTTClient(QtCore.QObject):
 
@@ -148,12 +149,13 @@ class MQTTClient(QtCore.QObject):
 
     def on_disconnect(self,mosq, obj, rc):
         Log.debug("disconnecting rc: "+str(rc) + " " + str(self._connected))
-        self._connected = False
-        Log.debug("killing")
+#        self._connected = False
         if self._killing:
+            Log.debug("killing")
             self._kill()
         self.onDisConnect(mosq,obj,rc)
         self._attempts = 0
+        self._connected = False
 
     def onConnect(self,mosq,obj,rc):
         QObject.emit(self,SIGNAL('mqttOnConnect'),self,obj,rc)
@@ -210,12 +212,14 @@ class MQTTClient(QtCore.QObject):
                 QObject.emit(self,SIGNAL('mqttConnectionError'),self,str(connResult))
         except ValueError as e:
                 self._connected = False
+                self._attempts=self._attempts+1
                 if e == 'Invalid timeout.':
                     QObject.emit(self,SIGNAL('mqttOnTimeout'),self,"Connection Timeout")
                 else:
                     throw(e)
         except Exception as e:
                 self._connected = False
+                self._attempts=self._attempts+1
                 QObject.emit(self,SIGNAL('mqttConnectionError'),self,str(e))
                 Log.debug("Untrapped exception from loop " + str(e))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -258,7 +262,6 @@ class MQTTClient(QtCore.QObject):
             msg = 'MQTT Connection Error: ' + str(e)
             QObject.emit(self,SIGNAL('mqttConnectionError'),self,msg)
             Log.warn(msg)
-            #self.mqttConnectionError.emit(msg)
             self._attempts = self._attempts +1
             self._connected = False
 

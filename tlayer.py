@@ -13,6 +13,7 @@
 from PyQt4.QtCore import *
 from PyQt4 import QtGui
 from qgis.core import *
+from qgis.gui import QgsAttributeDialog
 from qgis.utils import qgsfunction
 
 from lib.tlsettings import tlSettings as Settings
@@ -30,6 +31,8 @@ import time,os, zlib
 class tLayer(MQTTClient):
 
         LayerType = 'Telemetry'
+
+        featureUpdated  = pyqtSignal(object,object)
 
         @staticmethod
         def isTLayer(  l ):
@@ -104,6 +107,7 @@ class tLayer(MQTTClient):
                                                                                 True)
 
                 self.updateConnected(False)
+                self.featureUpdated.connect(topicManagerFactory.featureUpdated)
                 
 
         def run(self):
@@ -178,7 +182,7 @@ class tLayer(MQTTClient):
                 self._dirty = True
                 _payload = str(feat.attribute("payload"))
                 _type = str(feat.attribute("type"))
-                if zlib.crc32(_payload) == zlib.crc32(payload):
+                if zlib.crc32(_payload) == zlib.crc32(payload): # no change
                         self.changeAttributeValue (feat.id(), self.updatedFid, int(time.time()),False)
                 else:
                         fmt = self._topicManager.formatPayload(self._topicType,payload)
@@ -187,6 +191,7 @@ class tLayer(MQTTClient):
                         self.changeAttributeValue (feat.id(), self.payloadFid, payload,False)
                         self.changeAttributeValue (feat.id(), self.updatedFid, int(time.time()),False)
                         self.changeAttributeValue (feat.id(), self.changedFid, int(time.time()),False)
+                        
 
         def updateConnected(self,state):
                 feat  = QgsFeature()
@@ -208,14 +213,21 @@ class tLayer(MQTTClient):
             try:
                 if self._layer == None:
                     return
+                
+#                Log.debug(QgsApplication.activeWindow().centralWidget().windowTitle())
 
                 if QgsApplication.activeWindow() == None \
-                        or not 'QMainWindow' in str(QgsApplication.activeWindow()):
+                        or (
+                                not 'QMainWindow' in str(QgsApplication.activeWindow()) \
+                                and not QgsApplication.activeWindow().windowTitle() == 'Feature Attributes' # Paramaterise?
+                           ):
                       return
                     
 #  Todo: Check for valid Layer!!!!
                 if self.isEditing or self._layer.isReadOnly():
                         return
+                
+                fids = []
 
                 with QMutexLocker(self._mutex):
                         if len(self._values) == 0:
@@ -225,10 +237,20 @@ class tLayer(MQTTClient):
                         for key,val in self._values.iteritems():
                                 fid,fieldId = key
                                 self._layer.changeAttributeValue (fid, fieldId, val)
+                                if fid not in fids:
+                                    fids.append(fid)
 
                         self._layer.commitChanges()
                         self._values.clear()
                         self._dirty = False
+                for fid in fids:
+                    request  = QgsFeatureRequest(fid)
+                    feat = next(self.layer().getFeatures(request),None)
+                    if feat !=None:
+                        self.featureUpdated.emit(self,feat)
+                  
+                  
+
             except AttributeError:
                 pass
             except Exception as e:
@@ -416,6 +438,7 @@ class tLayer(MQTTClient):
         
         def tearDown(self):
                 Log.debug("tLayer Tear down")
+                self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
                 self._dirty = False # Don't commit any changes if we are being torn down
                 self.stop()
 
