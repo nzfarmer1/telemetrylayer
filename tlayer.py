@@ -32,7 +32,8 @@ class tLayer(MQTTClient):
 
         LayerType = 'Telemetry'
 
-        featureUpdated  = pyqtSignal(object,object)
+        featureUpdated       = pyqtSignal(object,object)
+        featureDialogClosed  = pyqtSignal(object)
 
         @staticmethod
         def isTLayer(  l ):

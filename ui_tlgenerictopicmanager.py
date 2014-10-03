@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tlgenerictopicmanager.ui'
 #
-# Created: Wed Oct  1 12:20:36 2014
+# Created: Sat Oct  4 01:08:46 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,8 +52,6 @@ class Ui_tlGenericTopicManager(object):
         tlGenericTopicManager.setWindowTitle(_translate("tlGenericTopicManager", "Edit Feature", None))
         tlGenericTopicManager.setToolTip(_translate("tlGenericTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         tlGenericTopicManager.setProperty("text", _translate("tlGenericTopicManager", "Edit Feature", None))
-        self.plainTextEdit.setPlainText(_translate("tlGenericTopicManager", "This topic manager mnages a list of MQTT $SYS topics.\n"
-"\n"
-"It provides a set of default format functions for these.", None))
+        self.plainTextEdit.setPlainText(_translate("tlGenericTopicManager", "This topic manager provides a list of MQTT $SYS topics and a set of default format functions for these.", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.tabTopics), _translate("tlGenericTopicManager", "Topics", None))
 

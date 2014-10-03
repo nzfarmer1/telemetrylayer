@@ -94,6 +94,7 @@ class tlFeatureDialog(QObject):
 
     def __del__(self):
         self._tLayer.featureUpdated.disconnect(self._update)
+        self._tLayer.featureDialogClosed.emit(self._tLayer)
         pass
         
 

@@ -121,7 +121,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
              self.Tabs.setEnabled(False)
 
 
-
+    
 
     def _updateFeatureListItem(self,tLayer,feature):
         if self.dockWidget.isVisible()  and self.Tabs.currentIndex() == self.kFeatureListTabId:
@@ -148,7 +148,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._iface.openFeatureForm(layer, feature, True) 
         pass
 
-    
+    def _closedFeatureDialog(self,tLayer):
+        tLayer.layer().commitChanges()
+        self._updateFeatureList()
      
     # Show a list of features for the layers associated with this broker            
     def _loadFeatureList(self):
@@ -182,8 +184,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
             if not tLayer in self._connectedTLayers:
                 # Add connections and append to connected layers
-                tLayer.featureUpdated.connect(self._updateFeatureListItem)
+                tLayer.featureDialogClosed.connect(self._closedFeatureDialog)
+
                 tLayer.layer().featureDeleted.connect(self._updateFeatureList)
+                tLayer.layer().featureDeleted.connect(self._updateFeatureList)
+                
                 self._connectedTLayers.append(tLayer)
 
             features = tLayer.layer().getFeatures()
