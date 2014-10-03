@@ -129,7 +129,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             key = (tLayer.layer().id(),feature.id())
             if not key in self._featureListItems:
                 self._loadFeatureList()
-            else:
+            if key in self._featureListItems:
                 row = self._featureListItems[key]
                 item = self.tableFeatureList.cellWidget(row,3)
                 item.setText(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
@@ -186,7 +186,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 # Add connections and append to connected layers
                 tLayer.featureDialogClosed.connect(self._closedFeatureDialog)
 
-                tLayer.layer().featureDeleted.connect(self._updateFeatureList)
+                tLayer.featureUpdated.connect(self._updateFeatureList)
                 tLayer.layer().featureDeleted.connect(self._updateFeatureList)
                 
                 self._connectedTLayers.append(tLayer)
