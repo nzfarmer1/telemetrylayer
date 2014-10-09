@@ -138,14 +138,12 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
                 ptype   = param.find("Type").text
                 params.append({'name':pname,'value':pvalue,'type':ptype})
             
-                
             topics.append({'topic':devicemap.getTopic(), \
                             'name':devicemap.getName(), \
                             'units':devicemap.getUnits(), \
                             'type':dtype.op(), \
-                            'io':devicemap.getIO(), \
                             'params':params})
-
+        Log.debug(topics)
         return super(dsTopicManager,self).getTopics(topics) # Merge System topics
 
             
@@ -169,7 +167,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     def _buildDeviceTypesTable(self):
         devicetypes = self.getDeviceTypes()
         
-        columns = ["I/O Type","IN/OUT","Type","Model"]
+        columns = ["Pin Type","Sensor Type","Model"]
         tbl = self.tableDeviceTypes
         tbl.clear()
 
@@ -185,24 +183,19 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         row=0
         for device in devicetypes.values():
             item = QtGui.QTableWidgetItem(0)
-            item.setText(device.type())
+            item.setText(device.type().upper())
             item.setFlags(Qt.NoItemFlags)
             tbl.setItem(row,0,item)
 
             item = QtGui.QTableWidgetItem(0)
-            item.setText(device.io())
+            item.setText(device.op())
             item.setFlags(Qt.NoItemFlags)
             tbl.setItem(row,1,item)
 
             item = QtGui.QTableWidgetItem(0)
-            item.setText(device.op())
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,2,item)
-
-            item = QtGui.QTableWidgetItem(0)
             item.setText(device.model())
             item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,3,item)
+            tbl.setItem(row,2,item)
             row = row+1
 
         tbl.resizeColumnsToContents()
@@ -267,7 +260,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildPhysicalDevicesTable(self):
         Log.debug('building physical devices')
-        columns = ["Device","Type","Pin","Map"]
+        columns = ["Address (Hi)","Type","Pin","Map"]
         tbl = self.tablePhysical
         tbl.clear()
         tbl.setRowCount(0)
@@ -285,12 +278,12 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             devicemap = DeviceMap.loads(device)
 
             item = QtGui.QTableWidgetItem(0)
-            item.setText(devicemap.getLoByte())
+            item.setText(devicemap.getAddrHigh())
             item.setFlags(Qt.ItemIsSelectable)
             tbl.setItem(row,0,item)
 
             item = QtGui.QTableWidgetItem(0)
-            item.setText(devicemap.getType() + " " + devicemap.getIO())
+            item.setText(devicemap.getType().upper())
             item.setFlags(Qt.ItemIsSelectable)
             tbl.setItem(row,1,item)
 

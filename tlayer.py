@@ -14,7 +14,6 @@ from PyQt4.QtCore import *
 from PyQt4 import QtGui
 from qgis.core import *
 from qgis.gui import QgsAttributeDialog
-from qgis.utils import qgsfunction
 
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log

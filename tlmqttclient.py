@@ -325,8 +325,14 @@ class tlMqttSingleShot(MQTTClient):
         QObject.connect(self, SIGNAL("mqttOnTimeout"), self._connectError)
         super(tlMqttSingleShot,self).run()
         
+    def onDisConnect(self,mosq,obj,rc):
+       super(tlMqttSingleShot,self).onDisConnect(mosq,obj,rc)
+       self.kill()
+       pass
+
     def kill(self):
-        self._timer.stop()       
+        self._timer.stop()
+        Log.debug(str(self) + " kill")
         super(tlMqttSingleShot,self).kill()
        
 
@@ -352,7 +358,7 @@ class tlMqttTest(MQTTClient):
                  creator,
                  host,
                  port = 1883,
-                 poll = 0):
+                 poll = 1):
 
         super(tlMqttTest,self).__init__(creator,
                                         str(self), # Add randown

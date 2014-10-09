@@ -47,11 +47,6 @@ class dsDeviceType:
 		except:
 			return None
 
-	def io(self):
-		try:
-			return self.device.get('io')
-		except:
-			return None
 
 	def params(self):
 		try:

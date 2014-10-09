@@ -284,7 +284,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         idx = 1 # After adding empty index
         for dtype in self._deviceTypes.values():
             try:
-                if dtype.io() != self._deviceMap.getIO() or dtype.type() != self._deviceMap.getType():
+                if dtype.type() != self._deviceMap.getType():
                     continue
                 # Add type to drop down
                 self.deviceType.addItem(dtype.op() + ' (' + dtype.find('Manufacturer') + ' ' + dtype.find('Model') + ')',dtype)

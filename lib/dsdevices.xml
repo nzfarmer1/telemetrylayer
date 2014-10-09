@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Devices>
-    <Device id='AI001TEMP' type='ANALOG' io='IN'>
+    <Device id='AI001TEMP' type='adc'>
         <Manufacturer>Seimens</Manufacturer>
         <Model>12000</Model>
         <Operation>Tank</Operation>
@@ -18,7 +18,7 @@
         </Params>
         <Conversion/>
     </Device>
-    <Device id='AI001FLOW' type="ANALOG" io='IN'>
+    <Device id='AI001FLOW' type="adc">
         <Manufacturer>China</Manufacturer>
         <Model>Generic</Model>
         <Operation>Flow</Operation>
@@ -36,7 +36,7 @@
         </Params>
         <Conversion/>
     </Device>
-    <Device id='AI001FENCE' type="ANALOG" io='IN'>
+    <Device id='AI001FENCE' type="adc">
         <Manufacturer>Pakton</Manufacturer>
         <Model>PTE0700</Model>
         <Operation>Fence Monitor</Operation>
@@ -63,7 +63,7 @@
         </Params>
         <Conversion/>
     </Device>
-    <Device id='DO001RELAY' type="DIGITAL" io='OUT'>
+    <Device id='DO001RELAY' type="xdc">
         <Manufacturer/>
         <Model>Generic</Model>
         <Operation>Relay</Operation>

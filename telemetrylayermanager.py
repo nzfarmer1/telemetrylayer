@@ -23,7 +23,6 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
-from qgis.utils import qgsfunction
 from qgis.core import QGis
 
 _this = None
@@ -131,6 +130,7 @@ class layerManager(QObject):
         nodeGrp = root.findGroup(broker.name())
         if nodeGrp == None and create:
             nodeGrp = root.insertGroup(0,broker.name())
+        #    nodeGrp.setToolTip("Double click to view features")
             nodeGrp.setCustomProperty(layerManager.kBrokerId,broker.id())
 
         return nodeGrp
@@ -234,6 +234,19 @@ class layerManager(QObject):
         return self._tLayers
         
     def legendPressed(self,item):
+        model = self.lgd
+        item = "Broker4"
+        
+#        Items = model.match(model.index(0, 0),Qt.DisplayRole,
+#            QVariant.fromValue(item),
+#            2, 
+#            Qt.MatchRecursive)
+  #      Log.debug(Items)
+#        for child in self.lgd.children():
+ #           Log.debug(item)
+            #if 'QWidget' in str(type(child)):
+             #   Log.debug(child.children())
+
         pass
             
     def legendDblClicked(self,item):

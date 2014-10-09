@@ -12,7 +12,6 @@ from PyQt4.QtCore import QObject,QTimer
 from PyQt4.QtGui  import QDialog, QTabWidget, QLabel, QDialogButtonBox, QPixmap,QLineEdit
 
 from qgis.core import QgsPalLayerSettings,QgsVectorLayer,QgsFeatureRequest
-from qgis.utils import qgsfunction
 
 import os,sys,math,time
 from lib.tlsettings import tlSettings as Settings

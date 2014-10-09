@@ -101,8 +101,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
            self.connectApply.setText(_translate("tlBrokerConfig", "Create", None))
            self.connectApply.clicked.connect(self.accept)
            self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-           self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Broker", None))
-           self.Tabs.setEnabled(False)
+           self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Add Broker", None))
+           #self.Tabs.setEnabled(False)
         #   self.connectFarmSenseServer.setEnabled(False)
        elif self._mode == tlConstants.Update:
 
@@ -132,7 +132,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             if key in self._featureListItems:
                 row = self._featureListItems[key]
                 item = self.tableFeatureList.cellWidget(row,3)
-                item.setText(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
+                if item and _topicManager:
+                    item.setText(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
                 
    
     def _updateFeatureList(self,fid = None):
@@ -248,7 +249,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.Tabs.setTabEnabled(tlBrokerConfig.kTopicManagerTabId,True)
             self.connectApply.setEnabled(True)
         else:
-            critical(obj)
+            Log.critical(obj)
 
 
     def getTopicManager(self):
@@ -335,23 +336,23 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         
     def validate(self):
         if len(self.getName()) == 0:
-            alert("Please supply a name for this broker")
+            Log.alert("Please supply a name for this broker")
             return False
     
         if self.getTopicManager() == None:
-            alert("Please specify a Broker Type (Topic Manager)")
+            Log.alert("Please specify a Broker Type (Topic Manager)")
             return False
         
         if not Brokers.instance().uniqName(self._broker.id(),self.getName()):
-            alert("A broker named " + self.getName() + " already exists")
+            Log.alert("A broker named " + self.getName() + " already exists")
             return False
 
         if len(self.getHost()) == 0:
-            alert("Please supply a hostname")
+            Log.alert("Please supply a hostname")
             return False
 
         if self.getPort() == None:
-            alert("Please specify a port")
+            Log.alert("Please specify a port")
             return False
         
         return True
