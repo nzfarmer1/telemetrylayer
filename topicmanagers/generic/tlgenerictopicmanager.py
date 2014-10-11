@@ -12,16 +12,16 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-
+import os
 
 from qgis.utils import qgsfunction,QgsExpression
 from qgis.core import *
-import os
 
-from tltopicmanager import tlTopicManager,tlFeatureDialog
-from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager 
-from lib.tlsettings import tlSettings as Settings
-from lib.tllogging import tlLogging as Log
+from TelemetryLayer.tltopicmanager import tlTopicManager,tlFeatureDialog
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings
+from TelemetryLayer.lib.tllogging import tlLogging as Log
+
+from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
  
 @qgsfunction(0, u"Telemetry Layer")
 def is_connected(values, feature, parent):
@@ -56,6 +56,19 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         super(tlGenericTopicManager,self).setupUi()
         QObject.emit(self,QtCore.SIGNAL('topicManagerReady'),True,self)
         return self.Tabs.widget(0)
+
+    def setFormatter(self,layer,topicType):
+        palyr = QgsPalLayerSettings()
+        palyr.readFromLayer(layer)
+        palyr.enabled = True 
+        palyr.placement= QgsPalLayerSettings.AroundPoint 
+        palyr.fieldName = '$format_label'
+        palyr.writeToLayer(layer)
+        if os.path.exists(os.path.join(self.path(),"ui_tleditfeature.ui")):
+            Log.debug("setEditForm = " + os.path.join(self.path(),"ui_tleditfeature.ui"))
+            layer.setEditForm(os.path.join(self.path(),"ui_tleditfeature.ui"))
+            layer.setEditFormInit("editformfactory.featureDialog")
+        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
 
 

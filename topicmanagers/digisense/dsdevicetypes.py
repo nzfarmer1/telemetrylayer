@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ETree
 # add bool hasMap()
 
 try:
-	from tllogging import tlLogging as Log
+ from TelemetryLayer.lib.tllogging import tlLogging as Log
 except:
 	import logging as Log
 

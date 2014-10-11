@@ -12,14 +12,16 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from tltopicmanager import tlTopicManager
+from TelemetryLayer.tltopicmanager import tlTopicManager
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants
+from TelemetryLayer.lib.tllogging import tlLogging as Log
+from TelemetryLayer.tlmqttclient import *
+
 from ui_dstopicmanager import Ui_dsTopicManager 
-from lib.tlsettings import tlSettings as Settings, tlConstants
-from lib.tllogging import tlLogging as Log
-from tlmqttclient import *
 from dsdevicemapdialog import dsDeviceMapDialog as DeviceMapDialog
-from lib.dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
-from lib.dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
+from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
+from dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
+
 import os
 
 try:
@@ -35,13 +37,15 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+deviceTypesPath  =""
 
 class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     
     kDeviceMapsTabId     = 0
     kDeviceLogicalTabId  = 1
     kDeviceTypesTabId    = 2
-
+    kDevicesFile         = "dsdevices.xml"
+     
     
     @staticmethod
     def showLoadingMessage(tbl,msg = _translate("dsTopicManager", "Loading data ...", None)):
@@ -59,6 +63,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.horizontalHeader().setStretchLastSection(True)
     
     def __init__(self,broker,create=False):
+        print deviceTypesPath
         super(dsTopicManager,self).__init__(broker,create)
     
         self._tested = False
@@ -341,11 +346,12 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         if status:
             self.setDeviceMaps(DeviceMaps.decode(response))
+            Log.debug('xxx ' + str(self._deviceTypes))
             if self._deviceTypes != None:
                 self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
                 self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
                 self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
-            self._buildDevicesTables()
+                self._buildDevicesTables()
         else:
             QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,response)
             dsTopicManager.showLoadingMessage(self.tablePhysical,response)
@@ -388,12 +394,9 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     
         
     def _loadDeviceTypes(self): # xml file
-        
-        fname = Settings.getMeta("deviceTypes")
-        fullpath = os.path.join( Settings.get("plugin_dir"),fname)
         try:
-                return DeviceTypes(fullpath)
+            return DeviceTypes(os.path.join(self.path(),dsTopicManager.kDevicesFile))
         except Exception as e:
-            Log.warn("Failed to load " + fullpath + str(e))
+            Log.warn("Failed to load "  + str(e))
             return None
         

@@ -4,7 +4,7 @@ import datetime
 import json
 
 try:
-    from tllogging import tlLogging as Log
+    from TelemetryLayer.lib.tllogging import tlLogging as Log
 except:
     import logging as Log
 

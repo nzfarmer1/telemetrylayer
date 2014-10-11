@@ -1,32 +1,18 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- FarmSenseDeviceMappingDialog
-                                 A QGIS plugin
- Interface to Telemetry Layer sensor network
-                             -------------------
-        begin                : 2014-05-30
-        copyright            : (C) 2014 by Andrew McClure
-        email                : andrew@southweb.co.nz
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
+ DigiSenseDeviceMappingDialog
  ***************************************************************************/
 """
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants
+from TelemetryLayer.lib.tllogging import tlLogging as Log
+from TelemetryLayer.tlmqttclient import *
+
 from ui_dsdevicemapdialog import Ui_dsDeviceMapDialog
-from lib.tlsettings import tlSettings as Settings, tlConstants
-from lib.tllogging import tlLogging as Log
-from lib.dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
-from tlmqttclient import *
+from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
 
 import traceback, sys
 

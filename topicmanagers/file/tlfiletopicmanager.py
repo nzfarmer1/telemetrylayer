@@ -14,15 +14,16 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from tltopicmanager import tlTopicManager
+from TelemetryLayer.tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
+from TelemetryLayer.tltopicmanager import tlTopicManager as TopicManager
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings
+from TelemetryLayer.lib.tllogging import tlLogging as Log
+
 from ui_tlfiletopicmanager import Ui_tlFileTopicManager 
 
-from lib.tlsettings import tlSettings as Settings
-from lib.tllogging import tlLogging as Log
-from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 import os
 
-class tlFileTopicManager(tlTopicManager, Ui_tlFileTopicManager):
+class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
     
     def __init__(self,broker,create=False):
         super(tlFileTopicManager,self).__init__(broker,create)
