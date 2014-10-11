@@ -93,6 +93,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        self.connectTopicManager.addItem("Please select ...",None)
        
        for topicManager in topicManagerFactory.getTopicManagers():
+            Log.debug(topicManager)
             self.connectTopicManager.addItem(topicManager['name'],topicManager['id'])
             
        if self._mode == tlConstants.Create: # Create Layer - so Modal
@@ -241,7 +242,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             return True
 
         except Exception as e:
-            debug(e)
+            Log.debug(e)
             
         
     def _topicManagerLoaded(self,state,obj):

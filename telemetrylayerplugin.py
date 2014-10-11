@@ -49,6 +49,8 @@ from telemetrylayermanager import layerManager
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from telemetrylayer import TelemetryLayer
+from tltopicmanagerfactory import tlTopicManagerFactory as   TopicManagerFactory
+
 import sys,os
 
 
@@ -62,10 +64,10 @@ class TelemetryLayerPlugin(QObject):
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        sys.path.append(os.path.join(self.plugin_dir,"featureforms"))
+        sys.path.append(os.path.join(self.plugin_dir,"topicmanagers"))
         import editformfactory
         editformfactory.this = self
-
+        
         self.layerManager = None
         self.installed = False
         self.configureDlg = None
@@ -75,6 +77,7 @@ class TelemetryLayerPlugin(QObject):
         # Initialise Settings and Log handlers
         Settings(self)
         Log(self)
+        TopicManagerFactory(iface)
         Brokers(os.path.join(self.plugin_dir,'data'))
         # initialize locale
         self.translator = QTranslator()
@@ -149,23 +152,35 @@ class TelemetryLayerPlugin(QObject):
         if not self.installed:
             return
 
-        self.runTeardown()
-        self.iface.removePluginMenu(u"&Telemetry Layer", self.aboutA)
-        self.iface.removePluginMenu(u"&Telemetry Layer", self.configureA)
-        self.iface.removeToolBarIcon(self.aboutA)
-        self.iface.removeToolBarIcon(self.configureA)
-        self.iface.newLayerMenu().removeAction(self.newLayerA)  # API >= 1.9
-        self.iface.projectRead.disconnect(self.layerManager.rebuildLegend)
-        self.iface.newProjectCreated.disconnect(self.layerManager.rebuildLegend)
-        Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
+        try:
+            self.runTeardown()
+
+            self.iface.removePluginMenu(u"&Telemetry Layer", self.aboutA)
+            self.iface.removePluginMenu(u"&Telemetry Layer", self.configureA)
+            self.iface.removeToolBarIcon(self.aboutA)
+            self.iface.removeToolBarIcon(self.configureA)
+            self.iface.newLayerMenu().removeAction(self.newLayerA)  # API >= 1.9
+            self.iface.projectRead.disconnect(self.layerManager.rebuildLegend)
+            self.iface.newProjectCreated.disconnect(self.layerManager.rebuildLegend)
+
+            TopicManagerFactory.unregisterAll()
+            Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
+        except:
+            pass
+        finally:
+            Log.debug("Plugin unloaded")
+            
         
         
 
     def runTeardown(self):
-        if self.layerManager != None:
+        try:
             self.layerManager.tearDown()
-        if self.telemetryLayer != None:
             self.telemetryLayer.tearDown()
+            
+        except Exception as e:
+            Log.debug(e)
+            pass
     
     def about(self):
         

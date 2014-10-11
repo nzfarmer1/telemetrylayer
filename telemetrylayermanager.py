@@ -111,7 +111,6 @@ class layerManager(QObject):
         self.lgd.doubleClicked.connect(self.legendDblClicked)
         self._iface.legendInterface().groupRelationsChanged.connect(self.legendRelationsChanged)
         
-        TopicManagerFactory.registerAll()
 
         for layer in layers:
             layer.triggerRepaint()
@@ -554,7 +553,6 @@ class layerManager(QObject):
         self._iface.legendInterface().currentLayerChanged.disconnect(self.currentLayerChanged) # change to when layer is loaded also!
         self._iface.mapCanvas().renderStarting.disconnect(self.renderStarting)
 
-        TopicManagerFactory.unregisterAll()
     
     def __del__(self):
         pass

@@ -204,14 +204,22 @@ class tlTopicManager(QDialog,QObject):
         palyr.placement= QgsPalLayerSettings.AroundPoint 
         palyr.fieldName = '$format_label'
         palyr.writeToLayer(layer)
-        if os.path.exists(os.path.join(Settings.get('plugin_dir'),"featureforms","ui_tleditfeature.ui")):
-            Log.debug("setEditForm = " + os.path.join(Settings.get('plugin_dir'),"featureforms","ui_tleditfeature.ui"))
-            layer.setEditForm(os.path.join(Settings.get('plugin_dir'),"featureforms","ui_tleditfeature.ui"))
-            layer.setEditFormInit("editformfactory.featureDialog")
+        Log.debug("Setting feature form to:" + os.path.join(self.path(),"topicmanagers","ui_tleditfeature.ui"))
+              
+        layer.setEditForm(os.path.join(Settings.get('plugin_dir'),"topicmanagers","ui_tleditfeature.ui"))
+        layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
     def formatPayload(self,topicType,payload):
       return str(payload)
+
+    def path(self,_class  =None):
+        if _class == None:
+            module = sys.modules[self.__module__]
+        else:
+            module = sys.modules[_class.__module__]
+        return os.path.dirname(module.__file__)
+        
 
         
     @staticmethod

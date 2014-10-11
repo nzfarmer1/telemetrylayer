@@ -12,40 +12,44 @@ from PyQt4.QtCore import QObject
 from PyQt4.QtGui  import QDialog
 
 
-from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
-from tlfiletopicmanager import tlFileTopicManager
-from tlgenerictopicmanager import tlGenericTopicManager
-from dstopicmanager import dsTopicManager
+import topicmanagers
 from lib.tllogging import tlLogging as Log
+from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
 
-
+import traceback,sys
 
 class tlTopicManagerFactory():
     
     registered = []
     featureDialogs = []
     
+    topicManagers  = []
+
     @staticmethod
     def featureUpdated(layer,feature):
         pass
-    #    dlg = DialogManager.findDialog(layer,feature)
-    #    if dlg !=None:
-    #        dlg.update(feature)
-            
+
     @staticmethod
     def registerAll():
+        
+        Log.debug("Loading Topic Managers")
+        tlTopicManagerFactory.topicManagers =  topicmanagers.register()
+  
         for _id in tlTopicManagerFactory.getTopicManagerIds():
             tlTopicManagerFactory.registerTopicManager(_id)
             
     @staticmethod
     def unregisterAll():
+        print "topicmanagerfactory unregisterAll"
         for _id in tlTopicManagerFactory.getTopicManagerIds():
             tlTopicManagerFactory.unregisterTopicManager(_id)
+        topicmanagers.unregister()
 
     @staticmethod
     def registerTopicManager(_id):
         if not _id in tlTopicManagerFactory.registered:
             _obj  = tlTopicManagerFactory.getTopicManagerById(_id)
+            Log.debug(_obj)
             _obj.register()
             tlTopicManagerFactory.registered.append(_id)
             
@@ -53,7 +57,10 @@ class tlTopicManagerFactory():
     def unregisterTopicManager(_id):
         if _id in tlTopicManagerFactory.registered:
             _obj  = tlTopicManagerFactory.getTopicManagerById(_id)
-            _obj.unregister()
+            if hasattr(_obj,"unregister"):
+                Log.debug("Unregistering " + str(_obj))
+                _obj.unregister()
+            del(_obj)
             tlTopicManagerFactory.registered.remove(_id)
 
     @staticmethod
@@ -62,14 +69,19 @@ class tlTopicManagerFactory():
             _class = tlTopicManagerFactory.getTopicManagerById(broker.topicManager())
             if not _class:
                 Log.alert("Error loading topic manager " + str(broker.id()))
-                return None
+#            Log.debug("Loading " + str(_class))
             return _class(broker,create)
-        except:
-            Log.debug("Unable to load topic manager from " + str(broker.topicManager()))
+        except Exception as e:
+            Log.debug("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                      exc_traceback)))
+
             return None
  
     @staticmethod
     def getTopicManagers():
+        return tlTopicManagerFactory.topicManagers
         return [{'id':'digisense','name':"DigiSense",'class':"dsTopicManager"},
                 {'id':'file','name':"Topic File (XML)",'class':"tlFileTopicManager"},
                 {'id':'generic','name':"Generic MQTT",'class':"tlGenericTopicManager"}]
@@ -88,9 +100,11 @@ class tlTopicManagerFactory():
         for topicManager in tlTopicManagerFactory.getTopicManagers():
             if topicManager['id'] == _id:
                 try:
-                    _obj =  eval(topicManager['class'])
+                    _obj =  topicManager['class']
                 except Exception as e:
                     Log.debug(str(e))
                 break
         return _obj
         
+    def __init__(self,iface):
+        self.registerAll()
