@@ -43,7 +43,6 @@ class tlTopicManagerFactory():
         print "topicmanagerfactory unregisterAll"
         for _id in tlTopicManagerFactory.getTopicManagerIds():
             tlTopicManagerFactory.unregisterTopicManager(_id)
-        topicmanagers.unregister()
 
     @staticmethod
     def registerTopicManager(_id):
@@ -58,7 +57,6 @@ class tlTopicManagerFactory():
         if _id in tlTopicManagerFactory.registered:
             _obj  = tlTopicManagerFactory.getTopicManagerById(_id)
             if hasattr(_obj,"unregister"):
-                Log.debug("Unregistering " + str(_obj))
                 _obj.unregister()
             del(_obj)
             tlTopicManagerFactory.registered.remove(_id)
