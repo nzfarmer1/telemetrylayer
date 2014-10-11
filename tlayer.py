@@ -64,8 +64,8 @@ class tLayer(MQTTClient):
                 self.brokerFid      = int(Settings.getMeta('brokerId','fids'))
                 self.nameFid        = int(Settings.getMeta('name','fids'))
                 self.typeFid        = int(Settings.getMeta('type','fids'))
-                self.topicFid     = int(Settings.getMeta('topic','fids'))
-                self.matchFid     = int(Settings.getMeta('match','fids'))
+                self.topicFid       = int(Settings.getMeta('topic','fids'))
+                self.matchFid       = int(Settings.getMeta('match','fids'))
                 self.payloadFid     = int(Settings.getMeta('payload','fids'))
                 self.updatedFid     = int(Settings.getMeta('updated','fids'))
                 self.changedFid     = int(Settings.getMeta('changed','fids'))
@@ -77,13 +77,13 @@ class tLayer(MQTTClient):
 
                 self.isEditing = False
 
-                self._iface =  creator._iface
-                self._paused = False
-                self._fid  = None
-                self._feat = None
-                self._broker = None
-                self._topicType = None
-                self._topicManager = None
+                self._iface         = creator._iface
+                self._paused        = False
+                self._fid           = None
+                self._feat          = None
+                self._broker        = None
+                self._topicType     = None
+                self._topicManager  = None
                 
 
                 if broker != None and topicType !=None:
@@ -93,25 +93,24 @@ class tLayer(MQTTClient):
                    _broker = Brokers.instance().find(self.get('BrokerId'))     
                    if _broker == None:
                         raise BrokerNotFound("No MQTT Broker found when loading Telemetry Layer " + self.layer().name())
-                   
 
                    self.setBroker(_broker)
                    self._topicType = self.get('TopicType')
                     
                 super(tLayer,self).__init__(self,
-                                                                                self._layer.id(), # Add randown
-                                                                                self._broker.host(),
-                                                                                self._broker.port(),
-                                                                                self._broker.poll(),
-                                                                                self._broker.keepAlive(),
-                                                                                True)
+                                            self._layer.id(), # Add randown
+                                            self._broker.host(),
+                                            self._broker.port(),
+                                            self._broker.poll(),
+                                            self._broker.keepAlive(),
+                                            True)
 
                 self.updateConnected(False)
                 self.featureUpdated.connect(topicManagerFactory.featureUpdated)
                 
 
         def run(self):
-                Log.debug("Running")
+                Log.debug("Running " + self.layer().name())
                 self._dict ={}
                 self._values = {}
                 super(tLayer,self).run()
