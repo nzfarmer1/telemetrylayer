@@ -65,7 +65,7 @@ class tlFeatureDialog(QObject):
         if not fmt:
             return delta
         hours = int(delta / 3600)
-        mins = int((delta - hours) / 60)
+        mins = int((delta - hours) % 60)
         secs  = int((delta - hours) % 60)
         
         fmtStr = ""
@@ -129,7 +129,7 @@ class tlSysFeatureDialog(tlFeatureDialog):
         
     def update(self):
         updated = self._find(QLabel,'updatedValue')
-        updated.setText(self._since(int(self._feature['updated'])))
+        updated.setText(self._since(int (self._feature['updated'])))
         changed = self._find(QLabel,'changedValue')
         changed.setText(self._since(int(self._feature['changed'])))
         payload = self._find(QLabel,'payloadValue')
