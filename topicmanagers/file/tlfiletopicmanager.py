@@ -5,7 +5,7 @@
  
  Topic Manager that supports an XML file format definition of topics
  
- See lib/systopics.xml as example format
+ See data/systopics.xml for example format
 
  ***************************************************************************/
 """
