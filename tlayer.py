@@ -247,8 +247,6 @@ class tLayer(MQTTClient):
                     feat = next(self.layer().getFeatures(request),None)
                     if feat !=None:
                         self.featureUpdated.emit(self,feat)
-                  
-                  
 
             except AttributeError:
                 pass
@@ -270,7 +268,6 @@ class tLayer(MQTTClient):
 
                 # Enter editing mode
                 self._layer.startEditing()
-                
 
                 # add fields
 

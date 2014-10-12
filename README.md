@@ -45,13 +45,14 @@ TODO:
 
 This is my top list. There's lots more of course!
 
-- replace mosquitto client with paho.Client()
+- replace mosquitto client with paho.Client
 - configure attribute types (currently these are all editable - should be hidden)
 - introduce invisible features for no geo specific sensors
+- add support for configurable QoS per feature
 - programmatically create rules based renderer for layers
 - icons for symbols and application - including sensor state symbology
-- refactor topicmanager classes so these can be located in their own sub directories
-- support to add / edit parameters as additional feature attributes
+- refactor topicmanager classes so these can be located in their own sub directories (Done - see /topicmanagers package)
+- support to add / edit parameters as additional feature attributes (Done via Feature tab)
 - add support for roll back when adding/deleting features
 - integrate with QGIS native help with splash screen showing new features
 

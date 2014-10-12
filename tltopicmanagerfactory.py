@@ -48,7 +48,6 @@ class tlTopicManagerFactory():
     def registerTopicManager(_id):
         if not _id in tlTopicManagerFactory.registered:
             _obj  = tlTopicManagerFactory.getTopicManagerById(_id)
-            Log.debug(_obj)
             _obj.register()
             tlTopicManagerFactory.registered.append(_id)
             
@@ -80,9 +79,6 @@ class tlTopicManagerFactory():
     @staticmethod
     def getTopicManagers():
         return tlTopicManagerFactory.topicManagers
-        return [{'id':'digisense','name':"DigiSense",'class':"dsTopicManager"},
-                {'id':'file','name':"Topic File (XML)",'class':"tlFileTopicManager"},
-                {'id':'generic','name':"Generic MQTT",'class':"tlGenericTopicManager"}]
 
     @staticmethod
     def getTopicManagerIds():

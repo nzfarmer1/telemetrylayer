@@ -190,7 +190,7 @@ class MQTTClient(QtCore.QObject):
     
     def subscribe(self,topic,qos):
         if self.isConnected():
-            Log.debug('Subscribing to ' + topic)
+            #Log.debug('Subscribing to ' + topic)
             self.mqttc.subscribe(topic,qos)
 
     def unsubscribe(self,topic):
@@ -221,10 +221,7 @@ class MQTTClient(QtCore.QObject):
                 self._connected = False
                 self._attempts=self._attempts+1
                 QObject.emit(self,SIGNAL('mqttConnectionError'),self,str(e))
-                Log.debug("Untrapped exception from loop " + str(e))
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                                  exc_traceback)))
+                Log.warn("Untrapped exception from loop " + str(e))
      
      
     def _kill(self):

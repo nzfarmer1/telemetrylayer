@@ -93,7 +93,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        self.connectTopicManager.addItem("Please select ...",None)
        
        for topicManager in topicManagerFactory.getTopicManagers():
-            Log.debug(topicManager)
             self.connectTopicManager.addItem(topicManager['name'],topicManager['id'])
             
        if self._mode == tlConstants.Create: # Create Layer - so Modal
