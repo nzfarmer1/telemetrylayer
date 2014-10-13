@@ -222,6 +222,9 @@ class MQTTClient(QtCore.QObject):
                 self._attempts=self._attempts+1
                 QObject.emit(self,SIGNAL('mqttConnectionError'),self,str(e))
                 Log.warn("Untrapped exception from loop " + str(e))
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                  exc_traceback)))
      
      
     def _kill(self):

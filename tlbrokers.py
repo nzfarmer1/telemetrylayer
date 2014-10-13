@@ -202,14 +202,24 @@ class tlBroker(QObject):
     def setTopicManager(self,topicManager):
         self.set('topicManager',topicManager)
 
-    def topics(self,type_ = None):
+    # return individual topic
+    def topic(self,topic):
+        topics = self.topics(None,topic)
+        if len(topics) >0:
+            return topics[0]
+        else:
+            return None
+
+    def topics(self,type_ = None,topic_ =None):
         topics = self.get('topics')
-        if type_ == None:
+        if type_ == None and topic_== None:
             return topics
         _topics = []
         for topic in topics:
-            if topic['type'] == type_:
-                _topics.append(topic)
+            if type_ == None or topic['type'] == type_:
+                if  topic_ == None or topic_ == topic['topic']:
+                    _topics.append(topic)
+
         return _topics
 
     def topicManager(self):
