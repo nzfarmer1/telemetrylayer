@@ -42,15 +42,4 @@ deprecated=False
 helpURL=http://southweb.co.nz/telemetrylayer
 layerName=TelemetryLayer
 
-# Layer feature IDs
-[fids]
-brokerId=0
-type=1
-name=2
-topic=3
-match=4
-payload=5
-updated=6
-changed=7
-connected=8
 

@@ -25,11 +25,14 @@ from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
  
 @qgsfunction(0, u"Telemetry Layer")
 def is_connected(values, feature, parent):
-    return feature.attribute('connected')
+    return feature['connected']
 
 @qgsfunction(0, u"Telemetry Layer")
 def format_label(values, feature, parent):
-    result = str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+    visible = feature['visible']
+    if not visible:
+        return
+    result = str(feature['name']) + '\n(' + str(feature['payload']) + ')'
     return result
 
 

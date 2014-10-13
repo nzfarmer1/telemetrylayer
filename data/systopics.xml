@@ -6,25 +6,28 @@
         <Units>String</Units>
         <Type>$SYS</Type>
         <Default>Unknown Seconds</Default>
-        <QoS>1</QoS>
+        <QoS>0</QoS>
     </Topic>
     <Topic value="$SYS/broker/version">
         <Name>Broker Version</Name>
         <Description>MQTT Broker Version</Description>
         <Units>String</Units>
         <Type>$SYS</Type>
+        <QoS>0</QoS>
     </Topic>
     <Topic value="$SYS/broker/messages/sent">
         <Name>Messages Sent</Name>
         <Description>MQTT Broker Messages Sent</Description>
         <Units>String</Units>
         <Type>$SYS</Type>
+        <QoS>0</QoS>
     </Topic>
     <Topic value="$SYS/broker/messages/received">
         <Name>Messages Received</Name>
         <Description>MQTT Broker Messages Received</Description>
         <Units>String</Units>
         <Type>$SYS</Type>
+        <QoS>0</QoS>
     </Topic>
 </Topics>
     

@@ -335,8 +335,6 @@ class tLayer(MQTTClient):
                 for i in range(9):
                     self._layer.setEditorWidgetV2(i,'Hidden')
 
-                
-
                 self._layer.setEditorWidgetV2(self.topicFid,'ValueMap')
                 self.brokerUpdated()
                 
@@ -455,6 +453,7 @@ class tLayer(MQTTClient):
             self.setPort(broker.port())
             self.setKeepAlive(broker.keepAlive())
             self._topicManager = topicManagerFactory.getTopicManager(broker)
+            self.brokerUpdated()
             
             # Todo:
             # For each topic

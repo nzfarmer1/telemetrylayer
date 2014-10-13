@@ -6,6 +6,14 @@ QGIS Plugin to integrate QGIS with MQTT
 
 Target platform QGIS 2.4
 
+Latest version changes:
+
+1. Added support for V2 style attribite widges
+2. Added support for visible/invisible attributes (partial)
+3. Added support for Granted QoS value (not supported by Mosquitto)
+4. Removed Broker ID and Type from layer attributes
+
+
 Features:
 
 1. Broker manager to manage a list of brokers and connection parameters
@@ -45,16 +53,16 @@ TODO:
 
 This is my top list. There's lots more of course!
 
-- replace mosquitto client with paho.Client
+- add support for roll back when adding/deleting/updating features
 - configure attribute types (currently these are all editable - should be hidden)
-- introduce invisible features for no geo specific sensors
+- introduce invisible features for no geo specific sensors ( Partially done )
 - add support for configurable QoS per feature
 - programmatically create rules based renderer for layers
 - icons for symbols and application - including sensor state symbology
 - refactor topicmanager classes so these can be located in their own sub directories (Done - see /topicmanagers package)
 - support to add / edit parameters as additional feature attributes (Done via Feature tab)
-- add support for roll back when adding/deleting features
 - integrate with QGIS native help with splash screen showing new features
+- replace mosquitto client with paho.Client
 
 If you want to help with any of this, please get in touch!!!
 
