@@ -48,7 +48,8 @@ class tlTopicManagerFactory():
     def registerTopicManager(_id):
         if not _id in tlTopicManagerFactory.registered:
             _obj  = tlTopicManagerFactory.getTopicManagerById(_id)
-            _obj.register()
+            if hasattr(_obj,"register"):
+                _obj.register()
             tlTopicManagerFactory.registered.append(_id)
             
     @staticmethod
@@ -66,7 +67,6 @@ class tlTopicManagerFactory():
             _class = tlTopicManagerFactory.getTopicManagerById(broker.topicManager())
             if not _class:
                 Log.alert("Error loading topic manager " + str(broker.id()))
-#            Log.debug("Loading " + str(_class))
             return _class(broker,create)
         except Exception as e:
             Log.debug("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))

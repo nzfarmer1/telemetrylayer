@@ -46,8 +46,11 @@ def register():
                     module = __import__(package)
                     meta = module.classFactory()
                     meta['class'] =  reload_class(meta['class'])
+            except AttributeError:
+                pass
             except Exception as e:
-               Log.debug("Error loading topic manager " + str(e))
+               if   "'" + package + "'" != str(e):
+                   Log.debug("Error loading topic manager " + str(e) + ' ' + package)
             finally:
                 if module == None:
                     module = __import__(package)

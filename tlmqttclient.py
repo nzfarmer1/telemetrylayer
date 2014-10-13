@@ -216,7 +216,7 @@ class MQTTClient(QtCore.QObject):
                 if e == 'Invalid timeout.':
                     QObject.emit(self,SIGNAL('mqttOnTimeout'),self,"Connection Timeout")
                 else:
-                    throw(e)
+                    Log.critical(str(e))
         except Exception as e:
                 self._connected = False
                 self._attempts=self._attempts+1

@@ -31,8 +31,27 @@ class tLayer(MQTTClient):
 
         LayerType = 'Telemetry'
 
+        # AttributeIDs
+        
+        nameFid        = 0
+        topicFid       = 1
+        qosFid         = 2
+        matchFid       = 3
+        payloadFid     = 4
+        updatedFid     = 5
+        changedFid     = 6
+        connectedFid   = 7
+        visibleFid     = 8
+        reservedFid    = 9
+
+
+
+        # SIGNALS
         featureUpdated       = pyqtSignal(object,object)
         featureDialogClosed  = pyqtSignal(object)
+
+
+
 
         @staticmethod
         def isTLayer(  l ):
@@ -60,16 +79,6 @@ class tLayer(MQTTClient):
                 self._plugin_dir = creator._plugin_dir
                 self._creator = creator
                 self._dict ={}
-
-                self.brokerFid      = int(Settings.getMeta('brokerId','fids'))
-                self.nameFid        = int(Settings.getMeta('name','fids'))
-                self.typeFid        = int(Settings.getMeta('type','fids'))
-                self.topicFid       = int(Settings.getMeta('topic','fids'))
-                self.matchFid       = int(Settings.getMeta('match','fids'))
-                self.payloadFid     = int(Settings.getMeta('payload','fids'))
-                self.updatedFid     = int(Settings.getMeta('updated','fids'))
-                self.changedFid     = int(Settings.getMeta('changed','fids'))
-                self.connectedFid   = int(Settings.getMeta('connected','fids'))
 
                 self._mutex = QMutex(0)
                 self._values = {}
@@ -106,14 +115,38 @@ class tLayer(MQTTClient):
                                             True)
 
                 self.updateConnected(False)
-                self.featureUpdated.connect(topicManagerFactory.featureUpdated)
+                self.featureUpdated.connect(topicManagerFactory.featureUpdated) # Tell dialog box to update a feature
+                self.layer().attributeValueChanged.connect(self.attributeValueChanged)
+                
+        def attributeValueChanged(self,  fid, idx, val):
+            if fid < 0:
+                return
+#            Log.debug("Feature changed " + str(fid) + " "  + str(idx) + " "  + str(val) )
+
+            if idx == self.topicFid:
+                Log.debug("topic changed")
+                request  = QgsFeatureRequest(fid)
+                feat = next(self.layer().getFeatures(request),None)
+                for topic in self._broker.topics(self._topicType):
+                    if feat['topic'] == topic['topic']:
+                       feat['name'] = topic['name']
+                       feat['payload'] = 'No updates'
+                       self._layer.startEditing()
+                       self._layer.updateFeature(feat)
+                       self._layer.commitChanges()
+                       break
+            
+            if idx in [self.topicFid,self.qosFid] and self.isRunning():
+                self.restart()
                 
 
         def run(self):
                 Log.debug("Running " + self.layer().name())
                 self._dict ={}
                 self._values = {}
+                
                 super(tLayer,self).run()
+                
 
         def kill(self):
                 super(tLayer,self).kill()
@@ -126,9 +159,13 @@ class tLayer(MQTTClient):
                 iter = self._layer.getFeatures()
                 while iter.nextFeature(feat):
                             topic = str(feat.attribute("topic"))
+                            qos = int(feat.attribute("qos"))
+                            if not qos in range(3):
+                                Log.warn("Topic QoS must be beween 0 and 2")
+                                continue
                             if topic != None:
-                                Log.debug("Subscribing " + topic)
-                                self.subscribe(topic,1)
+                                Log.debug("Subscribing " + topic + " " + str(qos))
+                                self.subscribe(topic,qos)
                 self._layer.triggerRepaint()
 
 
@@ -180,7 +217,6 @@ class tLayer(MQTTClient):
             
                 self._dirty = True
                 _payload = str(feat.attribute("payload"))
-                _type = str(feat.attribute("type"))
                 if zlib.crc32(_payload) == zlib.crc32(payload): # no change
                         self.changeAttributeValue (feat.id(), self.updatedFid, int(time.time()),False)
                 else:
@@ -202,6 +238,15 @@ class tLayer(MQTTClient):
         def changeAttributeValue(self,fid,fieldId,val,signal=False):
                 key = (fid,fieldId)
                 self._values[key] = val
+
+
+        def brokerUpdated(self):
+                topics = self._broker.topics(self._topicType)
+                topicsmap = dict()
+                for topic in topics:
+                    topicsmap[topic['name']] = topic['topic']
+                
+                self._layer.setEditorWidgetV2Config(self.topicFid,topicsmap)
 
 
         def commitChanges(self):
@@ -271,25 +316,50 @@ class tLayer(MQTTClient):
 
                 # add fields
 
-                self.addAttributes(pr)
                 self.set(tLayer.LayerType,"true")
                 self.set("BrokerId",broker.id())
                 self.set("TopicType",topicType)
                 Log.debug("Getting topic manager" + str(broker.topicManager()))
+                attributes = self.getAttributes() + \
+                    self._topicManager.getAttributes(self.layer(),topicType)
+
+                # Add Params
+                
+                pr.addAttributes( attributes )
+
                 self._topicManager.setFormatter(self._layer,topicType)
                 self._layer.commitChanges()
+
+                # Configure Attributes
+                
+                for i in range(9):
+                    self._layer.setEditorWidgetV2(i,'Hidden')
+
+                
+
+                self._layer.setEditorWidgetV2(self.topicFid,'ValueMap')
+                self.brokerUpdated()
+                
+                self._layer.setEditorWidgetV2(self.qosFid,'ValueMap')
+                self._layer.setEditorWidgetV2Config(self.qosFid,{u'QoS0':0,u'QoS1':1,u'QoS2':2})
+              
+                self._layer.setEditorWidgetV2(self.visibleFid,'ValueMap')
+                self._layer.setEditorWidgetV2Config(self.visibleFid,{"True":1,"False":0})
+                
+                
+                #self._layer.setEditorWidgetV2(self.topicFid,'ValueMap')
+                
                 
                 
                 # Commit changes
                 Log.debug("tLayer create")
                 Log.debug(self._iface.legendInterface().isLayerVisible(self._layer))
 
-        def addAttributes(self,pr):
+        def getAttributes(self):
                 
                 """
-                function addAttributes(self,layer dataProvider) => void
+                function getAttributes(self,layer dataProvider) => void
                 Default handler for adding attributes
-                Sub class to add additional attributes
 
                 # Todo
                 # Set lengths
@@ -297,32 +367,32 @@ class tLayer(MQTTClient):
                 # Set key fields uneditable http://qgis.org/api/classQgsVectorLayer.html#aa1585c854a22d545111a3a32d717c02f
 
                 """
-                attributes = [ QgsField("brokerId",         QVariant.Int),
-                                    QgsField("type",        QVariant.String),
-                                    QgsField("name",        QVariant.String),
-                                    QgsField("topic",       QVariant.String),
-                                    QgsField("match",       QVariant.String),
-                                    QgsField("payload",     QVariant.String),
-                                    QgsField("updated",     QVariant.Int),
-                                    QgsField("changed",     QVariant.Int),
-                                    QgsField("connected",   QVariant.Int) ];
+                attributes = [      QgsField("name",        QVariant.String, "Feature Name",0,0,"Name of Sensor/Device/Topic"),
+                                    QgsField("topic",       QVariant.String, "MQTT Topic",0,0,"Topic path"),
+                                    QgsField("qos",         QVariant.Int   , "MQTT QoS",1,0,"Quality of Service"),
+                                    QgsField("match",       QVariant.String, "Topic Match",0,0,"When topics are patterns, this field contains the actual match"),
+                                    QgsField("payload",     QVariant.String, "MQTT Payload",0,0,"Payload data returned from MQTT broker"),
+                                    QgsField("updated",     QVariant.Int   , "Time since last Update",12,0,"Native value stored as POSIX (UTC) Time"),
+                                    QgsField("changed",     QVariant.Int   , "Time since last Change",12,0, "Native value stored as POSIX (UTC) Time"),
+                                    QgsField("connected",   QVariant.Int   , "Broker is connected",1,0, "Valid only for visible layers"),
+                                    QgsField("visible",     QVariant.Int   , "Visible",1,0,"Feature is visible and can be rendered. Invisible layers available via Features Tab under Broker")];
                 
-                        
-                # Add Params
-                pr.addAttributes( attributes )
-
+                return attributes
+  
               #  feat = QgsFeature()
               #  feat.setGeometry( QgsGeometry.fromPoint(QgsPoint(10,10)) )
               #  feat.setAttributes(["Broker Uptime","MQTT Property","$SYS/broker/uptime","",int(time.time()),int(time.time()),False])
 
                # pr.addFeatures([feat])
+               
 
        # Respond to add Feature
 
         def beforeRollBack(self):
-#                Log.debug("before rollback")
-#                Log.debug(self._fid)
-                self._layer.dataProvider().deleteFeatures([self._fid])
+            pass    
+  #              Log.debug("before rollback")
+ #               Log.debug(self._fid)
+#                self._layer.dataProvider().deleteFeatures([self._fid])
 #        self._layer.destroyEditCommand()
 
         def addFeature(self,fid):
@@ -345,16 +415,23 @@ class tLayer(MQTTClient):
                             return None
     
                     topic = tlAddFeature.getTopic()
-                    self._broker
-                    feat.setAttributes([self._broker.id(),
-                                        self._topicType,
-                                        topic['name'],
+
+                    if  not 'qos' in topic:
+                        topic['qos'] = 0
+                    
+                    if  not 'visible' in topic:
+                        topic['visible'] = True
+                        
+                    
+                    feat.setAttributes([topic['name'],
                                         topic['topic'],
+                                        topic['qos'],
                                         topic['topic'], # gets updated with topic
                                         "No updates",
                                         int(time.time()),
                                         int(time.time()),
-                                        self.isRunning()])
+                                        self.isRunning(),
+                                        topic['visible']])
                     # Add Params
     
                     self._layer.updateFeature(feat)
@@ -365,6 +442,8 @@ class tLayer(MQTTClient):
                     self._layer.deleteFeature(fid)
                     self._layer.commitChanges()
                     return None
+                finally:
+                    pass
                     
                 return feat
 
@@ -435,6 +514,8 @@ class tLayer(MQTTClient):
         def tearDown(self):
                 Log.debug("tLayer Tear down")
                 self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
+                self.layer().attributeValueChanged.disconnect(self.attributeValueChanged)
+
                 self._dirty = False # Don't commit any changes if we are being torn down
                 self.stop()
 

@@ -56,26 +56,8 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         self.buttonCreate.clicked.connect(self.accept)    
         self.buttonCancel.clicked.connect(self.reject)    
        
-        Log.debug("tlayerConfig - add code to get currently selected broker")
+        #Note: tLayerConfig - add code to get currently selected broker")
         return
-        mw = self._iface.mainWindow()
-        lgd = mw.findChild(QTreeWidget, "theMapLegend")
-        grp = lgd.currentItem()
-        self.buttonCreate.setEnabled(False)
-        brokerName = None
-        if grp != None and grp.data(2,0) == 'Broker':
-            brokerName = grp.data(0,0)
-        elif grp !=None and grp.parent() !=None and grp.parent().data(2,0) == 'Broker':
-            brokerName = grp.parent().data(0,0)
-            pass
-
-        if brokerName != None:    
-            idx = self.selectBroker.findText(brokerName)
-            
-            if idx > 0:
-                self.selectBroker.setCurrentIndex(idx)
-                self._brokerChanged(idx)
-                self._topicTypeChanged(0)
               
     def _brokerChanged(self,idx):
         self.selectTopicType.clear()
@@ -88,7 +70,6 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         self.selectTopicType.setEnabled(True)
             
     def _topicTypeChanged(self,idx):
-        Log.debug("_topicTypeChanged" + str(idx))
         self.buttonCreate.setEnabled(idx >=0)
         
     def getBroker(self):

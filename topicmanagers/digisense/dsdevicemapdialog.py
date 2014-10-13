@@ -286,7 +286,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self.deviceTypeIndexChanged( self.deviceType.currentIndex())
 
     def nameChanged(self,_str):
-        replacement = '/digisense/' + _str.lower().replace(' ','/')
+        replacement = '/digisense/maps/' + _str.lower().replace(' ','/')
         self.topic.setText(replacement)
 
     def getDeviceMaps(self):

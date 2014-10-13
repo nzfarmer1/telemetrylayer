@@ -36,13 +36,13 @@ class tlFeatureDialog(QObject):
         super(tlFeatureDialog,self).__init__()
         
         Log.debug("Dialog Editable " + str(dialog.editable()))
-
         self._tLayer.featureUpdated.connect(self._update)
         self._dialog.adjustSize()
         self.topicManager = self._tLayer.topicManager()
         self.topicType = self._tLayer.topicType()
-        topic = self._find(QLineEdit,"topic")
-        topic.setEnabled(False)
+#        topic = self._find(QComboBox,"topic")
+#        if topic !=None:
+#            topic.setEnabled(False)
 
 
     def _update(self,tLayer,feature):
@@ -124,6 +124,9 @@ class tlSysFeatureDialog(tlFeatureDialog):
         buttonBox.accepted.connect(lambda : tlSysFeatureDialog.validate(self))
         
         buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
+
+        updated = self._find(QLabel,'updatedValue')
+        updated.setStyleSheet("font: 14pt \"System\";")
         self.update()
         
         
@@ -192,6 +195,9 @@ class tlTopicManager(QDialog,QObject):
             
     def getWidget(self):
         pass
+
+    def getAttributes(self,layer,topicType):
+        return []
 
 # Todo
 # Label not showing in Windows initially
