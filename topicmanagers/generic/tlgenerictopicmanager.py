@@ -23,7 +23,18 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 
 from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
  
+@qgsfunction(0, u"Telemetry Layer")
+def is_connected(values, feature, parent):
+    return feature['connected']
 
+@qgsfunction(0, u"Telemetry Layer")
+def format_label(values, feature, parent):
+    print "format_label\n"
+    visible = int(feature.attribute('visible'))
+    if visible == 0:
+        return ""
+    result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+    return result
 
 class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     
@@ -52,9 +63,11 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     def setFormatter(self,layer,topicType):
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
-        palyr.enabled = True 
-        palyr.placement= QgsPalLayerSettings.AroundPoint 
-        palyr.fieldName = '$format_label'
+        palyr.enabled       = True 
+        palyr.placement     = QgsPalLayerSettings.OverPoint
+        palyr.quadOffset    = QgsPalLayerSettings.QuadrantBelow 
+        palyr.yOffset       = 0.01
+        palyr.fieldName     = '$format_label'
         palyr.writeToLayer(layer)
         if os.path.exists(os.path.join(self.path(),"ui_tleditfeature.ui")):
             Log.debug("setEditForm = " + os.path.join(self.path(),"ui_tleditfeature.ui"))
@@ -73,4 +86,8 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
  
     @staticmethod
     def unregister():
-        pass
+        Log.debug("Un Registering Generic functions")
+        if QgsExpression.isFunctionName("$is_connected"):
+           QgsExpression.unregisterFunction("$is_connected")
+        if QgsExpression.isFunctionName("$format_label"):
+           QgsExpression.unregisterFunction("$format_label")

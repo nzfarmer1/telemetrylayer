@@ -105,6 +105,8 @@ class tLayer(MQTTClient):
 
                    self.setBroker(_broker)
                    self._topicType = self.get('TopicType')
+                   #self._setFormatters()
+
                     
                 super(tLayer,self).__init__(self,
                                             self._layer.id(), # Add randown
@@ -213,7 +215,7 @@ class tLayer(MQTTClient):
                                                 self._dict[key] = feat.id()
                                                 self.updateFeature(feat,msg.topic,msg.payload)
                                             
-
+                        #Log.debug("Triggering repaint")
                         self._layer.triggerRepaint()
 
                 except Exception as e:
@@ -335,12 +337,16 @@ class tLayer(MQTTClient):
                 pr.addAttributes( attributes )
 
                 self._layer.commitChanges()
+                self._setFormatters()
+                
+        def _setFormatters(self): 
 
                 # Configure Attributes
                 self._layer.startEditing()
+#                Log.debug(self._layer)
+
                 for i in range(9):
                     self._layer.setEditorWidgetV2(i,'Hidden')
-
                 
                 self._layer.setEditorWidgetV2(self.qosFid,'ValueMap')
                 self._layer.setEditorWidgetV2Config(self.qosFid,{u'QoS0':0,u'QoS1':1,u'QoS2':2})
@@ -351,20 +357,9 @@ class tLayer(MQTTClient):
                 self._layer.setEditorWidgetV2(self.topicFid,'ValueMap')
                 self.brokerUpdated()
 
-                self._topicManager.setFormatter(self._layer,topicType)
+                self._topicManager.setFormatter(self._layer,self._topicType)
                 self._layer.commitChanges()
 
- #               self._layer.commitChanges()
- #               self._layer.triggerRepaint()
-               
-                
-                #self._layer.setEditorWidgetV2(self.topicFid,'ValueMap')
-                
-                
-                
-                # Commit changes
-                Log.debug("tLayer create")
-                Log.debug(self._iface.legendInterface().isLayerVisible(self._layer))
 
         def getAttributes(self):
                 
@@ -505,10 +500,6 @@ class tLayer(MQTTClient):
                         self.kill()
 
         def refresh(self,state):
-                #if state and self._topicChanged:
-                 #   self.restart()
-                  #  return
-            
                 self.commitChanges()
                 if state:
                         self.resume()

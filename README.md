@@ -8,7 +8,7 @@ Target platform QGIS 2.4
 
 Latest changes:
 
-1. Added support for V2 style attribute widges
+1. Added support for V2 style attribute widgets
 2. Added support for visible/invisible features (partial)
 3. Added support to change  Granted QoS value (not supported by Mosquitto)
 4. Removed Broker ID and Type from layer attributes and hid remaining attributes

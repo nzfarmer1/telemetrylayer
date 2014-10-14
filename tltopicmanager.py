@@ -20,18 +20,7 @@ from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
-@qgsfunction(0, u"Telemetry Layer")
-def is_connected(values, feature, parent):
-    return feature['connected']
 
-@qgsfunction(0, u"Telemetry Layer")
-def format_label(values, feature, parent):
-    print "format_label\n"
-    visible = int(feature.attribute('visible'))
-    if visible == 0:
-        return ""
-    result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
-    return result
 
 class tlFeatureDialog(QObject):
     
@@ -247,8 +236,4 @@ class tlTopicManager(QDialog,QObject):
 
     @staticmethod
     def unregister():
-        Log.debug("Un Registering Generic functions")
-        if QgsExpression.isFunctionName("$is_connected"):
-           QgsExpression.unregisterFunction("$is_connected")
-        if QgsExpression.isFunctionName("$format_label"):
-           QgsExpression.unregisterFunction("$format_label")
+        pass

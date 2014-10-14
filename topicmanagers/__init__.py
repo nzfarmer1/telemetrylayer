@@ -41,6 +41,7 @@ def register():
                 sys.path.append(path)
             module = None
             meta ={}
+            Log.debug("Loading topic manager " + package)
             try:
                 if sys.modules[package]:
                     module = __import__(package)
@@ -55,8 +56,9 @@ def register():
                 if module == None:
                     module = __import__(package)
                     meta = module.classFactory()
-
+                
             meta['id'] = package
             topicManagers.append(meta)
+        Log.debug("Done")
         return topicManagers
 

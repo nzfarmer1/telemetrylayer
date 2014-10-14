@@ -71,6 +71,7 @@ class layerManager(QObject):
         self.menuName = Settings.getMeta('name')
         self._tLayers = {}
         layerManager._rebuildingLegend = False
+        Log.debug('success')
 
         layers = layerManager.getLayers()
         if len(layers) > 0: # Existing layers
@@ -160,7 +161,10 @@ class layerManager(QObject):
         return nodeLayer
              
     def readProject(self):
-        Log.debug("readProject")
+        Log.debug("Read Project")
+        for lid,tLayer in self.getTLayers().iteritems():
+            Log.debug("Adding V2 Format data to loaded layers")
+            tLayer._setFormatters() # Memory Layer Saver doesn't save some V2 format data
         return
 
     """
@@ -296,16 +300,16 @@ class layerManager(QObject):
         Log.debug("Layer Properties Changed " + str(val))
     
     def renderStarting(self):
+#        Log.debug("Rendering")
         for lid,tLayer in self.getTLayers().iteritems():
-                visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
-                    
-               #if not visible:
-                #    self.actions['pause' + lid].setEnabled(False)
-                #    self.actions['resume' + lid].setEnabled(False)
-                #else:
-                #    self.actions['pause' + lid].setEnabled(not tLayer.isPaused())
-                #    self.actions['resume' + lid].setEnabled(tLayer.isPaused())
-                tLayer.refresh(visible and not tLayer.isPaused())
+            visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
+           #if not visible:
+            #    self.actions['pause' + lid].setEnabled(False)
+            #    self.actions['resume' + lid].setEnabled(False)
+            #else:
+            #    self.actions['pause' + lid].setEnabled(not tLayer.isPaused())
+            #    self.actions['resume' + lid].setEnabled(tLayer.isPaused())
+            tLayer.refresh(visible and not tLayer.isPaused())
         
 
     def getTLayer(self,lid,add = True):

@@ -11,7 +11,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui  import QDialog
 
-
+from qgis.utils import qgsfunction,QgsExpression
 import topicmanagers
 from lib.tllogging import tlLogging as Log
 from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
@@ -31,10 +31,11 @@ class tlTopicManagerFactory():
 
     @staticmethod
     def registerAll():
-        
+            
         Log.debug("Loading Topic Managers")
         tlTopicManagerFactory.topicManagers =  topicmanagers.register()
-  
+        
+        
         for _id in tlTopicManagerFactory.getTopicManagerIds():
             tlTopicManagerFactory.registerTopicManager(_id)
             

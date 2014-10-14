@@ -188,6 +188,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 tLayer.featureDialogClosed.connect(self._closedFeatureDialog)
 
                 tLayer.featureUpdated.connect(self._updateFeatureList)
+                tLayer.layer().featureAdded.connect(self._updateFeatureList)
                 tLayer.layer().featureDeleted.connect(self._updateFeatureList)
                 
                 self._connectedTLayers.append(tLayer)

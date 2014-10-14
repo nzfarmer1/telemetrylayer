@@ -75,10 +75,16 @@ class TelemetryLayerPlugin(QObject):
 
             
         # Initialise Settings and Log handlers
-        Settings(self)
-        Log(self)
-        TopicManagerFactory(iface)
-        Brokers(os.path.join(self.plugin_dir,'data'))
+        try:
+            Settings(self)
+            Log(self)
+            TopicManagerFactory(iface)
+            Log.debug("Topic Managers Loaded")
+            Brokers(os.path.join(self.plugin_dir,'data'))
+        except Exception as e:
+            Log.debug("Error on Plugin initialization " + str(e))
+            
+        Log.debug("Brokers Loaded")
         # initialize locale
         self.translator = QTranslator()
         
@@ -95,6 +101,7 @@ class TelemetryLayerPlugin(QObject):
         
     def initGui(self):
         # Tree Widget test
+        Log.debug("initGUI")
         
         # Create action that will start plugin configuration
         self.aboutA = QAction(
@@ -120,13 +127,12 @@ class TelemetryLayerPlugin(QObject):
         self.iface.newLayerMenu().addAction(self.newLayerA)  # API >= 1.9
         self.iface.registerMainWindowAction(self.newLayerA, "Ctrl+F")
 
-#        for f in QgsExpression.Functions():
-#            print (str(f.group()) + " " + str(f.name()))
-        
           
         try:
             self.layerManager   = layerManager(self )
+            Log.debug("Layer Manager Loaded")
             self.telemetryLayer = TelemetryLayer(self) 
+            Log.debug("Telemetry Layer Loaded")
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
@@ -166,6 +172,7 @@ class TelemetryLayerPlugin(QObject):
             TopicManagerFactory.unregisterAll()
             Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
         except:
+            TopicManagerFactory.unregisterAll()
             pass
         finally:
             Log.debug("Plugin unloaded")
