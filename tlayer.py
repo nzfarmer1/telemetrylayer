@@ -142,7 +142,7 @@ class tLayer(MQTTClient):
 
 
         def onConnect(self,mosq, obj, rc):
-                Log.debug(self._layer.rendererV2().dump())
+                #Log.debug(self._layer.rendererV2().dump())
 
                 self._dict = {}
                 self.updateConnected(True)

@@ -24,9 +24,6 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 
 from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
  
-@qgsfunction(0, u"Telemetry Layer")
-def is_connected(values, feature, parent):
-    return feature['connected']
 
 @qgsfunction(0, u"Telemetry Layer")
 def format_label(values, feature, parent):
@@ -89,10 +86,6 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         #Log.debug("Setting svg paths")
         #Log.debug(QgsApplication.svgPaths())
         
- 
-        
-
-
 
 
     @staticmethod
@@ -102,8 +95,5 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
  
     @staticmethod
     def unregister():
-        Log.debug("Un Registering Generic functions")
-        if QgsExpression.isFunctionName("$is_connected"):
-           QgsExpression.unregisterFunction("$is_connected")
         if QgsExpression.isFunctionName("$format_label"):
            QgsExpression.unregisterFunction("$format_label")

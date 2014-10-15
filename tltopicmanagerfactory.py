@@ -14,9 +14,54 @@ from PyQt4.QtGui  import QDialog
 from qgis.utils import qgsfunction,QgsExpression
 import topicmanagers
 from lib.tllogging import tlLogging as Log
+from lib.tlsettings import tlSettings as Settings
+
 from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
 
-import traceback,sys
+import traceback,sys, time
+
+@qgsfunction(0, u"Telemetry Layer")
+def is_connected(values, feature, parent):
+    try:
+        return int(feature['connected']) == 1 or  feature['connected'] == 'true' or  feature['connected'] == 'True'
+    except KeyError:
+        return 0
+
+@qgsfunction(0, u"Telemetry Layer")
+def is_visible(values, feature, parent):
+    try:
+        return int(feature['visible']) == 1 or  feature['visible'] == 'true' or  feature['visible'] == 'True' 
+    except KeyError:
+        return 0
+
+@qgsfunction(0, u"Telemetry Layer")
+def is_changed(values, feature, parent):
+    result = 0
+    try:
+        result = (int(time.time()) - int(feature['changed'])) < int(Settings.get('changedTimeout',25))
+    except KeyError:
+        return 0
+    finally:
+        return result
+
+@qgsfunction(0, u"Telemetry Layer")
+def since_change(values, feature, parent):
+    result = 0
+    try:
+        result = (int(time.time()) - int(feature['changed']))
+    except KeyError:
+        return 0
+    finally:
+        return result
+
+
+@qgsfunction(0, u"Telemetry Layer")
+def is_silent(values, feature, parent):
+    try:
+        return (int(time.time()) - int(feature['updated'])) >= int(Settings.get('updatedTimeout',15))
+    except KeyError:
+        return 0
+
 
 class tlTopicManagerFactory():
     
@@ -44,6 +89,7 @@ class tlTopicManagerFactory():
         print "topicmanagerfactory unregisterAll"
         for _id in tlTopicManagerFactory.getTopicManagerIds():
             tlTopicManagerFactory.unregisterTopicManager(_id)
+        tlTopicManagerFactory.unregister()
 
     @staticmethod
     def registerTopicManager(_id):
@@ -103,3 +149,25 @@ class tlTopicManagerFactory():
         
     def __init__(self,iface):
         self.registerAll()
+
+    @staticmethod
+    def register():
+        pass
+
+    @staticmethod
+    def unregister():
+        Log.debug("Un Registering Generic functions")
+        if QgsExpression.isFunctionName("$is_connected"):
+           QgsExpression.unregisterFunction("$is_connected")
+
+        if QgsExpression.isFunctionName("$is_visible"):
+           QgsExpression.unregisterFunction("$is_visible")
+
+        if QgsExpression.isFunctionName("$is_changed"):
+           QgsExpression.unregisterFunction("$is_changed")
+
+        if QgsExpression.isFunctionName("$since_change"):
+           QgsExpression.unregisterFunction("$since_change")
+
+        if QgsExpression.isFunctionName("$is_silent"):
+           QgsExpression.unregisterFunction("$is_silent")

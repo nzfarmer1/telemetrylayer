@@ -2,6 +2,7 @@
     <qresource prefix="/plugins/TelemetryLayer">
         <file>icons/icon.png</file>
         <file>icons/southweb.png</file>
+        <file>icons/mqtticon.png</file>
         <file>icons/mqtticon-large.png</file>
         <file>icons/tractor.svg</file>
     </qresource>

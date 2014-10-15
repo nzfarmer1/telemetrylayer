@@ -22,6 +22,7 @@ from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
+
 class tlFeatureDialog(QObject):
     
     kOverviewTabId = 0
@@ -241,10 +242,3 @@ class tlTopicManager(QDialog,QObject):
         layer.loadNamedStyle(filename)
         #
  
-    @staticmethod
-    def register():
-        pass
-
-    @staticmethod
-    def unregister():
-        pass

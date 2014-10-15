@@ -105,7 +105,7 @@ class TelemetryLayerPlugin(QObject):
         
         # Create action that will start plugin configuration
         self.aboutA = QAction(
-            QIcon(":/plugins/"+ self.plugin_basename + "/icons/icon.png"),
+            QIcon(":/plugins/"+ self.plugin_basename + "/icons/southweb.png"),
             "About", self.iface.mainWindow()) # Replace or Add About
         # connect the action to the run method
         self.aboutA.triggered.connect(self.about)
@@ -135,7 +135,6 @@ class TelemetryLayerPlugin(QObject):
             Log.debug("Telemetry Layer Loaded")
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
-            Log.debug(Brokers.instance())
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
         except Exception as e:
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")

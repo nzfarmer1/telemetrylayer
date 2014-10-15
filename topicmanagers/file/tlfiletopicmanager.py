@@ -62,6 +62,29 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
     def getTopics(self):
         return super(tlFileTopicManager,self).getTopics(self._topics) # Merge System topics
 
+
+    def setFormatter(self,layer,topicType):
+        Log.debug("setFormatter")
+        palyr = QgsPalLayerSettings()
+        palyr.readFromLayer(layer)
+        palyr.enabled       = True 
+        palyr.placement     = QgsPalLayerSettings.OverPoint
+        palyr.quadOffset    = QgsPalLayerSettings.QuadrantBelow 
+        palyr.yOffset       = 0.01
+        palyr.fieldName     = '$format_label'
+        palyr.writeToLayer(layer)
+
+        if not self.path() in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+        self.loadStyle(layer,os.path.join(self.path(),"rules.qml"))
+        
+        if os.path.exists(os.path.join(self.path(),"ui_tleditfeature.ui")):
+            Log.debug("setEditForm = " + os.path.join(self.path(),"ui_tleditfeature.ui"))
+            layer.setEditForm(os.path.join(self.path(),"ui_tleditfeature.ui"))
+            layer.setEditFormInit("editformfactory.featureDialog")
+        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+
+
     def _process(self):
          file_name = QtGui.QFileDialog.getOpenFileName(self,  'Select XML File', "", "XML topic file (*.xml)")
          if file_name:
