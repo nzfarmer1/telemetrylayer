@@ -29,5 +29,145 @@
         <Type>$SYS</Type>
         <QoS>0</QoS>
     </Topic>
+    <Topic value="$SYS/broker/timestamp">
+        <Name>System Timestamp</Name>
+        <Description>MQTT Broker System Timestamp</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default>Unknown Seconds</Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/uptime">
+        <Name>System Uptime</Name>
+        <Description>MQTT Broker System Uptime</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default>Unknown Seconds</Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/clients/total">
+        <Name>Clients Total</Name>
+        <Description>MQTT Broker Clients Local</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic><Topic value="$SYS/broker/clients/inactive">
+        <Name>Clients Inactive</Name>
+        <Description>MQTT Broker Clients inactive</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/clients/active">
+        <Name>Clients Active</Name>
+        <Description>MQTT Broker Clients active</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/clients/maximum">
+        <Name>Clients Maximum</Name>
+        <Description>MQTT Broker Clients Maimum</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default>Unknown Seconds</Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/clients/expired">
+        <Name>Clients Expired</Name>
+        <Description>MQTT Broker Clients expired</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/messages/stored">
+        <Name>Messages Stored</Name>
+        <Description>MQTT Broker Messages stored</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/subscriptions/count">
+        <Name>Subscriptions Count</Name>
+        <Description>MQTT Broker Subscriptions count</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/retained">
+        <Name>Broker Retained</Name>
+        <Description>MQTT Broker Broker retained</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/heap/current">
+        <Name>Broker Heap Current</Name>
+        <Description>MQTT Broker Heap current</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/heap/maximum">
+        <Name>Broker Heap Max.</Name>
+        <Description>MQTT Broker Broker Heap maximum</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default>s</Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/publish/messages/dropped">
+        <Name>Messages Dropped</Name>
+        <Description>MQTT Broker Messages dropped</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/publish/bytes/received">
+        <Name>Bytes Received Uptime</Name>
+        <Description>MQTT Broker Bytes received</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/publish/bytes/sent">
+        <Name>Bytes Sent</Name>
+        <Description>MQTT Broker Bytes sent</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <Default></Default>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/load/publish/sent/15min">
+        <Name>Load Sent 15min</Name>
+        <Description>Broker load publish sent 15min</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/load/publish/received/1min">
+        <Name>Load Publish Received 1min</Name>
+        <Description>Broker load published teceived 1min</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <QoS>0</QoS>
+    </Topic>
+    <Topic value="$SYS/broker/load/publish/received/15min">
+        <Name>Load PublishReceived 15min</Name>
+        <Description>Broker load Published Received 15min</Description>
+        <Units>String</Units>
+        <Type>$SYS</Type>
+        <QoS>0</QoS>
+    </Topic>
 </Topics>
     

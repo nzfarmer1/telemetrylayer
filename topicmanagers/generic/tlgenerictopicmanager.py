@@ -83,8 +83,6 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
             layer.setEditForm(os.path.join(self.path(),"ui_tleditfeature.ui"))
             layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
-        #Log.debug("Setting svg paths")
-        #Log.debug(QgsApplication.svgPaths())
         
 
 

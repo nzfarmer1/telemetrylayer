@@ -29,17 +29,22 @@ def is_connected(values, feature, parent):
 
 @qgsfunction(0, u"Telemetry Layer")
 def is_visible(values, feature, parent):
+    result =True
     try:
-        return int(feature['visible']) == 1 or  feature['visible'] == 'true' or  feature['visible'] == 'True' 
+        result = int(feature['visible']) == 1 
+    except TypeError:
+        result =   feature['visible'] == 'true' or  feature['visible'] == 'True' 
     except KeyError:
-        return 0
+        result = False
+    finally:
+        return result
 
 @qgsfunction(0, u"Telemetry Layer")
 def is_changed(values, feature, parent):
     result = 0
     try:
         result = (int(time.time()) - int(feature['changed'])) < int(Settings.get('changedTimeout',25))
-    except KeyError:
+    except KeyError,TypeError:
         return 0
     finally:
         return result

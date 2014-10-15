@@ -5,9 +5,7 @@
  ***************************************************************************/
 """
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+from PyQt4.QtCore import QTimer, Qt
 from ui_tladdfeature import Ui_tlAddFeature
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
@@ -40,15 +38,19 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
        pass
 
     def setupUi(self):
+       self.timer = QTimer()
+       self.timer.setSingleShot(True)
+       self.timer.timeout.connect( self._buildCombo )
+        
        super(tlAddFeature,self).setupUi(self)
        topic = None
+       self.selectTopic.setEnabled(False)
        self.selectTopic.addItem("Select a topic ...")
-       for topic in self._broker.topics(self._topicType):
-            self.selectTopic.addItem(topic['name'],topic)
+       self.timer.start(0)
        self.buttonAdd.clicked.connect(self._validateApply)
        self.buttonAdd.setEnabled(False)
        self.selectTopic.currentIndexChanged.connect(self._topicChanged)
-
+    
     def getVisible(self):
         if self.chkBoxVisible.checkState() == Qt.Checked:
             return 1
@@ -59,6 +61,11 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
 
     def getTopic(self):
         return self.selectTopic.itemData(self.selectTopic.currentIndex())
+
+    def _buildCombo(self):
+        for topic in self._broker.topics(self._topicType):
+            self.selectTopic.addItem(topic['name'],topic)
+        self.selectTopic.setEnabled(True)
 
     def _topicChanged(self,idx):
         self.buttonAdd.setEnabled(idx > 0)

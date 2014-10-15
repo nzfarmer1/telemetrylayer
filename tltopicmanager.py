@@ -132,7 +132,6 @@ class tlSysFeatureDialog(tlFeatureDialog):
         payload.setStyleSheet("font-weight:bold;")
         self.update()
         
-        
     def update(self):
         updated = self._find(QLabel,'updatedValue')
         updated.setText(self._since(int (self._feature['updated'])))

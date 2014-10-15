@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 qgisMaximumVersion=2.5
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of brokers. Define a set of topics for each broker. Create a new Telemetry Layer (Layers are placed under a Broker Group and represent a set of topics by type).   Add topics as features.  Apply Rules based formatting.  Note: Plugin is at an alpha stage of development and being actively improved.  Please ensure to check regularly for updates and get in touch if you are keen to join the project." 
-version=0.909821
+version=0.909820
 author=Andrew McClure
 email=andrew@southweb.co.nz
 
@@ -23,7 +23,7 @@ email=andrew@southweb.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="1. Added support for V2 style attribute widgets,2. Added support for visible/invisible features (partial),3. Added support to change  Granted QoS value (not supported by Mosquitto), 4. Removed Broker ID and Type from layer attributes and hid remaining attributes, 5. reset V2 config on project read, 6. refined QgsPalLayerSettings"
+changelog="Added simple Rules based formatted. Added Zoom to feature. Added QoS and Visible fields in feature Add dialog. Improved handling of layer properties and constants. "
 
 # tags are comma separated with spaces allowed
 tags=SCADA, Telemetry,  MQTT, IoT

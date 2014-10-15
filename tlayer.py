@@ -88,13 +88,6 @@ class tLayer(MQTTClient):
 
                 if broker != None and topicType !=None:
                    self.setBroker(broker,False) 
-                   super(tLayer,self).__init__(self,
-                                                self._layer.id(), # Add randown
-                                                self._broker.host(),
-                                                self._broker.port(),
-                                                self._broker.poll(),
-                                                self._broker.keepAlive(),
-                                                True)
                    self._prepare(broker,topicType) # Add Layer properties for broker
                 else:
                    _broker = Brokers.instance().find(self.get(self.kBrokerId))     
@@ -106,13 +99,13 @@ class tLayer(MQTTClient):
                    #self._setFormatters()
 
                     
-                   super(tLayer,self).__init__(self,
-                                                self._layer.id(), # Add randown
-                                                self._broker.host(),
-                                                self._broker.port(),
-                                                self._broker.poll(),
-                                                self._broker.keepAlive(),
-                                                True)
+                super(tLayer,self).__init__(self,
+                                             self._layer.id(), # Add randown
+                                             self._broker.host(),
+                                             self._broker.port(),
+                                             self._broker.poll(),
+                                             self._broker.keepAlive(),
+                                             True)
 
                 self.updateConnected(False)
                 self.featureUpdated.connect(topicManagerFactory.featureUpdated) # Tell dialog box to update a feature
@@ -251,7 +244,6 @@ class tLayer(MQTTClient):
                 for topic in topics:
                     if not topic['name'] in topicmap: # there shouldn't be dups!
                         topicmap[topic['name']] = topic['topic']
-                Log.debug("Setting topicMap " +str(topicmap))
                 self._layer.setEditorWidgetV2Config(Constants.topicIdx,topicmap)
 
 
@@ -492,6 +484,10 @@ class tLayer(MQTTClient):
 
         def refresh(self,state):
                 self.commitChanges()
+                
+                if not self.hasFeatures():
+                    return # nothing to do
+                
                 if state:
                         self.resume()
                 else:
@@ -509,7 +505,15 @@ class tLayer(MQTTClient):
         def topicType(self):
                 return self._topicType
         
-        
+        def hasFeatures(self):
+                feat  = QgsFeature()
+                count =0
+                iter = self._layer.getFeatures()
+                while count == 0  and iter.nextFeature(feat):
+                    if feat.id() > 0:
+                        count = count +1
+                return count >0
+                       
         def tearDown(self):
                 Log.debug("tLayer Tear down")
                 self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
