@@ -20,8 +20,18 @@ class tlConstants:
     Update =1
     Deleted =2
 
- 
-
+    # AttributeIDs
+    
+    nameIdx        = 0
+    topicIdx       = 1
+    qosIdx         = 2
+    matchIdx       = 3
+    payloadIdx     = 4
+    updatedIdx     = 5
+    changedIdx     = 6
+    connectedIdx   = 7
+    visibleIdx     = 8
+    reservedIdx    = 9
 
 class tlSettings(QObject):
     settings    = None

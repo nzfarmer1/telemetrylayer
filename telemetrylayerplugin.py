@@ -135,6 +135,7 @@ class TelemetryLayerPlugin(QObject):
             Log.debug("Telemetry Layer Loaded")
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
+            Log.debug(Brokers.instance())
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
         except Exception as e:
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")

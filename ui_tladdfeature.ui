@@ -64,6 +64,69 @@
     <string>Add Feature</string>
    </property>
   </widget>
+  <widget class="QComboBox" name="selectQoS">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>96</y>
+     <width>104</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Granted QoS (Not implemented by Mosquitto Library yet)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>QoS0</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>QoS1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>QoS2</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="selectQoSLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>100</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Devices require a custom name and must be assigned a type&lt;/p&gt;&lt;p&gt;The name will form the basis of the MQTT Topic that gets piublished.&lt;/p&gt;&lt;p&gt;For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="text">
+    <string>QoS</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="chkBoxVisible">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>100</y>
+     <width>85</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display on layer, or access only via the Features list available Broker Settings or by double clicking on the Layer Group Name)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="text">
+    <string>Visible</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

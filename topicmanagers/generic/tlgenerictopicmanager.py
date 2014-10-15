@@ -8,9 +8,10 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtXml
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
 
 import os
 
@@ -29,12 +30,17 @@ def is_connected(values, feature, parent):
 
 @qgsfunction(0, u"Telemetry Layer")
 def format_label(values, feature, parent):
-    print "format_label\n"
-    visible = int(feature.attribute('visible'))
-    if visible == 0:
-        return ""
-    result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
-    return result
+    result = "No data"
+    try:
+        visible = int(feature.attribute('visible'))
+        if visible == 0:
+            result = ""
+        else:
+            result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+    except:
+        pass
+    finally:
+        return result
 
 class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     
@@ -61,6 +67,7 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         return self.Tabs.widget(0)
 
     def setFormatter(self,layer,topicType):
+        Log.debug("setFormatter")
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
         palyr.enabled       = True 
@@ -69,12 +76,21 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         palyr.yOffset       = 0.01
         palyr.fieldName     = '$format_label'
         palyr.writeToLayer(layer)
+
+        if not self.path() in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+        self.loadStyle(layer,os.path.join(self.path(),"rules.qml"))
+        
         if os.path.exists(os.path.join(self.path(),"ui_tleditfeature.ui")):
             Log.debug("setEditForm = " + os.path.join(self.path(),"ui_tleditfeature.ui"))
             layer.setEditForm(os.path.join(self.path(),"ui_tleditfeature.ui"))
             layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
-
+        #Log.debug("Setting svg paths")
+        #Log.debug(QgsApplication.svgPaths())
+        
+ 
+        
 
 
 

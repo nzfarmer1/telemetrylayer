@@ -36,7 +36,6 @@ class layerManager(QObject):
     _this = None
     _rebuildingLegend = False
     
-    kBrokerId = "brokerId"
     
     @staticmethod
     def getLayers():
@@ -119,7 +118,7 @@ class layerManager(QObject):
         layerManager._this = self
 
     def _isBrokerGroup(self,nodeGrp):
-        if 'Group' in str(type(nodeGrp)) and nodeGrp.customProperty(layerManager.kBrokerId,-1) != -1:
+        if 'Group' in str(type(nodeGrp)) and nodeGrp.customProperty(TLayer.kBrokerId,-1) != -1:
             return True
         else:
             return None
@@ -129,9 +128,9 @@ class layerManager(QObject):
         # replace with _getGroupNode
         nodeGrp = root.findGroup(broker.name())
         if nodeGrp == None and create:
-            nodeGrp = root.insertGroup(0,broker.name())
+            nodeGrp = root.insertGroup(len(root.children()),broker.name())
         #    nodeGrp.setToolTip("Double click to view features")
-            nodeGrp.setCustomProperty(layerManager.kBrokerId,broker.id())
+            nodeGrp.setCustomProperty(TLayer.kBrokerId,broker.id())
 
         return nodeGrp
         
@@ -154,7 +153,7 @@ class layerManager(QObject):
                 return None
              newNodeLayer = nodeLayer.clone()
              nodeGrp.insertChildNode(1,newNodeLayer)
-             nodeGrp.setCustomProperty(layerManager.kBrokerId,broker.id())
+             nodeGrp.setCustomProperty(TLayer.kBrokerId,broker.id())
              nodeLayer.parent().removeChildNode(nodeLayer)
              nodeLayer =  newNodeLayer
 
@@ -195,7 +194,7 @@ class layerManager(QObject):
             for parent in parentsToRoot:
                     broker = Brokers.instance().findByName(parent.name())
                     nodeGroup = root.addGroup(broker.name())
-                    nodeGroup.setCustomProperty(layerManager.kBrokerId,broker.id())
+                    nodeGroup.setCustomProperty(TLayer.kBrokerId,broker.id())
                     for child in parent.findLayers():
                        nodeGroup.insertChildNode(1,child.clone())
                     parent.removeAllChildren()                   
@@ -257,7 +256,7 @@ class layerManager(QObject):
         model   = 	QgsLayerTreeModel( QgsProject.instance().layerTreeRoot())
         node    =   model.index2node(item)
         if self._isBrokerGroup(node):
-            bid = node.customProperty(layerManager.kBrokerId,-1)
+            bid = node.customProperty(TLayer.kBrokerId,-1)
             broker = Brokers.instance().find(bid)
             if broker !=None:
                 telemetryLayer.instance().show(broker)

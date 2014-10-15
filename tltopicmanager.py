@@ -3,13 +3,15 @@
 /***************************************************************************
  tlTopicManager
  
- Parent class for Topic Managers - not really Abstract
+ Parent class for Topic Managers - sub class this to create your own dialog
  ***************************************************************************/
 """
 import sip
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QObject,QTimer
+from PyQt4.QtCore import QObject,QTimer,QFile,QIODevice,QTextStream
 from PyQt4.QtGui  import QDialog, QTabWidget, QLabel, QDialogButtonBox, QPixmap,QLineEdit
+from PyQt4.QtXml import QDomDocument,QDomNode,QDomElement
+
 
 from qgis.core import QgsPalLayerSettings,QgsVectorLayer,QgsFeatureRequest
 from qgis.utils import qgsfunction,QgsExpression
@@ -18,8 +20,6 @@ import os,sys,math,time
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
-
-
 
 
 class tlFeatureDialog(QObject):
@@ -43,9 +43,6 @@ class tlFeatureDialog(QObject):
         self._dialog.adjustSize()
         self.topicManager = self._tLayer.topicManager()
         self.topicType = self._tLayer.topicType()
-#        topic = self._find(QComboBox,"topic")
-#        if topic !=None:
-#            topic.setEnabled(False)
 
 
     def _update(self,tLayer,feature):
@@ -73,10 +70,9 @@ class tlFeatureDialog(QObject):
         
         fmtStr = ""
         if hours > 0:
-            fmtStr = fmtStr + str(hours) + 'hours '
-
-        fmtStr = fmtStr + str(mins) + 'min '  
-        fmtStr = fmtStr + str(secs) + 'secs ago'  
+            fmtStr = fmtStr + str(hours) + 'h'
+        fmtStr = fmtStr + str(mins) + 'm '  
+        fmtStr = fmtStr + str(secs) + 's ago'  
         
         return fmtStr
 
@@ -129,7 +125,11 @@ class tlSysFeatureDialog(tlFeatureDialog):
         buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
 
         updated = self._find(QLabel,'updatedValue')
-        updated.setStyleSheet("font: 14pt \"System\";")
+        updated.setStyleSheet("font: 18pt \"System\";")
+        changed = self._find(QLabel,'changedValue')
+        changed.setStyleSheet("font: 18pt \"System\";")
+        payload = self._find(QLabel,'payloadValue')
+        payload.setStyleSheet("font: 18pt \"System\";")
         self.update()
         
         
@@ -149,9 +149,10 @@ class tlSysFeatureDialog(tlFeatureDialog):
  
     @staticmethod
     def validate(self):
-        Log.debug("Validating " + str(self._dialog))
-        # Works but don't use
-        if 0:
+        # editmode doesn't work properly from the GUI
+        # See: https://hub.qgis.org/issues/11395
+        # the following code works but don't use
+        if False:
             Log.debug(self.name.text())
             name = self._find(self,"name")
             Log.debug(name.text())
@@ -229,7 +230,17 @@ class tlTopicManager(QDialog,QObject):
             module = sys.modules[_class.__module__]
         return os.path.dirname(module.__file__)
         
-
+        
+    def loadStyle(self,layer,filename):
+        qfile = QFile(filename)
+        if not qfile.open(QIODevice.ReadOnly):
+            Log.debug("Unable to open file " + filename)
+            return
+        rules = qfile.readData(qfile.size())
+        qfile.close()
+        layer.loadNamedStyle(filename)
+        #
+ 
     @staticmethod
     def register():
         pass

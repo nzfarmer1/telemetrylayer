@@ -49,13 +49,19 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
        self.buttonAdd.setEnabled(False)
        self.selectTopic.currentIndexChanged.connect(self._topicChanged)
 
+    def getVisible(self):
+        if self.chkBoxVisible.checkState() == Qt.Checked:
+            return 1
+        return 0
+
+    def getQoS(self):
+        return int(self.selectQoS.currentIndex())
 
     def getTopic(self):
         return self.selectTopic.itemData(self.selectTopic.currentIndex())
 
-
     def _topicChanged(self,idx):
-        self.buttonAdd.setEnabled(idx >=0)
+        self.buttonAdd.setEnabled(idx > 0)
 
     def _validateApply(self):
         self.accept()

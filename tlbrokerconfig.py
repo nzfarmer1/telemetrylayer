@@ -12,15 +12,13 @@ from PyQt4.QtGui import *
 from qgis.core import *
 import webbrowser
 
-
 from ui_tlbrokerconfig import Ui_tlBrokerConfig
 from tlbrokers import tlBrokers as Brokers
-from lib.tlsettings import tlSettings as Settings, tlConstants
+from lib.tlsettings import tlSettings as Settings, tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
 import traceback, sys,os,imp, json
-
 
 # Todo
 # Add Help Button
@@ -64,9 +62,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        super(tlBrokerConfig,self).setupUi(self)
 
        if self._create == True:
-           self._mode = tlConstants.Create
+           self._mode = Constants.Create
        else:
-           self._mode = tlConstants.Update
+           self._mode = Constants.Update
     
        self.connectHelp.clicked.connect(self._help)
        self.connectTest.clicked.connect(self._test)
@@ -95,7 +93,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        for topicManager in topicManagerFactory.getTopicManagers():
             self.connectTopicManager.addItem(topicManager['name'],topicManager['id'])
             
-       if self._mode == tlConstants.Create: # Create Layer - so Modal
+       if self._mode == Constants.Create: # Create Layer - so Modal
            self.connectPoll.setCurrentIndex(
            self.connectPoll.findText(Settings.get('mqttPoll',5)))
            self.connectApply.setText(_translate("tlBrokerConfig", "Create", None))
@@ -104,7 +102,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
            self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Add Broker", None))
            #self.Tabs.setEnabled(False)
         #   self.connectFarmSenseServer.setEnabled(False)
-       elif self._mode == tlConstants.Update:
+       elif self._mode == Constants.Update:
 
            self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
            self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Broker ", None) + self.getName())
@@ -117,6 +115,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 QgsMapLayerRegistry.instance().layersRemoved.connect(self._updateFeatureList) # change to when layer is loaded also!
                 QgsProject.instance().layerLoaded.connect(self._updateFeatureList)
                 self.tableFeatureList.doubleClicked.connect(self._showFeatureDialog)
+                self.tableFeatureList.clicked.connect(self._zoomToFeature)
            else:
              self.Tabs.setEnabled(False)
 
@@ -140,6 +139,26 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         if self.dockWidget.isVisible()  and self.Tabs.currentIndex() == self.kFeatureListTabId:
            self._loadFeatureList()
         pass
+
+
+    def _zoomToFeature(self,modelIdx):
+        item = self.tableFeatureList.item(modelIdx.row(),0)
+        layer = item.data(0)
+        feature = item.data(1)
+        modifiers = QtGui.QApplication.keyboardModifiers()
+        self._iface.legendInterface().setCurrentLayer(layer)
+        if modifiers == QtCore.Qt.ShiftModifier:
+            selectList=[feature.id()]
+            if not feature['visible'] and not layer.isReadOnly():
+                layer.startEditing()
+                layer.changeAttributeValue(feature.id(),Constants.visibleIdx, True)
+                layer.commitChanges()
+            layer.setSelectedFeatures(selectList)
+            box = layer.boundingBoxOfSelected()
+            self._iface.mapCanvas().setExtent(box)
+            self._iface.mapCanvas().refresh()            
+        pass
+
     
     def _showFeatureDialog(self,modelIdx):
         item = self.tableFeatureList.item(modelIdx.row(),0)
@@ -206,17 +225,17 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 tbl.setItem(row,0,item)
 
                 item = QtGui.QLabel(tLayer.layer().name())
-                item.setToolTip("Double click to see feature")
+                item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row,1,item)
 
                 item = QtGui.QLabel(feature['name'])
-                item.setToolTip("Double click to see feature")
+                item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row,2,item)
   
                 item = QtGui.QLabel(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
-                item.setToolTip("Double click to see feature")
+                item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row,3,item)
 

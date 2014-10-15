@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tladdfeature.ui'
 #
-# Created: Fri Sep 19 09:53:47 2014
+# Created: Wed Oct 15 10:57:36 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,6 +42,19 @@ class Ui_tlAddFeature(object):
         self.buttonAdd = QtGui.QPushButton(tlAddFeature)
         self.buttonAdd.setGeometry(QtCore.QRect(170, 160, 101, 32))
         self.buttonAdd.setObjectName(_fromUtf8("buttonAdd"))
+        self.selectQoS = QtGui.QComboBox(tlAddFeature)
+        self.selectQoS.setGeometry(QtCore.QRect(70, 96, 104, 26))
+        self.selectQoS.setObjectName(_fromUtf8("selectQoS"))
+        self.selectQoS.addItem(_fromUtf8(""))
+        self.selectQoS.addItem(_fromUtf8(""))
+        self.selectQoS.addItem(_fromUtf8(""))
+        self.selectQoSLabel = QtGui.QLabel(tlAddFeature)
+        self.selectQoSLabel.setGeometry(QtCore.QRect(30, 100, 51, 20))
+        self.selectQoSLabel.setObjectName(_fromUtf8("selectQoSLabel"))
+        self.chkBoxVisible = QtGui.QCheckBox(tlAddFeature)
+        self.chkBoxVisible.setGeometry(QtCore.QRect(190, 100, 85, 18))
+        self.chkBoxVisible.setChecked(True)
+        self.chkBoxVisible.setObjectName(_fromUtf8("chkBoxVisible"))
 
         self.retranslateUi(tlAddFeature)
         QtCore.QMetaObject.connectSlotsByName(tlAddFeature)
@@ -51,4 +64,12 @@ class Ui_tlAddFeature(object):
         self.selectTopicLabel.setToolTip(_translate("tlAddFeature", "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>", None))
         self.selectTopicLabel.setText(_translate("tlAddFeature", "Topic", None))
         self.buttonAdd.setText(_translate("tlAddFeature", "Add Feature", None))
+        self.selectQoS.setToolTip(_translate("tlAddFeature", "<html><head/><body><p>Granted QoS (Not implemented by Mosquitto Library yet)</p></body></html>", None))
+        self.selectQoS.setItemText(0, _translate("tlAddFeature", "QoS0", None))
+        self.selectQoS.setItemText(1, _translate("tlAddFeature", "QoS1", None))
+        self.selectQoS.setItemText(2, _translate("tlAddFeature", "QoS2", None))
+        self.selectQoSLabel.setToolTip(_translate("tlAddFeature", "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>", None))
+        self.selectQoSLabel.setText(_translate("tlAddFeature", "QoS", None))
+        self.chkBoxVisible.setToolTip(_translate("tlAddFeature", "<html><head/><body><p>Display on layer, or access only via the Features list available Broker Settings or by double clicking on the Layer Group Name)</p></body></html>", None))
+        self.chkBoxVisible.setText(_translate("tlAddFeature", "Visible", None))
 
