@@ -125,11 +125,11 @@ class tlSysFeatureDialog(tlFeatureDialog):
         buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
 
         updated = self._find(QLabel,'updatedValue')
-        updated.setStyleSheet("font: 18pt \"System\";")
+        updated.setStyleSheet("font-weight:bold;")
         changed = self._find(QLabel,'changedValue')
-        changed.setStyleSheet("font: 18pt \"System\";")
+        changed.setStyleSheet("font-weight:bold;")
         payload = self._find(QLabel,'payloadValue')
-        payload.setStyleSheet("font: 18pt \"System\";")
+        payload.setStyleSheet("font-weight:bold;")
         self.update()
         
         
