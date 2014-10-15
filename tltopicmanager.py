@@ -110,7 +110,6 @@ class tlSysFeatureDialog(tlFeatureDialog):
     def show(self):
         Log.debug("Dialog Creating")
         tabWidget = self._find(QTabWidget,'tabWidget') # Remove History Tab!
-        Log.debug(tabWidget)
         if tabWidget: # Always remove tabs from last to first
             tabWidget.removeTab(self.kHistoryTabId)
             tabWidget.removeTab(self.kSettingsTabId)
