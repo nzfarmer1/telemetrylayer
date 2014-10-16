@@ -181,6 +181,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         feature = next(layer.getFeatures(request),None)
 
         feat  = QgsFeature(item.data(self.kFeature))
+        feat.setFields(feature.fields())
         feat.setAttributes(feature.attributes())
             
         if not layer.isEditable() and not layer.isReadOnly():

@@ -58,15 +58,19 @@ class tlFeatureDialog(QObject):
         # form is ready to be opened
         pass
     
-    def _since(self,when,fmt = True):
+    @staticmethod
+    def _since(when,fmt = True):
         if not int(when)>=0:
             return ""
+        
+        hDiv = 0.00027777777778
+        mDiv = 0.01666666666667
         
         delta = time.time() - when
         if not fmt:
             return delta
-        hours  = int(delta / 3600)
-        mins   = int((delta - (hours *3600)) / 60)
+        hours  = int(delta * hDiv)
+        mins   = int((delta - (hours *3600)) * mDiv)
         secs   = int((delta - (hours *3600) - (mins*60)))        
         fmtStr = ""
         if hours > 0:
