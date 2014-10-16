@@ -19,6 +19,7 @@ from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
 import traceback, sys,os,imp, json
+import copy,pickle
 
 # Todo
 # Add Help Button
@@ -40,9 +41,16 @@ except AttributeError:
 
 class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     
-    kBrokerConfigTabId   = 0
-    kFeatureListTabId    = 1
-    kTopicManagerTabId   = 2
+    kBrokerConfigTabId    = 0
+    kFeatureListTabId     = 1
+    kTopicManagerTabId    = 2
+    kLayerId              = 0
+    kFeatureId            = 1
+    kFeature              = 3
+    kDataCol              = 0
+    kLayerNameCol         = 1
+    kFeatureNameCol       = 2
+    kPayloadCol           = 3
     
     def __init__(self,creator,broker,create=False):
         super(tlBrokerConfig, self).__init__()
@@ -72,7 +80,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        self.connectName.setValidator(QRegExpValidator(QRegExp("^[a-zA-Z0-9\s]+"),self))
        self.connectHost.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\.]+"),self))
 
-       self.Tabs.setCurrentIndex(tlBrokerConfig.kBrokerConfigTabId); # First index
+       self.Tabs.setCurrentIndex(self.kBrokerConfigTabId); # First index
        #if Modal create mode
        self.setName(self._broker.name())
        self.setHost(self._broker.host())
@@ -130,9 +138,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 self._loadFeatureList()
             if key in self._featureListItems:
                 row = self._featureListItems[key]
-                item = self.tableFeatureList.cellWidget(row,3)
+                item = self.tableFeatureList.cellWidget(row,kPayloadCol) # Add a constant!
                 if item and _topicManager:
-                    item.setText(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
+                    #Log.debug(_topicManager)
+                    #Log.debug(tLayer)
+                    #Log.debug(tLayer.topicType())
+                    #Log.debug(feature)
+                    text = QVariant(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
+                    item.setText(text)
                 
    
     def _updateFeatureList(self,fid = None):
@@ -142,9 +155,10 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
 
     def _zoomToFeature(self,modelIdx):
-        item = self.tableFeatureList.item(modelIdx.row(),0)
-        layer = item.data(0)
-        feature = item.data(1)
+        item    = self.tableFeatureList.item(modelIdx.row(),0)
+        layer   = QgsMapLayerRegistry.instance().mapLayer(item.data(self.kLayerId)) #
+        request = QgsFeatureRequest(item.data(self.kFeatureId))
+        feature = next(layer.getFeatures(request),None)
         modifiers = QtGui.QApplication.keyboardModifiers()
         self._iface.legendInterface().setCurrentLayer(layer)
         if modifiers == QtCore.Qt.ShiftModifier:
@@ -161,11 +175,17 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     
     def _showFeatureDialog(self,modelIdx):
-        item = self.tableFeatureList.item(modelIdx.row(),0)
-        layer = item.data(0)
-        feature = item.data(1)
-        layer.startEditing()
-        self._iface.openFeatureForm(layer, feature, True) 
+        item = self.tableFeatureList.item(modelIdx.row(),self.kDataCol)
+        layer = QgsMapLayerRegistry.instance().mapLayer(item.data(self.kLayerId))
+        request  = QgsFeatureRequest(item.data(self.kFeatureId))
+        feature = next(layer.getFeatures(request),None)
+
+        feat  = QgsFeature(item.data(self.kFeature))
+        feat.setAttributes(feature.attributes())
+            
+        if not layer.isEditable() and not layer.isReadOnly():
+            layer.startEditing()
+        self._iface.openFeatureForm(layer, feat, True) 
         pass
 
     def _closedFeatureDialog(self,tLayer):
@@ -220,24 +240,26 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 # Append the feature
                 self._featureListItems[(lid,feature.id())] = row 
                 item = QTableWidgetItem()
-                item.setData(0,tLayer.layer())
-                item.setData(1,feature)
-                tbl.setItem(row,0,item)
+                item.setData(self.kLayerId,tLayer.layer().id())
+                item.setData(self.kFeatureId,feature.id())
+                item.setData(self.kFeature,feature)
+
+                tbl.setItem(row,self.kDataCol,item)
 
                 item = QtGui.QLabel(tLayer.layer().name())
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
-                tbl.setCellWidget(row,1,item)
+                tbl.setCellWidget(row,self.kLayerNameCol,item)
 
                 item = QtGui.QLabel(feature['name'])
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
-                tbl.setCellWidget(row,2,item)
+                tbl.setCellWidget(row,self.kFeatureNameCol,item)
   
                 item = QtGui.QLabel(_topicManager.formatPayload(tLayer.topicType(),feature['payload']))
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
-                tbl.setCellWidget(row,3,item)
+                tbl.setCellWidget(row,self.kPayloadCol,item)
 
                 row = row + 1
 
@@ -254,7 +276,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self._topicManager = topicManagerFactory.getTopicManager(self._broker,self._create)
             QObject.connect(self._topicManager,SIGNAL("topicManagerReady"),self._topicManagerLoaded)
             QObject.connect(self._topicManager,SIGNAL("topicManagerError"),self._topicManagerLoaded)
-            self.Tabs.setTabEnabled(tlBrokerConfig.kTopicManagerTabId,False)
+            self.Tabs.setTabEnabled(self.kTopicManagerTabId,False)
             widget = self._topicManager.getWidget()
             self.Tabs.addTab(widget,"Topics")
             self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
@@ -266,7 +288,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         
     def _topicManagerLoaded(self,state,obj):
         if state:
-            self.Tabs.setTabEnabled(tlBrokerConfig.kTopicManagerTabId,True)
+            self.Tabs.setTabEnabled(self.kTopicManagerTabId,True)
             self.connectApply.setEnabled(True)
         else:
             Log.critical(obj)

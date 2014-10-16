@@ -149,6 +149,7 @@ class layerManager(QObject):
              Log.debug("Moving node to group " + broker.name())
              root = QgsProject.instance().layerTreeRoot()
              nodeLayer = root.findLayer(layer.id())
+             self._iface.legendInterface().setCurrentLayer(layer)
              if nodeLayer == None:
                 return None
              newNodeLayer = nodeLayer.clone()
@@ -174,7 +175,6 @@ class layerManager(QObject):
         if  layerManager._rebuildingLegend:
             return
 
-        Log.debug("rebuildLegend " + str(layerManager._rebuildingLegend))
         layerManager._rebuildingLegend = True
         
         root = QgsProject.instance().layerTreeRoot()

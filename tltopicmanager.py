@@ -65,13 +65,12 @@ class tlFeatureDialog(QObject):
         delta = time.time() - when
         if not fmt:
             return delta
-        hours = int(delta / 3600)
-        mins = int((delta - hours) % 60)
-        secs  = int((delta - hours) % 60)
-        
+        hours  = int(delta / 3600)
+        mins   = int((delta - (hours *3600)) / 60)
+        secs   = int((delta - (hours *3600) - (mins*60)))        
         fmtStr = ""
         if hours > 0:
-            fmtStr = fmtStr + str(hours) + 'h'
+            fmtStr = fmtStr + str(hours) + 'h '
         fmtStr = fmtStr + str(mins) + 'm '  
         fmtStr = fmtStr + str(secs) + 's ago'  
         

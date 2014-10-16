@@ -248,6 +248,7 @@ class tLayer(MQTTClient):
 
 
         def commitChanges(self):
+#            Log.debug("Committing")
 
             if not self._dirty:
                 return
