@@ -107,6 +107,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
            self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
            self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Broker ", None) + self.getName())
            self.connectApply.setText(_translate("tlBrokerConfig", "Apply", None))
+           self.dockWidget.visibilityChanged.connect(self.tearDown)
            if self._broker.topicManager() !=None:
             self.setTopicManager(self._broker.topicManager())
             if self._loadTopicManager(self.getTopicManager()):
@@ -120,7 +121,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
              self.Tabs.setEnabled(False)
 
 
-    
 
     def _updateFeatureListItem(self,tLayer,feature):
         if self.dockWidget.isVisible()  and self.Tabs.currentIndex() == self.kFeatureListTabId:
@@ -432,5 +432,22 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.connectTest.clicked.disconnect(self._test)
         super(tlBrokerConfig,self).accept()
         
+
+    def tearDown(self):
+        if not self.dockWidget.isVisible():
+            if self._mode == Constants.Update:
+                return
+                self._refreshFeature.timeout.disconnect( self._updateFeatureList )
+                for tLayer in self._connectedTLayers:
+                    # Delete connections
+                     tLayer.layer().featureAdded.disconnect(self._updateFeatureList)
+                     tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
+
+                self._connectedTLayers = [] 
+                QgsMapLayerRegistry.instance().layersRemoved.disconnect(self._updateFeatureList) 
+                QgsProject.instance().layerLoaded.disconnect(self._updateFeatureList)
+                self.tableFeatureList.doubleClicked.disconnect(self._showFeatureDialog)
+                self.tableFeatureList.clicked.disconnect(self._zoomToFeature)
+
 
     

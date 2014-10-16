@@ -51,8 +51,8 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>100</y>
-       <width>56</width>
+       <y>120</y>
+       <width>60</width>
        <height>13</height>
       </rect>
      </property>
@@ -64,7 +64,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
+       <y>70</y>
        <width>161</width>
        <height>141</height>
       </rect>
@@ -74,8 +74,8 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>50</y>
-       <width>56</width>
+       <y>70</y>
+       <width>60</width>
        <height>13</height>
       </rect>
      </property>
@@ -87,8 +87,8 @@
      <property name="geometry">
       <rect>
        <x>182</x>
-       <y>150</y>
-       <width>56</width>
+       <y>170</y>
+       <width>60</width>
        <height>13</height>
       </rect>
      </property>
@@ -100,7 +100,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>160</y>
+       <y>180</y>
        <width>211</width>
        <height>41</height>
       </rect>
@@ -113,8 +113,8 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>110</y>
-       <width>181</width>
+       <y>130</y>
+       <width>211</width>
        <height>41</height>
       </rect>
      </property>
@@ -126,8 +126,8 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>60</y>
-       <width>201</width>
+       <y>80</y>
+       <width>211</width>
        <height>41</height>
       </rect>
      </property>
@@ -140,9 +140,12 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>31</width>
+       <width>51</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Topic</string>
@@ -157,6 +160,9 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
     </widget>
     <widget class="QComboBox" name="visible">
      <property name="geometry">
@@ -166,6 +172,9 @@
        <width>71</width>
        <height>26</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QComboBox" name="qos">
@@ -177,15 +186,21 @@
        <height>26</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change granted QoS (not implemented via Mosquitto)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
     </widget>
     <widget class="QLabel" name="visibleLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>38</y>
-       <width>41</width>
+       <width>51</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Visible</string>

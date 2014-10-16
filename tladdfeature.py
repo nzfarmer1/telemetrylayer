@@ -66,6 +66,7 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
         for topic in self._broker.topics(self._topicType):
             self.selectTopic.addItem(topic['name'],topic)
         self.selectTopic.setEnabled(True)
+        self.selectTopic.setFocus()
 
     def _topicChanged(self,idx):
         self.buttonAdd.setEnabled(idx > 0)
