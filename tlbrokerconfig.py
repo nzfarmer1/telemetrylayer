@@ -458,19 +458,19 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     def tearDown(self):
         if not self.dockWidget.isVisible():
-            if self._mode == Constants.Update:
+            if self._mode != Constants.Update:
                 return
-                self._refreshFeature.timeout.disconnect( self._updateFeatureList )
-                for tLayer in self._connectedTLayers:
-                    # Delete connections
-                     tLayer.layer().featureAdded.disconnect(self._updateFeatureList)
-                     tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
+            self._refreshFeature.timeout.disconnect( self._updateFeatureList )
+            for tLayer in self._connectedTLayers:
+                # Delete connections
+                 tLayer.layer().featureAdded.disconnect(self._updateFeatureList)
+                 tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
 
-                self._connectedTLayers = [] 
-                QgsMapLayerRegistry.instance().layersRemoved.disconnect(self._updateFeatureList) 
-                QgsProject.instance().layerLoaded.disconnect(self._updateFeatureList)
-                self.tableFeatureList.doubleClicked.disconnect(self._showFeatureDialog)
-                self.tableFeatureList.clicked.disconnect(self._zoomToFeature)
+            self._connectedTLayers = [] 
+            QgsMapLayerRegistry.instance().layersRemoved.disconnect(self._updateFeatureList) 
+            QgsProject.instance().layerLoaded.disconnect(self._updateFeatureList)
+            self.tableFeatureList.doubleClicked.disconnect(self._showFeatureDialog)
+            self.tableFeatureList.clicked.disconnect(self._zoomToFeature)
 
 
     
