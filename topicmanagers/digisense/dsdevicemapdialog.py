@@ -230,7 +230,10 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         try:
             self._deviceTypes = self._creator.getDeviceTypes()
             self.devicesMaps = self._creator.getDeviceMaps()
+            Log.debug("Device Key = " + self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setText(self._deviceMap.getDeviceKey())
+            self.deviceKeyLabel.setToolTip(self._deviceMap.getDeviceKey()) 
+ 
             
             if self._deviceMap.getDeviceTypeId() != None and self._deviceMap.getTopic() != None:
                 self.mode = tlConstants.Update

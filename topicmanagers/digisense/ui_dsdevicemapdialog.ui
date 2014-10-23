@@ -32,7 +32,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>134</y>
+     <y>140</y>
      <width>241</width>
      <height>26</height>
     </rect>
@@ -42,7 +42,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>120</y>
+     <y>126</y>
      <width>201</width>
      <height>20</height>
     </rect>
@@ -58,7 +58,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>60</y>
+     <y>70</y>
      <width>201</width>
      <height>22</height>
     </rect>
@@ -80,7 +80,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>64</y>
+     <y>74</y>
      <width>41</width>
      <height>16</height>
     </rect>
@@ -109,7 +109,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>90</y>
+     <y>100</y>
      <width>201</width>
      <height>22</height>
     </rect>
@@ -125,7 +125,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>160</y>
+     <y>166</y>
      <width>51</width>
      <height>20</height>
     </rect>
@@ -137,37 +137,11 @@
     <string>Settings</string>
    </property>
   </widget>
-  <widget class="QLabel" name="deviceKeyLabel">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>14</y>
-     <width>201</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Devices require a custom name and must be assigned a type&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The name will form the basis of the MQTT Topic that gets piublished.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="text">
-    <string>deviceKey</string>
-   </property>
-   <property name="textFormat">
-    <enum>Qt::RichText</enum>
-   </property>
-  </widget>
   <widget class="QLabel" name="topicLabel">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>92</y>
+     <y>102</y>
      <width>41</width>
      <height>20</height>
     </rect>
@@ -183,7 +157,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>40</y>
+     <y>50</y>
      <width>211</width>
      <height>16</height>
     </rect>
@@ -202,7 +176,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>180</y>
+     <y>186</y>
      <width>251</width>
      <height>121</height>
     </rect>
@@ -237,6 +211,31 @@
    </property>
    <property name="text">
     <string>Delete Mapping</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="deviceKeyLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>12</y>
+     <width>251</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="undoRedoEnabled">
+    <bool>false</bool>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="acceptRichText">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

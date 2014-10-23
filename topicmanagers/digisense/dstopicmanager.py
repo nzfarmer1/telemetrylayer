@@ -12,12 +12,14 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from TelemetryLayer.tltopicmanager import tlTopicManager
+from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
-from ui_dstopicmanager import Ui_dsTopicManager 
+from ui_dstopicmanager import Ui_dsTopicManager
+from ui_dsdatatabwidget import Ui_Form
+
 from dsdevicemapdialog import dsDeviceMapDialog as DeviceMapDialog
 from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
 from dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
@@ -38,6 +40,60 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 deviceTypesPath  =""
+
+class dsDataTab(QDialog, Ui_Form):
+
+    def __init__(self):
+        Log.debug("Init form")
+        try:
+            super(dsDataTab,self).__init__()
+            self.setupUi(self)
+        except Exception as e:
+            Log.debug(e)
+
+class tlDsFeatureDialog(tlFeatureDialog):
+    
+    def __init__(self,dialog,tLayer,feature):
+        dsTabs = dsDataTab()
+        Tabs = dsTabs.Tabs
+        idx = Tabs.indexOf(dsTabs.dataTab)
+        self.dataTable = dsTabs.tableWidget
+        super(tlDsFeatureDialog,self).__init__(dialog,tLayer,feature,Tabs,[idx])
+
+    def show(self):
+        columns = ["Time","Value"]
+        tbl = self.dataTable
+        tbl.clear()
+
+        tbl.setStyleSheet("font: 10pt \"System\";") 
+        tbl.setRowCount(0)
+        tbl.setColumnCount(len(columns))
+        tbl.setColumnWidth(30,30) #?
+        tbl.setHorizontalHeaderLabels(columns)
+        tbl.verticalHeader().setVisible(False)
+        tbl.horizontalHeader().setVisible(True)
+        tbl.setShowGrid(True)
+
+        row=0
+        for i in range(10):
+            tbl.setRowCount(i+1)
+            item = QtGui.QTableWidgetItem(0)
+            item.setText(str(i))
+            item.setFlags(Qt.NoItemFlags)
+            tbl.setItem(row,0,item)
+
+            item = QtGui.QTableWidgetItem(0)
+            item.setText(str(i*i))
+            item.setFlags(Qt.NoItemFlags)
+            tbl.setItem(row,1,item)
+
+            row = row+1
+
+        tbl.resizeColumnsToContents()
+        tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        pass
+    
+
 
 class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     
@@ -107,6 +163,11 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._buildDeviceTypesTable()
         else:
            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,"Unable to load device types")
+
+
+    def featureDialog(self,dialog,tLayer,featureId): # Check SYS type?
+         return tlDsFeatureDialog(dialog,tLayer,featureId)
+
            
     def _updateFeatures(self):
         # Iterate through a list of tlLayers and if they are using
@@ -119,7 +180,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
        
         
     def __del__(self):
-        self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
+        if hasattr(self,'devicesRefresh'):
+            self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
         QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
 #        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
 
@@ -129,6 +191,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def getTopics(self):
         topics = []
+        if  self._deviceMaps == None:
+            return []
         for deviceKey,device in self._deviceMaps:
             devicemap = DeviceMap.loads(device)
             if not devicemap.isMapped():
@@ -400,3 +464,26 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             Log.warn("Failed to load "  + str(e))
             return None
         
+
+    def setLabelFormatter(self,layer,topicType):
+        Log.debug( str(self) + " setFormatter")
+        try:
+            palyr = QgsPalLayerSettings()
+            palyr.readFromLayer(layer)
+            palyr.enabled       = True 
+            palyr.placement     = QgsPalLayerSettings.OverPoint
+            palyr.quadOffset    = QgsPalLayerSettings.QuadrantBelow 
+            palyr.yOffset       = 0.01
+            palyr.fieldName     = '$format_label'
+            palyr.writeToLayer(layer)
+        except Exception as e:
+            Log.debug("Error setting Format " + str(e))
+            
+    def setLayerStyle(self,layer,topicType):
+            if not self.path() in QgsApplication.svgPaths():
+                QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+            self.loadStyle(layer,os.path.join(self.path(),"rules.qml"))
+            
+            
+        
+
