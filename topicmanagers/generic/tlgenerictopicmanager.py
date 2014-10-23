@@ -63,7 +63,7 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         QObject.emit(self,QtCore.SIGNAL('topicManagerReady'),True,self)
         return self.Tabs.widget(0)
 
-    def setFormatter(self,layer,topicType):
+    def setLabelFormatter(self,layer,topicType):
         Log.debug("setFormatter")
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
@@ -74,15 +74,10 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         palyr.fieldName     = '$format_label'
         palyr.writeToLayer(layer)
 
+    def setLayerStyle(self,layer,topicType):
         if not self.path() in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer,os.path.join(self.path(),"rules.qml"))
-        
-        if os.path.exists(os.path.join(self.path(),"ui_tleditfeature.ui")):
-            Log.debug("setEditForm = " + os.path.join(self.path(),"ui_tleditfeature.ui"))
-            layer.setEditForm(os.path.join(self.path(),"ui_tleditfeature.ui"))
-            layer.setEditFormInit("editformfactory.featureDialog")
-        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
         
 
 

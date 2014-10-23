@@ -207,63 +207,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="Settings">
-    <attribute name="title">
-     <string>Settings</string>
-    </attribute>
-    <widget class="QLabel" name="label_3">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>50</y>
-       <width>301</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-    <widget class="QPlainTextEdit" name="plainTextEdit">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>30</y>
-       <width>261</width>
-       <height>131</height>
-      </rect>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="plainText">
-      <string>Please edit this device's settings via the DigiSense Topic Manager interface. 
-
-See Plugin Menu for Telemetry Layer-&gt;Configure
-
-Note: all features that share this topic will be updated.
-</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="History">
-    <attribute name="title">
-     <string>History</string>
-    </attribute>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>30</y>
-       <width>56</width>
-       <height>13</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Plot</string>
-     </property>
-    </widget>
-   </widget>
   </widget>
  </widget>
  <resources/>

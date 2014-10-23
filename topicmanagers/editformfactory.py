@@ -1,6 +1,10 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
+from TelemetryLayer.lib.tllogging import tlLogging as Log
+
+import traceback,sys
+
 """
 /***************************************************************************
  loadfeatureform
@@ -32,12 +36,16 @@ this = None
 
 
 def featureDialog(dialog,layer,feature):
+    
+    
     try:
 #        layer.startEditing() # Doesn't work
         tLayer = this.layerManager.getTLayer(layer.id())
         myDialogHandler = tLayer.topicManager().featureDialog(dialog,tLayer,feature)
         myDialogHandler.show()
     except Exception as e:
-      print "Problem loading custom feature dialog for " + layer.name()
-      print str(e)
+      Log.debug("Problem loading custom feature dialog for " + layer.name())
+      exc_type, exc_value, exc_traceback = sys.exc_info()
+      Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                      exc_traceback)))
 

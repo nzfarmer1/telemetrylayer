@@ -25,9 +25,9 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from ui_telemetrylayer import Ui_TelemetryLayer
-from tlbrokers import tlBrokers as Brokers
+from tlbrokers import tlBrokers as Brokers,  BrokerNotSynced
 from tlbrokerconfig import tlBrokerConfig as BrokerConfig
-from lib.tlsettings import tlSettings as Settings
+from lib.tlsettings import tlSettings as Settings,tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 
 # Add Help Button
@@ -128,6 +128,14 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
        
        self._buildBrokerTable()
 
+    def checkBrokerConfig(self):
+        if self.dirty():
+            if Log.confirm("You have unsaved changed in your broker configuration. Save now?"):
+                self.apply()
+            else:
+                raise BrokerNotSynced("Unsaved changes")
+    
+
     def _showLog(self,state):
         logDock = self.iface.mainWindow().findChild(QtGui.QDockWidget, 'MessageLog')
         if state:
@@ -212,6 +220,19 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.dockWidget.repaint()
         self.iface.addDockWidget( Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget )
 
+    def dirty(self):
+        return self._brokerDlg !=None and self._brokerDlg.dirty()
+
+    def apply(self):
+        self._apply()
+        if self._brokerDlg == None:
+            return
+        if self._brokerDlg.mode() == Constants.Create:
+            self._addBrokerApply()
+        elif self._brokerDlg.mode() == Constants.Update:
+            self._updateBrokerApply()
+    
+
     def _updateBrokerApply(self):
         if not self._brokerDlg.validate():
             return
@@ -240,10 +261,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         #self.dockWidget.setMaximumHeight(25) # paramterise
         self.dockWidget.repaint()
         self.iface.addDockWidget( Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget )
-        
-#        result = broker.exec_()
-#        if result != 0:
-#            Log.debug("Yay")
+    
     
     def _addBrokerApply(self):
         if not self._brokerDlg.validate():

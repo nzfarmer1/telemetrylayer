@@ -19,6 +19,7 @@ from qgis.utils import qgsfunction,QgsExpression
 import os,sys,math,time
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
+import TelemetryLayer
 from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
@@ -28,40 +29,98 @@ class tlFeatureDialog(QObject):
     kOverviewTabId = 0
     kSettingsTabId = 1
     kHistoryTabId  = 2
-    
-    
-    def __init__(self,dialog,tLayer,feature):
+        
+    def __init__(self,dialog,tLayer,feature,Tabs =None, tabsList = []):
         self._dialog        = dialog
         self._tLayer        = tLayer
         self._layer         = tLayer.layer()
         self._feature       = feature
         self._editable      = dialog.editable()
         self._widgets = {}
-        super(tlFeatureDialog,self).__init__()
         
+        if Tabs != None:
+            for idx in tabsList:
+                title = Tabs.tabText(idx)
+                self._addTab(Tabs.widget(idx),title)
+
+        
+        super(tlFeatureDialog,self).__init__()
         Log.debug("Dialog Editable " + str(dialog.editable()))
-        self._tLayer.featureUpdated.connect(self._update)
+        
+        
         self._dialog.adjustSize()
         self.topicManager = self._tLayer.topicManager()
         self.topicType = self._tLayer.topicType()
+        self.updated = self._find(QLabel,'updatedValue')
+        self.updated.setStyleSheet("font-weight:bold;")
+        self.changed = self._find(QLabel,'changedValue')
+        self.changed.setStyleSheet("font-weight:bold;")
+        self.payload = self._find(QLabel,'payloadValue')
+        self.payload.setStyleSheet("font-weight:bold;")
 
+        buttonBox = self._find(QDialogButtonBox,"buttonBox")
+        buttonBox.accepted.connect(lambda : tlFeatureDialog._validate(self))
+        
+        buttonBox.clicked.connect(lambda : tlFeatureDialog._clicked(self))
 
+        self._tLayer.featureUpdated.connect(self._update)
+        self.update()
+        
     def _update(self,tLayer,feature):
         if feature.id() == self._feature.id():
             self._feature = feature
             self.update()
-    
-    def update(self):
+
+    @staticmethod    
+    def _clicked(self,btn = None):
+        Log.debug(btn)
+        self.clicked()
         pass
+
+
+    @staticmethod
+    def _validate(self):
+        self.validate()
+
+    def _addTab(self,widget,title):
+        tabWidget = self._find(QTabWidget,'tabWidget') # Remove History Tab!
+        Log.debug("add Tab " + str(widget))
+        tabWidget.addTab(widget,title)
+        pass
+        
+    def update(self): # check if current tab!
+        try:
+            if hasattr(self.updated,"setText"):
+                updated = self._feature['updated']
+                self.updated.setText(self._since(int (updated)))
+            if hasattr(self.changed,"setText") :
+                changed = self._feature['changed']
+                self.changed.setText(self._since(int(changed)))
+            if hasattr(self.payload,"setText") :
+                payload = self.topicManager.formatPayload(self.topicType,self._feature['payload'])
+                self.payload.setText(payload)
+        except Exception as e:
+            Log.debug(str(e))
+            pass
+
+        
+    def validate(self):
+        self.accept() 
+
+    def clicked(self):
+        self.accept() 
+
     
     def show(self):
         # form is ready to be opened
         pass
-    
+        
     @staticmethod
     def _since(when,fmt = True):
         if not int(when)>=0:
             return ""
+        
+        # replace with datetime methods!
         
         hDiv = 0.00027777777778
         mDiv = 0.01666666666667
@@ -95,7 +154,9 @@ class tlFeatureDialog(QObject):
         Log.debug("Accept")
         self._dialog.save()
 
+
     def __del__(self):
+        Log.debug("_del " +str(self))
         self._tLayer.featureUpdated.disconnect(self._update)
         if self._editable:
             self._tLayer.featureDialogClosed.emit(self._tLayer)
@@ -119,49 +180,9 @@ class tlSysFeatureDialog(tlFeatureDialog):
         image = self._find(QLabel,'imageWidget')
         pixmap = QPixmap(os.path.join(Settings.get('plugin_dir'),'icons','mqtticon-large.png'))
         image.setPixmap(pixmap)
-#        name = self._find(QLineEdit,"name")
-#        name.setEnabled(True)
        
-        buttonBox = self._find(QDialogButtonBox,"buttonBox")
-        buttonBox.accepted.connect(lambda : tlSysFeatureDialog.validate(self))
-        
-        buttonBox.clicked.connect(lambda : tlSysFeatureDialog.clicked(self))
-
-        updated = self._find(QLabel,'updatedValue')
-        updated.setStyleSheet("font-weight:bold;")
-        changed = self._find(QLabel,'changedValue')
-        changed.setStyleSheet("font-weight:bold;")
-        payload = self._find(QLabel,'payloadValue')
-        payload.setStyleSheet("font-weight:bold;")
-        self.update()
-        
-    def update(self):
-        updated = self._find(QLabel,'updatedValue')
-        updated.setText(self._since(int (self._feature['updated'])))
-        changed = self._find(QLabel,'changedValue')
-        changed.setText(self._since(int(self._feature['changed'])))
-        payload = self._find(QLabel,'payloadValue')
-        payload.setText(self.topicManager.formatPayload(self.topicType,self._feature['payload']))
-        
-    @staticmethod    
-    def clicked(self,btn = None):
-        Log.debug(btn)
-        pass
-
  
-    @staticmethod
     def validate(self):
-        # editmode doesn't work properly from the GUI
-        # See: https://hub.qgis.org/issues/11395
-        # the following code works but don't use
-        if False:
-            Log.debug(self.name.text())
-            name = self._find(self,"name")
-            Log.debug(name.text())
-            self._layer.startEditing()
-            self._layer.changeAttributeValue ( self._feature.id(), 2, name.text())
-            #self._dialog.changeAttribute("name",name.text())
-            self._layer.commitChanges()
         super(tlSysFeatureDialog,self).accept() 
 
 
@@ -182,6 +203,7 @@ class tlTopicManager(QDialog,QObject):
        systopicxml = os.path.join(Settings.get('plugin_dir'),'data','systopics.xml')
        
        self._systopics = XMLTopicParser(systopicxml).getTopics()
+
 
     def featureDialog(self,dialog,tLayer,featureId): # Check SYS type?
          return tlSysFeatureDialog(dialog,tLayer,featureId)
@@ -209,7 +231,7 @@ class tlTopicManager(QDialog,QObject):
 # Label not showing in Windows initially
 # Add symbols (rules based)
 
-    def setFormatter(self,layer,topicType):
+    def setLabelFormatter(self,layer,topicType):
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
         palyr.enabled = True 
@@ -220,6 +242,14 @@ class tlTopicManager(QDialog,QObject):
               
         layer.setEditForm(os.path.join(Settings.get('plugin_dir'),"topicmanagers","ui_tleditfeature.ui"))
         layer.setEditFormInit("editformfactory.featureDialog")
+        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+
+    def setFeatureForm(self,layer,topicType):
+        _form  = os.path.join(TelemetryLayer.path(),"topicmanagers","ui_tleditfeature.ui")
+        if os.path.isfile(_form):
+            Log.debug("setEditForm = " + _form)
+            layer.setEditForm(_form)
+            layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
     def formatPayload(self,topicType,payload):

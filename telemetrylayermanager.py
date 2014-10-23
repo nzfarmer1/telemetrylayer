@@ -12,7 +12,7 @@ from qgis.gui import *
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlayer import tLayer as TLayer
-from tlbrokers import tlBrokers as Brokers,BrokerNotFound
+from tlbrokers import tlBrokers as Brokers,BrokerNotFound, BrokerNotSynced
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
@@ -461,9 +461,16 @@ class layerManager(QObject):
     
     def getIface(self):
         return self._iface
-    
+
 
     def createEmptyLayer(self):
+        try:
+            telemetryLayer.instance().checkBrokerConfig()
+        except BrokerNotSynced:
+            Log.warn("Please save any broker configurations first")
+            return
+            
+        
         dlg = layerConfig(self)
         result = dlg.exec_()
         if (result == 0): # object will be garbage collected

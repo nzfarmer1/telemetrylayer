@@ -81,10 +81,13 @@ class TelemetryLayerPlugin(QObject):
             TopicManagerFactory(iface)
             Log.debug("Topic Managers Loaded")
             Brokers(os.path.join(self.plugin_dir,'data'))
+            Log.debug("Brokers Loaded")
         except Exception as e:
-            Log.debug("Error on Plugin initialization " + str(e))
+            Log.critical("Error on Plugin initialization " + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                              exc_traceback)))
             
-        Log.debug("Brokers Loaded")
         # initialize locale
         self.translator = QTranslator()
         

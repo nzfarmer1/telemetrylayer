@@ -18,7 +18,7 @@ from lib.tlsettings import tlSettings as Settings, tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
-import traceback, sys,os,imp, json
+import traceback, sys,os,imp, json,zlib
 import copy,pickle
 
 # Todo
@@ -128,7 +128,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
            else:
              self.Tabs.setEnabled(False)
 
-
+    def mode(self):
+        return self._mode
 
     def _updateFeatureListItem(self,tLayer,feature):
         if self.dockWidget.isVisible()  and self.Tabs.currentIndex() == self.kFeatureListTabId:
@@ -268,7 +269,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         tbl.resizeColumnsToContents()   
         tbl.horizontalHeader().setStretchLastSection(True)
         
-    
 
     def _loadTopicManager(self,topicManagerId = 'digisense'):
         try:
@@ -306,13 +306,26 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.connectTopicManager.setCurrentIndex(0)
             
 
+    def dirty(self):
+        if not self.dockWidget.isVisible():
+            return False
+
+        dirty = False
+        dirty = dirty or self._broker.name() != self.getName()
+        dirty = dirty or self._broker.host() != self.getHost()
+        dirty = dirty or self._broker.port() != self.getPort()
+        dirty = dirty or self._broker.poll() != self.getPoll()
+        dirty = dirty or self._broker.keepAlive() != self.getKeepAlive()
+        dirty = dirty or self._broker.topics() != self.getTopics()
+
+        return dirty 
    
     def getTopics(self):
         if self._topicManager == None:
             return []
         return self._topicManager.getTopics()
             
-   
+
     def getBroker(self):
             
         self._broker.setName(self.getName())
@@ -461,10 +474,10 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             if self._mode != Constants.Update:
                 return
             self._refreshFeature.timeout.disconnect( self._updateFeatureList )
-            for tLayer in self._connectedTLayers:
+          #  for tLayer in self._connectedTLayers:
                 # Delete connections
-                 tLayer.layer().featureAdded.disconnect(self._updateFeatureList)
-                 tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
+          #       tLayer.layer().featureAdded.disconnect(self._updateFeatureList)
+          #       tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
 
             self._connectedTLayers = [] 
             QgsMapLayerRegistry.instance().layersRemoved.disconnect(self._updateFeatureList) 

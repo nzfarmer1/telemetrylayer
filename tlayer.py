@@ -22,8 +22,9 @@ from lib import mosquitto as Mosquitto
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
 from tlbrokerconfig import tlBrokerConfig
 from tlmqttclient import *
+from telemetrylayer import TelemetryLayer as telemetryLayer
 from tladdfeature import tlAddFeature as AddFeature
-from tlbrokers import tlBrokers as Brokers,BrokerNotFound
+from tlbrokers import tlBrokers as Brokers,BrokerNotFound,BrokerNotSynced
 import time,os, zlib
 
 
@@ -34,7 +35,6 @@ class tLayer(MQTTClient):
         kBrokerId  = 'tlayer/brokerid'
         kTopicType = 'tlayer/topictype'
 
-     
 
         # SIGNALS
         featureUpdated       = pyqtSignal(object,object)
@@ -122,7 +122,10 @@ class tLayer(MQTTClient):
                 self.restart() # Enqueue?
                 
 
+
         def run(self):
+                if not self._canRun():
+                    return
                 Log.debug("Running " + self.layer().name())
                 self._dict ={}
                 self._values = {}
@@ -347,7 +350,9 @@ class tLayer(MQTTClient):
                 self._layer.setEditorWidgetV2(Constants.topicIdx,'ValueMap')
                 self.brokerUpdated()
 
-                self._topicManager.setFormatter(self._layer,self._topicType)
+                self._topicManager.setLabelFormatter(self._layer,self._topicType)
+                self._topicManager.setLayerStyle(self._layer,self._topicType)
+                self._topicManager.setFeatureForm(self._layer,self._topicType)
                 self._layer.commitChanges()
 
         def getAttributes(self):
@@ -399,9 +404,11 @@ class tLayer(MQTTClient):
                         return None
                     
                 # Look Up broker and topicType
+                
 
                 feat = QgsFeature(fid)
                 try:
+                    telemetryLayer.instance().checkBrokerConfig()
                     tlAddFeature  = AddFeature(self._broker,self._topicType)
                     result = tlAddFeature.exec_()
                     if result == 0:
@@ -427,6 +434,10 @@ class tLayer(MQTTClient):
                     self._layer.updateFeature(feat)
                     self._layer.commitChanges()
                     self._feat = feat
+                except BrokerNotSynced:
+                    Log.warn("Please save any unsaved Broker confugurations first")
+                    self._layer.deleteFeature(fid)
+                    self._layer.commitChanges()
                 except Exception as e:
                     Log.debug(e)
                     self._layer.deleteFeature(fid)
@@ -485,9 +496,9 @@ class tLayer(MQTTClient):
 
         def refresh(self,state):
                 self.commitChanges()
-                
-                if not self.hasFeatures():
-                    return # nothing to do
+#                
+#                if not self.hasFeatures():
+#                    return # nothing to do
                 
                 if state:
                         self.resume()
@@ -506,7 +517,10 @@ class tLayer(MQTTClient):
         def topicType(self):
                 return self._topicType
         
-        def hasFeatures(self):
+        def _canRun(self):
+           return self._hasFeatures() and not (self.isEditing or self._layer.isReadOnly())
+
+        def _hasFeatures(self):
                 feat  = QgsFeature()
                 count =0
                 iter = self._layer.getFeatures()

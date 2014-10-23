@@ -15,6 +15,9 @@ import json,os.path,sys
 class BrokerNotFound(Exception):
    pass
 
+class BrokerNotSynced(Exception):
+   pass
+
 class tlBrokers(QObject):
 
     _this = None
@@ -153,6 +156,8 @@ class tlBrokers(QObject):
     def _validate(self):
         pass
 
+    def dirty(self):
+        return self._dirty
 
 class tlBroker(QObject):
 

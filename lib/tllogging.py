@@ -104,7 +104,7 @@ class tlLogging(QObject):
     def progress(msg,duration = 5,level = QgsMessageBar.INFO):
         if tlLogging._iface != None:
                 widget  = QtGui.QLabel(str(msg))
-                widget.setStyleSheet("QLabel {padding-left:40px;background-image:url(':/plugins/digisense/icon.png');background-repeat:no-repeat; background-origin:left}")         
+                widget.setStyleSheet("QLabel {padding-left:40px;background-image:url(':/plugins/telemetrylayer/icons/icon.png');background-repeat:no-repeat; background-origin:left}")         
                 return tlLogging._iface.messageBar().pushWidget(widget,QgsMessageBar.INFO,duration)
 
 
@@ -115,7 +115,7 @@ class tlLogging(QObject):
 
     @staticmethod
     def info(msg,level = QgsMessageLog.INFO):
-        if tlLogging._logStates & tlLogging.CRITICAL:
+        if tlLogging._logStates & tlLogging.INFO:
             QgsMessageLog.logMessage(str(msg),tlLogging.HEADER,level)
 
 
@@ -136,5 +136,5 @@ class tlLogging(QObject):
         QgsMessageLog.logMessage(str(msg),tlLogging.HEADER,QgsMessageLog.CRITICAL)
         if tlLogging._iface != None:
                 widget  = QtGui.QLabel(msg)
-                widget.setStyleSheet("QLabel {padding-left:40px;background-image:url(':/plugins/newmemorylayer/layer-memory-create.png');background-repeat:no-repeat; background-origin:left}")         
+                widget.setStyleSheet("QLabel {padding-left:40px;background-image:url(':/plugins/telemetrylayer/icons/icon.png');background-repeat:no-repeat; background-origin:left}")         
                 return tlLogging._iface.messageBar().pushWidget(widget,QgsMessageBar.CRITICAL,duration)

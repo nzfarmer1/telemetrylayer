@@ -18,13 +18,26 @@ def get_subpackages(module):
         d = os.path.join(dir, d)
         return os.path.isdir(d) and glob.glob(os.path.join(d, '__init__.py*'))
 
-    return filter(is_package, os.listdir(dir))
+    return filter(is_package, os.listdir(os.path.dirname(module.__file__)))
+
+def get_modules(module):
+    dir = os.path.dirname(module.__file__)
+    def is_module(d):
+        d = os.path.join(dir, d)
+        return '.pyc' in os.path.splitext(d)
+
+    return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
+
+
 
 # Recipe adapted from http://stackoverflow.com/users/1736389/sam-p
 
 def reload_class(class_obj):
     module_name = class_obj.__module__
     module = sys.modules[module_name]
+    Log.debug("Reloading modules" )
+    for modile_pycfile in get_modules(module):
+        os.remove(os.path.join(os.path.dirname(module.__file__),modile_pycfile) )
     pycfile = module.__file__
     modulepath = pycfile.replace(".pyc", ".py")
     code=open(modulepath, 'rU').read()
