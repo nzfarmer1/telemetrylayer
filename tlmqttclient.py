@@ -118,9 +118,15 @@ class MQTTClient(QtCore.QObject):
         
     def setHost(self,host):
         self._host = host
+        
+    def host(self):
+        return self._host
 
     def setPort(self,port):
         self._port = int(port)
+        
+    def port(self):
+        return self._port
 
     def setPoll(self,poll):
         self._poll = int(poll)
@@ -186,12 +192,17 @@ class MQTTClient(QtCore.QObject):
          return self.mqttc.socket() is not None and self._connected
     
     def publish(self,topic,msg,qos=0,retain=True):
-        self.mqttc.publish(topic,msg,qos,retain)
+        self.mqttc.publish(str(topic),msg,int(qos),retain)
     
     def subscribe(self,topic,qos):
         if self.isConnected():
-            #Log.debug('Subscribing to ' + topic)
-            self.mqttc.subscribe(topic,qos)
+            try:
+                Log.debug('Subscribing to ' + topic + " " + str(qos))
+                self.mqttc.subscribe(str(topic),int(qos))
+                Log.debug('Subscribed to ' + topic + " " + str(qos))
+            except Exception as e:
+                Log.debug("Error on subscribe " + str(e))
+                raise(e)
 
     def unsubscribe(self,topic):
         if self.isConnected():
@@ -290,17 +301,17 @@ class tlMqttSingleShot(MQTTClient):
                  host,
                  port ,
                  pubTopic,
-                 subTopic,
+                 subTopics = [] ,
                  pubData = "",
-                 timeout = 30, # seconds
-                 qos = 1):
+                 keepalive = 30, # seconds
+                 qos = 0):
 
         self._creator   = creator
         self._pubTopic  = pubTopic
-        self._subTopic  = subTopic
+        self._subTopics  = subTopics
         self._pubData   = pubData
+        self._keepalive   = keepalive
         self._qos       = int(qos)
-        self._timeout   = timeout
         self._timer     = QTimer()         
         self._timer.setSingleShot(True)
         self._timer.timeout.connect( self._connectError )
@@ -309,9 +320,9 @@ class tlMqttSingleShot(MQTTClient):
                                         str(self), 
                                         host,
                                         port,
-                                        0,
-                                        60,
-                                        True)
+                                        0, # qos
+                                        1, # poll
+                                        self._keepalive ) # keep alive
 
         
 
@@ -321,7 +332,7 @@ class tlMqttSingleShot(MQTTClient):
         self.kill()
 
     def run(self):
-        self._timer.start(int(self._timeout) * 1000)
+        self._timer.start(int(self._keepalive) * 1000)
         QObject.connect(self, SIGNAL("mqttOnTimeout"), self._connectError)
         super(tlMqttSingleShot,self).run()
         
@@ -329,25 +340,30 @@ class tlMqttSingleShot(MQTTClient):
        super(tlMqttSingleShot,self).onDisConnect(mosq,obj,rc)
        self.kill()
        pass
+    
+    def loop(self):
+#        Log.debug("Looping " + str(self._poll))
+        super(tlMqttSingleShot,self).loop()
 
     def kill(self):
         self._timer.stop()
-        Log.debug(str(self) + " kill")
         super(tlMqttSingleShot,self).kill()
        
 
     def onConnect(self,mosq, obj, rc):
-        if self._subTopic == None:
+        if len(self._subTopics) == 0:
             self._connectError(False,"No Subcription Topic defined")
-        self.subscribe(self._subTopic,self._qos)
+        for topic in self._subTopics:
+            self.subscribe(str(topic),self._qos)
         if self._pubTopic !=None:
-           self.publish(self._pubTopic,self._pubData,self._qos)
+           self.publish(str(self._pubTopic),str(self._pubData),self._qos)
 
 
     def onMessage(self,mq, obj, msg):
         Log.debug('onMessage!')
-        QObject.emit(self,SIGNAL('mqttOnCompletion'),self,True,msg.payload)
-        self.kill()
+        self._timer.stop()
+        mq.disconnect()
+        QObject.emit(self,SIGNAL('mqttOnCompletion'),self,True,msg)
 
 # Simple class for testing connections
 # Add onComplete?

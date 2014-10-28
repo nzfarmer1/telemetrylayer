@@ -156,7 +156,6 @@ class tlFeatureDialog(QObject):
 
 
     def __del__(self):
-        Log.debug("_del " +str(self))
         self._tLayer.featureUpdated.disconnect(self._update)
         if self._editable:
             self._tLayer.featureDialogClosed.emit(self._tLayer)

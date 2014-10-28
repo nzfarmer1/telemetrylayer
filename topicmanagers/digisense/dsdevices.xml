@@ -5,6 +5,7 @@
         <Model>12000</Model>
         <Operation>Tank</Operation>
         <Units>%</Units>
+        <Lambda>x: 1.0/1024*float(x)</Lambda>
         <Params>
             <Param name="height" widget="spinbox" title="Height" description="Height of tank">
                 <Min>1000</Min>
@@ -16,12 +17,12 @@
                 <Type>Int</Type>
             </Param>
         </Params>
-        <Conversion/>
     </Device>
     <Device id='AI001FLOW' type="adc">
         <Manufacturer>China</Manufacturer>
         <Model>Generic</Model>
         <Operation>Flow</Operation>
+        <Lambda>x: 1.0/1024*float(x)</Lambda>
         <Units>Lpm</Units>
         <Params>
             <Param name="highflow" widget="slider" title="High Flow" description="High Flow Warning in Litres per Minute">
@@ -34,13 +35,13 @@
                 <Units>LPm</Units>
             </Param>
         </Params>
-        <Conversion/>
     </Device>
     <Device id='AI001FENCE' type="adc">
         <Manufacturer>Pakton</Manufacturer>
         <Model>PTE0700</Model>
         <Operation>Fence Monitor</Operation>
         <Units>V</Units>
+        <Lambda>x: 1.0/1024*float(x)</Lambda>
         <Params>
             <Param name="voltage" widget="spinbox" title="Voltage" description="Ideal Voltage">
                 <Min>1000</Min>
@@ -70,4 +71,3 @@
         <Conversion/>
     </Device>
 </Devices>
-

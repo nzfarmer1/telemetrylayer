@@ -24,7 +24,7 @@ from dsdevicemapdialog import dsDeviceMapDialog as DeviceMapDialog
 from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
 from dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
 
-import os
+import os,zlib, datetime, json
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -51,18 +51,89 @@ class dsDataTab(QDialog, Ui_Form):
         except Exception as e:
             Log.debug(e)
 
-class tlDsFeatureDialog(tlFeatureDialog):
+class dsDataLoggerView(QObject):
     
-    def __init__(self,dialog,tLayer,feature):
-        dsTabs = dsDataTab()
-        Tabs = dsTabs.Tabs
-        idx = Tabs.indexOf(dsTabs.dataTab)
-        self.dataTable = dsTabs.tableWidget
-        super(tlDsFeatureDialog,self).__init__(dialog,tLayer,feature,Tabs,[idx])
+    def __init__(self,dataTab,tLayer,feature):
+        super(dsDataLoggerView,self).__init__()
+        self._dataTab = dataTab
+        self._tlayer = tLayer
+        self._feature = feature
+        self._dataTable = dataTab.tableWidget
+        self._dataTab.btnRefresh.clicked.connect(self._refresh)
+        
+    def _refresh(self):
+        Log.debug("Refreshing")
+        Log.debug(self._feature['topic'] + "/10000/1")
+        try:
+            aClient = tlMqttSingleShot(self,
+                                        self._tlayer.host(),
+                                        self._tlayer.port(),
+                                        "/digisense/request/data/10000/1",
+                                        ["/digisense/response/data" + self._feature['topic'] , "/digisense/response/data" + self._feature['topic'] + "/compressed"],
+                                        self._feature['topic'],
+                                        30)
+            QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._update)
+            QObject.connect(aClient, QtCore.SIGNAL("mqttConnectionError"), self._error)
+            QObject.connect(aClient, QtCore.SIGNAL("mqttOnTimeout"),  self._error)
 
+            aClient.run()
+        except Exception:
+            Log.debug("Data Logger ")
+            aClient.kill()
+        
+    def _error(self,mqtt,msg = ""):
+        Log.warn(msg)
+
+    def _update(self,client,status,msg):
+        if not status:
+            Log.alert(msg)
+            return
+        
+        try:
+            if 'compressed' in msg.topic:
+                response = json.loads(zlib.decompress(msg.payload))
+            else:
+                response = json.loads(msg.payload)
+
+            if response['warn'] == '1':
+                Log.progress(response['warning'])
+    
+            records = response['records']
+            if records < 1:
+                Log.progress("Nothing returned")
+            
+            data    = response['data']
+    
+            tbl = self._dataTable
+            tbl.setRowCount(0)
+            row=0
+            data.reverse()
+            for (x,y) in list(data):
+                d =  datetime.datetime.fromtimestamp(x)
+    
+                tbl.setRowCount(row+1)
+                item = QtGui.QTableWidgetItem(0)
+                item.setText(d.strftime("%y-%m-%d-%H:%M:%S"))
+                item.setFlags(Qt.NoItemFlags)
+                tbl.setItem(row,0,item)
+    
+                item = QtGui.QTableWidgetItem(0)
+                #item.setText(d.strftime("%y-%m-%d-%H:%M:%S"))
+                item.setText(str(y))
+                item.setFlags(Qt.NoItemFlags)
+                tbl.setItem(row,1,item)
+    
+                row = row+1
+            tbl.resizeColumnsToContents()
+            tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        except Exception as e:
+            Log.debug(e)
+            
+                     
+        
     def show(self):
         columns = ["Time","Value"]
-        tbl = self.dataTable
+        tbl = self._dataTable
         tbl.clear()
 
         tbl.setStyleSheet("font: 10pt \"System\";") 
@@ -70,28 +141,27 @@ class tlDsFeatureDialog(tlFeatureDialog):
         tbl.setColumnCount(len(columns))
         tbl.setColumnWidth(30,30) #?
         tbl.setHorizontalHeaderLabels(columns)
-        tbl.verticalHeader().setVisible(False)
+       # tbl.verticalHeader().setVisible(False)
         tbl.horizontalHeader().setVisible(True)
         tbl.setShowGrid(True)
+        tbl.setSortingEnabled(True)
 
-        row=0
-        for i in range(10):
-            tbl.setRowCount(i+1)
-            item = QtGui.QTableWidgetItem(0)
-            item.setText(str(i))
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,0,item)
-
-            item = QtGui.QTableWidgetItem(0)
-            item.setText(str(i*i))
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,1,item)
-
-            row = row+1
 
         tbl.resizeColumnsToContents()
         tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
         pass
+        
+
+class tlDsFeatureDialog(tlFeatureDialog):
+    
+    def __init__(self,dialog,tLayer,feature):
+        dsTabs = dsDataTab()
+        Tabs = dsTabs.Tabs
+        idx = Tabs.indexOf(dsTabs.dataTab)
+        super(tlDsFeatureDialog,self).__init__(dialog,tLayer,feature,Tabs,[idx])
+        self._dataTab = dsDataLoggerView(dsTabs,tLayer,feature)
+        self._dataTab.show()
+
     
 
 
@@ -405,11 +475,11 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         QObject.emit(self,QtCore.SIGNAL('topicManagerReady'),True,self)
 
 
-    def _buildDevicesTableCallback(self,mqClient,status,response,fu="bar"):
+    def _buildDevicesTableCallback(self,mqClient,status,msg,fu="bar"):
         self.devicesRefresh.setEnabled(True)
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         if status:
-            self.setDeviceMaps(DeviceMaps.decode(response))
+            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
             Log.debug('xxx ' + str(self._deviceTypes))
             if self._deviceTypes != None:
                 self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
@@ -417,10 +487,9 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
                 self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
                 self._buildDevicesTables()
         else:
-            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,response)
-            dsTopicManager.showLoadingMessage(self.tablePhysical,response)
-            dsTopicManager.showLoadingMessage(self.tableLogical,response)
-            Log.debug(response)
+            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,msg.payload)
+            dsTopicManager.showLoadingMessage(self.tablePhysical,msg.payload)
+            dsTopicManager.showLoadingMessage(self.tableLogical,msg.payload)
 
 
 
@@ -434,7 +503,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
                                   self._broker.host(),
                                   self._broker.port(),
                                   "/digisense/request/device/maps",
-                                  "/digisense/response/device/maps")
+                                  ["/digisense/response/device/maps"])
         QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._buildDevicesTableCallback)
         QObject.connect(aClient, QtCore.SIGNAL("mqttConnectionError"), self._deviceMapsRefreshError)
         QObject.connect(aClient, QtCore.SIGNAL("mqttOnTimeout"), self._deviceMapsRefreshError)

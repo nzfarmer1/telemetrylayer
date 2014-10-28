@@ -11,7 +11,6 @@ except:
 
 class dsDeviceMap:
 
-
     HIBYTE = 2
     LOBYTE = 3
     DTYPE  = 4
@@ -123,7 +122,8 @@ class dsDeviceMap:
 # Return DeviceType (Catalog) Id
     def getDeviceTypeId(self):
         return self.get('deviceTypeId')
-
+    
+    
     def setDeviceTypeId(self,deviceTypeId):
         self.set('deviceTypeId',deviceTypeId)
 

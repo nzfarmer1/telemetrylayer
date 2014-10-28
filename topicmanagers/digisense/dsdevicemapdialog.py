@@ -306,18 +306,18 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self._curDeviceIdx = self.deviceType.itemData(i)
             self.createParameterTable(self._curDeviceIdx)
 
-    def _deleteMapCallback(self,client,status,response):
+    def _deleteMapCallback(self,client,status,msg):
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         self.applyButton.setDisabled(False)
         if status == True:
-            self.setDeviceMaps(DeviceMaps.decode(response))
+            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
             self.dirty = True
             #self._creator._buildDevicesTables() # Replace with SIGNAL?
             #QObject.emit(self._creator,QtCore.SIGNAL("deviceMapsRefreshed"))
             Log.progress("Device map deleted")
             self.accept()
         else:
-            Log.progress("Unable to update map: " + response)
+            Log.progress("Unable to update map: " + msg.payload)
 
 # Validate deletion of a Device Map
 
@@ -338,7 +338,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
                                       self._broker.host(),
                                       self._broker.port(),
                                       "/digisense/request/update/map",
-                                      "/digisense/response/device/maps",
+                                      ["/digisense/response/device/maps"],
                                       self._deviceMap.dumps())
             QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._deleteMapCallback)
             aClient.run()
@@ -347,18 +347,18 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
             Log.debug("Error deleting map: " + str(e))
 
-    def _updateMapCallback(self,client,status,response):
+    def _updateMapCallback(self,client,status,msg):
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         self.applyButton.setDisabled(False)
         if status == True:
-            self.setDeviceMaps(DeviceMaps.decode(response))
+            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
             self.dirty = True
             
             Log.progress("Device map updated")
             
             self.accept()
         else:
-            Log.progress("Unable to update map: " + response)
+            Log.progress("Unable to update map: " + msg.payload)
             
             
     # Apply changes to individual map            
@@ -390,7 +390,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
                                       self._broker.host(),
                                       self._broker.port(),
                                       "/digisense/request/update/map",
-                                      "/digisense/response/device/maps",
+                                      ["/digisense/response/device/maps"],
                                       self._deviceMap.dumps())
             QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._updateMapCallback)
             aClient.run()

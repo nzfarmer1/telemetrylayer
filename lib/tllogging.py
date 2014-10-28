@@ -21,11 +21,12 @@ except AttributeError:
 
 class tlLogging(QObject):
 
-    HEADER  = ''
+    HEADER   = ''
     CRITICAL = 1
     INFO     = 2
     WARN     = 4
-    DEBUG   = 8
+    DEBUG    = 8
+    STATUS   = 16
 
     _iface  = None
     _pstack = {}
@@ -37,10 +38,7 @@ class tlLogging(QObject):
         tlLogging._iface = creator.iface
         tlLogging._logDock = tlLogging._iface.mainWindow().findChild(QDockWidget, 'MessageLog')
         tlLogging.HEADER = Settings.getMeta('name','general')
-        tlLogging._logStates = int(Settings.get("logStates",tlLogging.CRITICAL))
-
-
-
+        tlLogging._logStates = int(Settings.get("logStates",tlLogging._logStates))
 
     @staticmethod
     def logDockVisible():
@@ -50,7 +48,7 @@ class tlLogging(QObject):
     def setLogStates(logStates):
         Settings.set("logStates",logStates)
         tlLogging._logStates = logStates
-
+        tlLogging.status("",True)
 
     @staticmethod
     def path2url(path):
@@ -86,8 +84,8 @@ class tlLogging(QObject):
 
 
     @staticmethod
-    def status(msg):
-        if tlLogging._iface != None:
+    def status(msg,force = False):
+        if tlLogging._iface != None and (tlLogging._logStates & tlLogging.STATUS) or force:
             tlLogging._iface.mainWindow().statusBar().showMessage(str(msg))
 
     @staticmethod

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_telemetrylayer.ui'
 #
-# Created: Thu Oct 16 04:30:41 2014
+# Created: Thu Oct 23 21:44:35 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,23 +49,26 @@ class Ui_TelemetryLayer(object):
         self.globalSettings = QtGui.QWidget()
         self.globalSettings.setObjectName(_fromUtf8("globalSettings"))
         self.groupBox = QtGui.QGroupBox(self.globalSettings)
-        self.groupBox.setGeometry(QtCore.QRect(20, 0, 231, 161))
+        self.groupBox.setGeometry(QtCore.QRect(20, 0, 241, 171))
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.logInfo = QtGui.QCheckBox(self.groupBox)
-        self.logInfo.setGeometry(QtCore.QRect(10, 30, 85, 18))
+        self.logInfo.setGeometry(QtCore.QRect(10, 50, 85, 18))
         self.logInfo.setObjectName(_fromUtf8("logInfo"))
         self.logWarn = QtGui.QCheckBox(self.groupBox)
-        self.logWarn.setGeometry(QtCore.QRect(10, 50, 85, 18))
+        self.logWarn.setGeometry(QtCore.QRect(10, 70, 85, 18))
         self.logWarn.setObjectName(_fromUtf8("logWarn"))
         self.logDebug = QtGui.QCheckBox(self.groupBox)
-        self.logDebug.setGeometry(QtCore.QRect(10, 70, 85, 18))
+        self.logDebug.setGeometry(QtCore.QRect(10, 90, 85, 18))
         self.logDebug.setObjectName(_fromUtf8("logDebug"))
         self.logCritical = QtGui.QCheckBox(self.groupBox)
-        self.logCritical.setGeometry(QtCore.QRect(10, 90, 85, 18))
+        self.logCritical.setGeometry(QtCore.QRect(10, 110, 85, 18))
         self.logCritical.setObjectName(_fromUtf8("logCritical"))
         self.ckShowLog = QtGui.QCheckBox(self.groupBox)
-        self.ckShowLog.setGeometry(QtCore.QRect(7, 110, 91, 32))
+        self.ckShowLog.setGeometry(QtCore.QRect(10, 130, 91, 32))
         self.ckShowLog.setObjectName(_fromUtf8("ckShowLog"))
+        self.logStatus = QtGui.QCheckBox(self.groupBox)
+        self.logStatus.setGeometry(QtCore.QRect(10, 30, 85, 18))
+        self.logStatus.setObjectName(_fromUtf8("logStatus"))
         self.btnApply = QtGui.QPushButton(self.globalSettings)
         self.btnApply.setGeometry(QtCore.QRect(195, 180, 81, 32))
         self.btnApply.setObjectName(_fromUtf8("btnApply"))
@@ -87,7 +90,7 @@ class Ui_TelemetryLayer(object):
         self.dockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(TelemetryLayer)
-        self.brokerManagerWidget.setCurrentIndex(1)
+        self.brokerManagerWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(TelemetryLayer)
 
     def retranslateUi(self, TelemetryLayer):
@@ -100,6 +103,8 @@ class Ui_TelemetryLayer(object):
         self.logDebug.setText(_translate("TelemetryLayer", "Debug", None))
         self.logCritical.setText(_translate("TelemetryLayer", "Critical", None))
         self.ckShowLog.setText(_translate("TelemetryLayer", "Show Log", None))
+        self.logStatus.setToolTip(_translate("TelemetryLayer", "<html><head/><body><p>Show updates in the main window\'s status bar</p></body></html>", None))
+        self.logStatus.setText(_translate("TelemetryLayer", "Status", None))
         self.btnApply.setText(_translate("TelemetryLayer", "Apply", None))
         self.brokerManagerWidget.setTabText(self.brokerManagerWidget.indexOf(self.globalSettings), _translate("TelemetryLayer", "Settings", None))
         self.btnAdd.setToolTip(_translate("TelemetryLayer", "<html><head/><body><p>Add a new broker</p></body></html>", None))

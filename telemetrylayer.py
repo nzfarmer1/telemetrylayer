@@ -120,6 +120,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
        self.logInfo.setCheckState(self._getQtBoxStateValue(logStates & Log.INFO))
        self.logWarn.setCheckState(self._getQtBoxStateValue(logStates & Log.WARN)) 
        self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG)) 
+       self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS)) 
  
 #       self.logCritical.setCheckState(self._getQtBoxStateValue(Settings.get('logCritical',True)))
 #       self.logWarn.setCheckState(self._getQtBoxStateValue(Settings.get('logWarn',False)))
@@ -158,10 +159,10 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         if self.logDebug.checkState() ==  self._getQtBoxStateValue(True):
             logStates |= Log.DEBUG
             
-        Log.setLogStates(logStates)
-        Settings.set('logStates',logStates)
+        if self.logStatus.checkState() ==  self._getQtBoxStateValue(True):
+            logStates |= Log.STATUS
 
-        Settings.set('logStates',logStates)
+        Log.setLogStates(logStates)
 
     def _buildBrokerTable(self):
         brokers = self._brokers.list()
