@@ -38,13 +38,13 @@ class tlFeatureDialog(QObject):
         self._editable      = dialog.editable()
         self._widgets = {}
         
+        super(tlFeatureDialog,self).__init__()
         if Tabs != None:
             for idx in tabsList:
                 title = Tabs.tabText(idx)
-                self._addTab(Tabs.widget(idx),title)
+                self._addTab(Tabs.widget(idx),title,1 + idx)
 
         
-        super(tlFeatureDialog,self).__init__()
         Log.debug("Dialog Editable " + str(dialog.editable()))
         
         
@@ -82,12 +82,18 @@ class tlFeatureDialog(QObject):
     def _validate(self):
         self.validate()
 
-    def _addTab(self,widget,title):
+    def _tabCount(self):
         tabWidget = self._find(QTabWidget,'tabWidget') # Remove History Tab!
-        Log.debug("add Tab " + str(widget))
-        tabWidget.addTab(widget,title)
+        return tabWidget.count()
+
+    def _addTab(self,widget,title,idx):
+        tabWidget = self._find(QTabWidget,'tabWidget') # Remove History Tab!
+        Log.debug(str(self) + " add Tab " + str(widget) + str(tabWidget.count()) )
+        if tabWidget.count() < idx+1:
+            tabWidget.addTab(widget,title)
         pass
         
+
     def update(self): # check if current tab!
         try:
             if hasattr(self.updated,"setText"):

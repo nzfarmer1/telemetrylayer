@@ -285,7 +285,7 @@ class MQTTClient(QtCore.QObject):
 
     def _reset(self):
         self._attempts = 0
-        self.start()
+        self.run()
         Log.warn("Attempting to connect")
 
     

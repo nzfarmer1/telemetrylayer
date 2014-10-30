@@ -39,7 +39,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboInterval">
+    <widget class="QComboBox" name="selectInterval">
      <property name="geometry">
       <rect>
        <x>280</x>
@@ -51,48 +51,8 @@
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the interval between each update (or tick for every update)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <item>
-      <property name="text">
-       <string>Tick</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1 Minute</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>5 Minute</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>15 Minute</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>30 Minute</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1 Hour</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>4 Hour</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Daily</string>
-      </property>
-     </item>
     </widget>
-    <widget class="QComboBox" name="comboDuration">
+    <widget class="QComboBox" name="selectDuration">
      <property name="geometry">
       <rect>
        <x>280</x>

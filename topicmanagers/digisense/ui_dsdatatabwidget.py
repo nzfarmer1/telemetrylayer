@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdatatabwidget.ui'
 #
-# Created: Tue Oct 28 15:44:33 2014
+# Created: Tue Oct 28 21:50:37 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -37,20 +37,12 @@ class Ui_Form(object):
         self.tableWidget.setObjectName(_fromUtf8("tableWidget"))
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
-        self.comboInterval = QtGui.QComboBox(self.dataTab)
-        self.comboInterval.setGeometry(QtCore.QRect(280, 20, 111, 26))
-        self.comboInterval.setObjectName(_fromUtf8("comboInterval"))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboInterval.addItem(_fromUtf8(""))
-        self.comboDuration = QtGui.QComboBox(self.dataTab)
-        self.comboDuration.setGeometry(QtCore.QRect(280, 80, 111, 26))
-        self.comboDuration.setObjectName(_fromUtf8("comboDuration"))
+        self.selectInterval = QtGui.QComboBox(self.dataTab)
+        self.selectInterval.setGeometry(QtCore.QRect(280, 20, 111, 26))
+        self.selectInterval.setObjectName(_fromUtf8("selectInterval"))
+        self.selectDuration = QtGui.QComboBox(self.dataTab)
+        self.selectDuration.setGeometry(QtCore.QRect(280, 80, 111, 26))
+        self.selectDuration.setObjectName(_fromUtf8("selectDuration"))
         self.btnRefresh = QtGui.QPushButton(self.dataTab)
         self.btnRefresh.setGeometry(QtCore.QRect(280, 140, 114, 32))
         self.btnRefresh.setObjectName(_fromUtf8("btnRefresh"))
@@ -71,16 +63,8 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
-        self.comboInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
-        self.comboInterval.setItemText(0, _translate("Form", "Tick", None))
-        self.comboInterval.setItemText(1, _translate("Form", "1 Minute", None))
-        self.comboInterval.setItemText(2, _translate("Form", "5 Minute", None))
-        self.comboInterval.setItemText(3, _translate("Form", "15 Minute", None))
-        self.comboInterval.setItemText(4, _translate("Form", "30 Minute", None))
-        self.comboInterval.setItemText(5, _translate("Form", "1 Hour", None))
-        self.comboInterval.setItemText(6, _translate("Form", "4 Hour", None))
-        self.comboInterval.setItemText(7, _translate("Form", "Daily", None))
-        self.comboDuration.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
+        self.selectInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
+        self.selectDuration.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
         self.btnRefresh.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
         self.btnRefresh.setText(_translate("Form", "Refresh", None))
         self.labelInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))

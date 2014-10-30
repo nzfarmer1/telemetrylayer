@@ -64,6 +64,7 @@ class dsDeviceType:
     def _lambda(self,x):
         try:
             l = self.device.find('Lambda').text
+            # perform regex for paramaters!!!
             f = eval("lambda " + l)
             if 'function' in str(type(f)):
                 return f(x)

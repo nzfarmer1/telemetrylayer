@@ -18,6 +18,11 @@ class BrokerNotFound(Exception):
 class BrokerNotSynced(Exception):
    pass
 
+class BrokersNotDefined(Exception):
+   pass
+
+
+
 class tlBrokers(QObject):
 
     _this = None
@@ -34,7 +39,7 @@ class tlBrokers(QObject):
         self._jsonfile  = None
         self._loaded    = False
         self._dirty             = False
-        self._brokers   = None
+        self._brokers   = []
         self._oldBrokers = None
         self._dirty =   False
         self._dirtyList = []
@@ -107,6 +112,8 @@ class tlBrokers(QObject):
 
     def list(self,reverse = False):
         brokers=[]
+        if len(self._brokers) ==0:
+            raise BrokersNotDefined
         for bid,brokerprops in self._brokers.iteritems():
             brokers.append(tlBroker(bid,brokerprops))
         if reverse:

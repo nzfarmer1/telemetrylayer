@@ -12,7 +12,7 @@ from qgis.gui import *
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlayer import tLayer as TLayer
-from tlbrokers import tlBrokers as Brokers,BrokerNotFound, BrokerNotSynced
+from tlbrokers import tlBrokers as Brokers,BrokerNotFound, BrokerNotSynced,BrokersNotDefined
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
@@ -468,6 +468,8 @@ class layerManager(QObject):
             telemetryLayer.instance().checkBrokerConfig()
         except BrokerNotSynced:
             Log.warn("Please save any broker configurations first")
+        except BrokersNotDefined:
+            Log.warn("Please configure your MQTT Brokers first - see Plugin -> Telemetry Layer -> Configure")
             return
             
         
