@@ -467,9 +467,9 @@ class layerManager(QObject):
         try:
             telemetryLayer.instance().checkBrokerConfig()
         except BrokerNotSynced:
-            Log.warn("Please save any broker configurations first")
+            Log.progress("Please save any broker configurations first")
         except BrokersNotDefined:
-            Log.warn("Please configure your MQTT Brokers first - see Plugin -> Telemetry Layer -> Configure")
+            Log.progress("Please configure your MQTT Brokers first - see Plugin -> Telemetry Layer -> Configure")
             return
             
         
