@@ -25,7 +25,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from ui_telemetrylayer import Ui_TelemetryLayer
-from tlbrokers import tlBrokers as Brokers,  BrokerNotSynced
+from tlbrokers import tlBrokers as Brokers,  BrokerNotSynced, BrokerNotFound
 from tlbrokerconfig import tlBrokerConfig as BrokerConfig
 from lib.tlsettings import tlSettings as Settings,tlConstants as Constants
 from lib.tllogging import tlLogging as Log
@@ -130,6 +130,9 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
        self._buildBrokerTable()
 
     def checkBrokerConfig(self):
+        if len(self._brokers.list()) ==0:
+            raise BrokersNotDefined
+        
         if self.dirty():
             if Log.confirm("You have unsaved changed in your broker configuration. Save now?"):
                 self.apply()

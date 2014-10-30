@@ -24,7 +24,7 @@ from tlbrokerconfig import tlBrokerConfig
 from tlmqttclient import *
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tladdfeature import tlAddFeature as AddFeature
-from tlbrokers import tlBrokers as Brokers,BrokerNotFound,BrokerNotSynced
+from tlbrokers import tlBrokers as Brokers,BrokerNotFound,BrokerNotSynced, BrokersNotDefined
 import time,os, zlib
 
 
@@ -435,7 +435,11 @@ class tLayer(MQTTClient):
                     self._layer.commitChanges()
                     self._feat = feat
                 except BrokerNotSynced:
-                    Log.warn("Please save any unsaved Broker confugurations first")
+                    Log.progress("Please save any unsaved Broker confugurations first")
+                    self._layer.deleteFeature(fid)
+                    self._layer.commitChanges()
+                except BrokersNotDefined:
+                    Log.progress("You have no Brokers defined")
                     self._layer.deleteFeature(fid)
                     self._layer.commitChanges()
                 except Exception as e:

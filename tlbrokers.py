@@ -113,7 +113,7 @@ class tlBrokers(QObject):
     def list(self,reverse = False):
         brokers=[]
         if len(self._brokers) ==0:
-            raise BrokersNotDefined
+            return []
         for bid,brokerprops in self._brokers.iteritems():
             brokers.append(tlBroker(bid,brokerprops))
         if reverse:
