@@ -30,7 +30,7 @@ class tlFeatureDialog(QObject):
     kSettingsTabId = 1
     kHistoryTabId  = 2
         
-    def __init__(self,dialog,tLayer,feature,Tabs =None, tabsList = []):
+    def __init__(self,dialog,tLayer,feature,widgets = None):
         self._dialog        = dialog
         self._tLayer        = tLayer
         self._layer         = tLayer.layer()
@@ -39,10 +39,10 @@ class tlFeatureDialog(QObject):
         self._widgets = {}
         
         super(tlFeatureDialog,self).__init__()
-        if Tabs != None:
-            for idx in tabsList:
-                title = Tabs.tabText(idx)
-                self._addTab(Tabs.widget(idx),title,1 + idx)
+        
+        if widgets != None:
+            for (widget,title,idx) in widgets:
+                self._addTab(widget,title,idx+1)
 
         
         Log.debug("Dialog Editable " + str(dialog.editable()))

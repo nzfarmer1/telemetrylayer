@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdatatabwidget.ui'
 #
-# Created: Tue Oct 28 21:50:37 2014
+# Created: Fri Oct 31 09:53:42 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,7 +28,7 @@ class Ui_Form(object):
         Form.setObjectName(_fromUtf8("Form"))
         Form.resize(464, 351)
         self.Tabs = QtGui.QTabWidget(Form)
-        self.Tabs.setGeometry(QtCore.QRect(10, 10, 441, 331))
+        self.Tabs.setGeometry(QtCore.QRect(10, 10, 441, 291))
         self.Tabs.setObjectName(_fromUtf8("Tabs"))
         self.dataTab = QtGui.QWidget()
         self.dataTab.setObjectName(_fromUtf8("dataTab"))
@@ -56,13 +56,34 @@ class Ui_Form(object):
         self.btnExport.setGeometry(QtCore.QRect(280, 190, 114, 32))
         self.btnExport.setObjectName(_fromUtf8("btnExport"))
         self.Tabs.addTab(self.dataTab, _fromUtf8(""))
+        self.chartTab = QtGui.QWidget()
+        self.chartTab.setObjectName(_fromUtf8("chartTab"))
+        self.selectDurationc = QtGui.QComboBox(self.chartTab)
+        self.selectDurationc.setGeometry(QtCore.QRect(130, 200, 111, 26))
+        self.selectDurationc.setObjectName(_fromUtf8("selectDurationc"))
+        self.selectIntervalc = QtGui.QComboBox(self.chartTab)
+        self.selectIntervalc.setGeometry(QtCore.QRect(10, 200, 111, 26))
+        self.selectIntervalc.setObjectName(_fromUtf8("selectIntervalc"))
+        self.btnRefreshc = QtGui.QPushButton(self.chartTab)
+        self.btnRefreshc.setGeometry(QtCore.QRect(280, 200, 114, 32))
+        self.btnRefreshc.setObjectName(_fromUtf8("btnRefreshc"))
+        self.graphicsView = QtGui.QGraphicsView(self.chartTab)
+        self.graphicsView.setGeometry(QtCore.QRect(6, 0, 400, 200))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.graphicsView.sizePolicy().hasHeightForWidth())
+        self.graphicsView.setSizePolicy(sizePolicy)
+        self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
+        self.Tabs.addTab(self.chartTab, _fromUtf8(""))
 
         self.retranslateUi(Form)
-        self.Tabs.setCurrentIndex(0)
+        self.Tabs.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
+        self.Tabs.setAccessibleName(_translate("Form", "Chart", None))
         self.selectInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
         self.selectDuration.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
         self.btnRefresh.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
@@ -74,4 +95,9 @@ class Ui_Form(object):
         self.btnExport.setToolTip(_translate("Form", "<html><head/><body><p>Export data (.csv)</p></body></html>", None))
         self.btnExport.setText(_translate("Form", "Export", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.dataTab), _translate("Form", "Data", None))
+        self.selectDurationc.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
+        self.selectIntervalc.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
+        self.btnRefreshc.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
+        self.btnRefreshc.setText(_translate("Form", "Draw", None))
+        self.Tabs.setTabText(self.Tabs.indexOf(self.chartTab), _translate("Form", "Chart", None))
 

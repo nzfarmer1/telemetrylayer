@@ -24,7 +24,7 @@ def get_modules(module):
     dir = os.path.dirname(module.__file__)
     def is_module(d):
         d = os.path.join(dir, d)
-        return '.pyc' in os.path.splitext(d)
+        return '.pyc' in os.path.splitext(d) and not ('__init__' in d or 'ui_' in d) 
 
     return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
 
@@ -32,7 +32,7 @@ def get_modules(module):
 
 # Recipe adapted from http://stackoverflow.com/users/1736389/sam-p
 
-def reload_class(class_obj):
+def reload_classx(class_obj):
     module_name = class_obj.__module__
     module = sys.modules[module_name]
     Log.debug("Reloading modules" )
@@ -42,6 +42,22 @@ def reload_class(class_obj):
     modulepath = pycfile.replace(".pyc", ".py")
     code=open(modulepath, 'rU').read()
     compile(code, module_name, "exec")
+    module = reload(module)
+    return getattr(module,class_obj.__name__)
+
+def reload_class(class_obj):
+    module_name = class_obj.__module__
+    module = sys.modules[module_name]
+    Log.debug("Reloading modules" )
+    for module_pycfile in get_modules(module):
+        os.remove(os.path.join(os.path.dirname(module.__file__),module_pycfile) )
+        print module_pycfile
+        #pycfile = module.__file__
+        pycfile = module_pycfile
+        
+        modulepath = pycfile.replace(".pyc", ".py")
+        code=open(modulepath, 'rU').read()
+        compile(code, module_name, "exec")
     module = reload(module)
     return getattr(module,class_obj.__name__)
 
