@@ -17,7 +17,8 @@ from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
-from dsfeaturedialog import tlDsFeatureDialog as dsFeatureDialog
+from dsfeaturedialog import tlDsFeatureDialog as dsFeatureDialog, DeviceMap, DeviceMaps, DeviceType, DeviceTypes
+from dsdevicemapdialog import dsDeviceMapDialog as DeviceMapDialog 
 from ui_dstopicmanager import Ui_dsTopicManager
 
 import os,zlib, datetime, json
@@ -123,11 +124,6 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         item = self.tableLogical.item(modelIdx.row(),0)
         self.handleButton(item.data(0))
         
-    def __del__(self):
-        if hasattr(self,'devicesRefresh'):
-            self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
-        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
-
     def getWidget(self):
         self.setupUi()
         return self.Tabs.widget(0)
@@ -425,5 +421,10 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
                 QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
             self.loadStyle(layer,os.path.join(self.path(),"rules.qml"))
             
-            
+    def __del__(self):
+       if hasattr(self,'devicesRefresh'):
+           self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
+       QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
+
+           
         

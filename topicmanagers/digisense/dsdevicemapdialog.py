@@ -13,6 +13,7 @@ from TelemetryLayer.tlmqttclient import *
 
 from ui_dsdevicemapdialog import Ui_dsDeviceMapDialog
 from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
+from dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
 
 import traceback, sys
 
@@ -75,7 +76,6 @@ class tlTableParam(QObject):
             return self.name
         except:
             return None
-
     
     def getTitle(self):
             return self.title
@@ -197,6 +197,62 @@ class tlTableParamCombo(tlTableParam):
         self.value = self.control.itemData(idx).get('value')
         pass
 
+"""
+Populate a Combo Box with widgets to handle server
+based parameters defined in device types, and return
+values to be stored in the device map.
+
+"""
+
+class dsParameterTable(QObject):
+
+    _params = []
+
+    def __init__(self,deviceMap,dtype,parameterTable,mode):
+        super(dsParameterTable, self).__init__()
+       
+        tblParam = parameterTable
+        self._mode          = mode
+        self._deviceMap     = deviceMap
+        tblParam.horizontalHeader().setVisible(False)
+        tblParam.verticalHeader().setVisible(False)
+
+        del self._params[:]
+        
+        tblParam.clearContents()
+        tblParam.setRowCount(0)
+        tblParam.setShowGrid(True)
+        tblParam.setColumnCount(2);
+       
+        if dtype == None:
+            return
+        
+        _params = dtype.params()
+        if (_params == None or len(_params) == 0):
+            return
+        
+        # Create a table of controls preset with existing values if required
+        # Parameters are defined in the device maps XML
+        
+        for param in _params:
+            default = None
+            if self._mode == tlConstants.Update:
+               default = self._deviceMap.getParam(param.get('name'))
+            
+            if param.get('widget') == 'slider':
+               self._params.append(tlTableParamSlider(tblParam,tblParam.rowCount(),param,default))
+            if param.get('widget') == 'select':
+               self._params.append(tlTableParamCombo(tblParam,tblParam.rowCount(),param,default))
+            if param.get('widget') == 'spinbox':
+               self._params.append(tlTableParamSpinBox(tblParam,tblParam.rowCount(),param,default))
+
+    def params(self):
+        params = {}
+        for param in self._params:
+#            Log.debug("Setting " + param.getName() + " to " + str(param.getValue()))
+            params[param.getName()] = param.getValue()
+
+        return params
 
 
 # Class to handle mapping of physical with a logical device
@@ -221,6 +277,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         self.params =[]
         self.mode = tlConstants.Create # By default we are in create mode
         self.dirty = False
+        self.paramTable = None
 
         self.setupUi()
         pass
@@ -233,7 +290,6 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             Log.debug("Device Key = " + self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setText(self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setToolTip(self._deviceMap.getDeviceKey()) 
- 
             
             if self._deviceMap.getDeviceTypeId() != None and self._deviceMap.getTopic() != None:
                 self.mode = tlConstants.Update
@@ -304,8 +360,10 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             return
         if self._curDeviceIdx != self.deviceType.itemData(i):
             self._curDeviceIdx = self.deviceType.itemData(i)
-            self.createParameterTable(self._curDeviceIdx)
-
+            #self.createParameterTable(self._curDeviceIdx)
+            self.paramTable = dsParameterTable(self._deviceMap,self._curDeviceIdx,self.parameterTable,self.mode)
+            Log.debug(self.paramTable)
+            
     def _deleteMapCallback(self,client,status,msg):
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
         self.applyButton.setDisabled(False)
@@ -371,11 +429,9 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             return
         
         try:
+            Log.debug(self.paramTable)
+            params = self.paramTable.params()
             dtype =   self.deviceType.itemData(self.deviceType.currentIndex())
-            params = {}
-            for param in self.params:   
-                params[param.getName()] = param.getValue()
-                Log.debug("Setting " + param.getName() + " to " + str(param.getValue()))
             self._deviceMap.setDeviceTypeId(dtype.id()) 
             self._deviceMap.set('name',self.name.text()) 
             self._deviceMap.set('topic',self.topic.text()) 
@@ -397,6 +453,9 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         except Exception as e:
             QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
             Log.debug("Error saving map " + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                      exc_traceback)))
 
         
     def mapsReloaded(self):

@@ -7,6 +7,7 @@ import pkgutil
 import os
 import sys
 import glob
+import imp
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 import TelemetryLayer.topicmanagers 
 
@@ -24,7 +25,7 @@ def get_modules(module):
     dir = os.path.dirname(module.__file__)
     def is_module(d):
         d = os.path.join(dir, d)
-        return '.pyc' in os.path.splitext(d) and not ('__init__' in d or 'ui_' in d) 
+        return '.pyc' in os.path.splitext(d) and not ('__init__' in d or 'ui_' in d or 'qgsfuncs' in d) 
 
     return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
 
@@ -51,14 +52,16 @@ def reload_class(class_obj):
     Log.debug("Reloading modules" )
     for module_pycfile in get_modules(module):
         os.remove(os.path.join(os.path.dirname(module.__file__),module_pycfile) )
-        print module_pycfile
         #pycfile = module.__file__
         pycfile = module_pycfile
-        
         modulepath = pycfile.replace(".pyc", ".py")
-        code=open(modulepath, 'rU').read()
-        compile(code, module_name, "exec")
-    module = reload(module)
+        _module_name= pycfile.replace(".py*", "")
+        print "importing " +  os.path.join(os.path.dirname(module.__file__),modulepath)
+        code=open(os.path.join(os.path.dirname(module.__file__),modulepath), 'rU').read()
+        compile(code, _module_name, "exec")
+        _module = sys.modules[_module_name]
+        _module = reload(_module)
+    
     return getattr(module,class_obj.__name__)
 
 def register():

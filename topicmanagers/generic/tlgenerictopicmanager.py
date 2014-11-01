@@ -13,7 +13,8 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-import os
+
+import os, imp
 
 from qgis.utils import qgsfunction,QgsExpression
 from qgis.core import *
@@ -25,19 +26,6 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
  
 
-@qgsfunction(0, u"Telemetry Layer")
-def format_label(values, feature, parent):
-    result = "No data"
-    try:
-        visible = int(feature.attribute('visible'))
-        if visible == 0:
-            result = ""
-        else:
-            result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
-    except:
-        pass
-    finally:
-        return result
 
 class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     
@@ -83,6 +71,14 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
 
     @staticmethod
     def register():
+        Log.debug("Generoic Register")
+        
+        path =os.path.join(os.path.dirname(__file__),'qgsfuncs.py')
+        imp.load_source('qgsfuncs',path)
+        
+#        from qgsfuncs import format_label
+        print "oxkx" + path
+        Log.debug("OK")
         pass
 
  

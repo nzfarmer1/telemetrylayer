@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdatatabwidget.ui'
 #
-# Created: Fri Oct 31 09:53:42 2014
+# Created: Sat Nov  1 13:06:58 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,7 +68,7 @@ class Ui_Form(object):
         self.btnRefreshc.setGeometry(QtCore.QRect(280, 200, 114, 32))
         self.btnRefreshc.setObjectName(_fromUtf8("btnRefreshc"))
         self.graphicsView = QtGui.QGraphicsView(self.chartTab)
-        self.graphicsView.setGeometry(QtCore.QRect(6, 0, 400, 200))
+        self.graphicsView.setGeometry(QtCore.QRect(6, 0, 391, 200))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
