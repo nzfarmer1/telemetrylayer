@@ -14,14 +14,20 @@ from TelemetryLayer.tlmqttclient import *
 from ui_dsdevicemapdialog import Ui_dsDeviceMapDialog
 from dsdevicemaps import   dsDeviceMap as DeviceMap, dsDeviceMaps as DeviceMaps
 from dsdevicetypes import dsDeviceType as DeviceType, dsDeviceTypes as DeviceTypes
+from dsrpcproxy import dsRPCProxy as RPCProxy
 
 import traceback, sys
+
 
 
 class tlTableParam(QObject):
 
     LABEL = 0
     CONTROL = 1
+
+    """
+    Todo: add isDirty
+    """
 
     def __init__(self,tbl,row,param,default = None):
         super(tlTableParam,self).__init__()
@@ -208,10 +214,10 @@ class dsParameterTable(QObject):
 
     _params = []
 
-    def __init__(self,deviceMap,dtype,parameterTable,mode):
+    def __init__(self,deviceMap,deviceType,tableWidget,mode):
         super(dsParameterTable, self).__init__()
        
-        tblParam = parameterTable
+        tblParam            = tableWidget
         self._mode          = mode
         self._deviceMap     = deviceMap
         tblParam.horizontalHeader().setVisible(False)
@@ -223,11 +229,12 @@ class dsParameterTable(QObject):
         tblParam.setRowCount(0)
         tblParam.setShowGrid(True)
         tblParam.setColumnCount(2);
-       
-        if dtype == None:
+        Log.debug("Param Table " + str(deviceType))
+
+        if deviceType == None:
             return
         
-        _params = dtype.params()
+        _params = deviceType.params()
         if (_params == None or len(_params) == 0):
             return
         
@@ -272,7 +279,6 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         self._broker = creator._broker
         self._deviceMap = devicemap
         self._deviceTypes = None
-        self._deviceMaps = None
         self._curDeviceIdx = None
         self.params =[]
         self.mode = tlConstants.Create # By default we are in create mode
@@ -286,7 +292,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         super(dsDeviceMapDialog,self).setupUi(self)
         try:
             self._deviceTypes = self._creator.getDeviceTypes()
-            self.devicesMaps = self._creator.getDeviceMaps()
+            self._devicesMaps = self._creator.getDeviceMaps()
             Log.debug("Device Key = " + self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setText(self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setToolTip(self._deviceMap.getDeviceKey()) 
@@ -295,7 +301,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
                 self.mode = tlConstants.Update
             
             self.createTypesCombo(self._deviceMap.getDeviceTypeId())
-            self.applyButton.clicked.connect(self.validateApply)
+            self.applyButton.clicked.connect(self.validateApplyRPC)
 
             noSpaceValidator= QRegExpValidator(QRegExp("^[\$A-Za-z0-9\/]+"),self);
             self.topic.setValidator(noSpaceValidator)
@@ -314,9 +320,8 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             elif self.mode == tlConstants.Update:
                 self.topic.setDisabled(True)
                 self.deviceType.setDisabled(True)
-                self.deleteButton.clicked.connect(self.validateDelete)
-            
-#            QObject.connect(self._creator, QtCore.SIGNAL("deviceMapsLoaded"), self.mapsReloaded)
+                self.deleteButton.clicked.connect(self.validateDeleteRPC)
+
 
         except Exception as e:
             Log.warn("Error loading catalog of Device Types " + str(e))
@@ -347,82 +352,41 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
     def nameChanged(self,_str):
         replacement = '/digisense/maps/' + _str.lower().replace(' ','/')
         self.topic.setText(replacement)
-
-    def getDeviceMaps(self):
-        return self._deviceMaps
     
-    def setDeviceMaps(self,deviceMaps):
-        self._deviceMaps = deviceMaps
-
     def deviceTypeIndexChanged(self,i):
         self.applyButton.setDisabled(i == 0)
         if (i == 0):
             return
         if self._curDeviceIdx != self.deviceType.itemData(i):
             self._curDeviceIdx = self.deviceType.itemData(i)
-            #self.createParameterTable(self._curDeviceIdx)
             self.paramTable = dsParameterTable(self._deviceMap,self._curDeviceIdx,self.parameterTable,self.mode)
-            Log.debug(self.paramTable)
             
-    def _deleteMapCallback(self,client,status,msg):
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
-        self.applyButton.setDisabled(False)
-        if status == True:
-            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
-            self.dirty = True
-            #self._creator._buildDevicesTables() # Replace with SIGNAL?
-            #QObject.emit(self._creator,QtCore.SIGNAL("deviceMapsRefreshed"))
-            Log.progress("Device map deleted")
-            self.accept()
-        else:
-            Log.progress("Unable to update map: " + msg.payload)
 
 # Validate deletion of a Device Map
 
-    def validateDelete(self,status):
+    def validateDeleteRPC(self,status):
         msg = "Are you sure you want to delete this mapping?  Please note you will need to edit/delete any features that use this Topic"
         if not Log.confirm(msg):
             return
-        self._deviceMap.unset('name')
-        self._deviceMap.unset('topic')
-        self._deviceMap.unset('params')
-        self._deviceMap.unsetDeviceTypeId()
         try:
-            # Implement this!!!
-            self.deleteButton.setDisabled(True)
-            self.applyButton.setDisabled(True)
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
-            aClient = tlMqttSingleShot(self,
-                                      self._broker.host(),
-                                      self._broker.port(),
-                                      "/digisense/request/update/map",
-                                      ["/digisense/response/device/maps"],
-                                      self._deviceMap.dumps())
-            QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._deleteMapCallback)
-            aClient.run()
+            s = RPCProxy(self._broker.host(),8000).connect()
+            Log.debug(self._deviceMap.dumps())
+            if s.setMap(str(self._deviceMap.getTopic())):
+                Log.progress("Device map deleted")
+                self.dirty = True
+                self.accept()
+            else:
+                Log.critical("There was an error deleting this device map")
             self.mode = tlConstants.Deleted
         except:
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
             Log.debug("Error deleting map: " + str(e))
 
-    def _updateMapCallback(self,client,status,msg):
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
-        self.applyButton.setDisabled(False)
-        if status == True:
-            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
-            self.dirty = True
-            
-            Log.progress("Device map updated")
-            
-            self.accept()
-        else:
-            Log.progress("Unable to update map: " + msg.payload)
-            
-            
-    # Apply changes to individual map            
+    # Apply changes to individual map
     
-    def validateApply(self,status):
-        Log.debug("Apply")   
+    
+    
+    def validateApplyRPC(self,status):
+        Log.debug("Apply RPC")   
         
         if len(self.name.text()) < 8:
             Log.alert("Please ensure the name is at least 8 characters long")
@@ -439,24 +403,20 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self._deviceMap.set('model',dtype.model()) 
             self._deviceMap.set('units',dtype.units()) 
             self._deviceMap.set('params',params) 
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
-            self.applyButton.setDisabled(True)
-            
-            aClient = tlMqttSingleShot(self,
-                                      self._broker.host(),
-                                      self._broker.port(),
-                                      "/digisense/request/update/map",
-                                      ["/digisense/response/device/maps"],
-                                      self._deviceMap.dumps())
-            QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._updateMapCallback)
-            aClient.run()
+            s = RPCProxy(self._broker.host(),8000).connect()
+            if s.setMap(self._deviceMap.dumps()):
+                Log.progress("Device map updated")
+                self.dirty = True
+                self.accept()
+            else:
+                Log.critical("There was an error updating this device map")
+
         except Exception as e:
-            QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
             Log.debug("Error saving map " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
                                       exc_traceback)))
-
+            
         
     def mapsReloaded(self):
             Log.alert("Device information updated.")
@@ -466,46 +426,6 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self.applyButton.setDisabled(False)
 
   
-    def createParameterTable(self,dtype):
-
-        tblParam = self.parameterTable
-        tblParam.horizontalHeader().setVisible(False)
-        tblParam.verticalHeader().setVisible(False)
-
-        del self.params[:]
-        
-        tblParam.clearContents()
-        tblParam.setRowCount(0)
-        tblParam.setShowGrid(True)
-        tblParam.setColumnCount(2);
-       
-        if dtype == None:
-            return
-        
-        params = dtype.params()
-        if (params == None or len(params) == 0):
-            return
-        
-        # Create a table of controls preset with existing values if required
-        # Parameters are defined in the device maps XML
-        
-        for param in params:
-            default = None
-            if self.mode == tlConstants.Update:
-                default = self._deviceMap.getParam(param.get('name'))
-            
-            if param.get('widget') == 'slider':
-                self.params.append(tlTableParamSlider(tblParam,tblParam.rowCount(),param,default))
-            if param.get('widget') == 'select':
-               self.params.append(tlTableParamCombo(tblParam,tblParam.rowCount(),param,default))
-            if param.get('widget') == 'spinbox':
-               self.params.append(tlTableParamSpinBox(tblParam,tblParam.rowCount(),param,default))
-         
-
-#    def accept(self):
-#        Log.debug("accept")
-#        super(dsDeviceMapDialog,self).accept()
-        
 
     def __del__(self):
         del self.params[:]

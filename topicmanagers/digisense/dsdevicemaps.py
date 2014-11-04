@@ -84,7 +84,6 @@ class dsDeviceMap:
         if 'deviceKey' in self.data and len(self.parts)  >= dsDeviceMap.DPIN:
             return  self.parts[dsDeviceMap.DTYPE]
 
-
     def getUpdated(self):
         updated  =self.get('updated')
         if updated != None:
@@ -94,27 +93,21 @@ class dsDeviceMap:
     def getStatus(self):
         return self.get('status')
 
-
     def setStatus(self,status):
         self.set('status',status)
     
     def getUnits(self):
         return self.get('units')
 
-
     def setUnits(self,units):
         self.set('units',units)
 
-
     def getName(self):
-        return self.get('name')
+        return self.get('name',"")
 
     def getTopic(self):
-        return self.get('topic')
+        return self.get('topic',"")
     
-    def isMapped(self):
-        return self.getTopic() != None
-
 
     def getDeviceKey(self):
         return self.get('deviceKey')
@@ -132,10 +125,9 @@ class dsDeviceMap:
 
     def isMapped(self):
         try:
-            return  self.getDeviceTypeId() !=None and len(self.getName()) > 0 and len(self.getTopic()) > 0
+            return  len(self.getName()) > 0 and len(self.getTopic()) > 0
         except:
             return False
-            
 
     def getParams(self):
         return self.get('params',[])

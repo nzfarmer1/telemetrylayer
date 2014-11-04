@@ -20,6 +20,7 @@ from TelemetryLayer.tlmqttclient import *
 from dsfeaturedialog import tlDsFeatureDialog as dsFeatureDialog, DeviceMap, DeviceMaps, DeviceType, DeviceTypes
 from dsdevicemapdialog import dsDeviceMapDialog as DeviceMapDialog 
 from ui_dstopicmanager import Ui_dsTopicManager
+from dsrpcproxy import dsRPCProxy as RPCProxy
 
 import os,zlib, datetime, json
 
@@ -74,7 +75,6 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         self._broker= broker
           
 
-
     def setupUi(self):
         super(dsTopicManager,self).setupUi()
        
@@ -90,8 +90,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         
         if self._deviceTypes == None:
              Log.debug("Loading device types")  
-             self.setDeviceTypes(self._loadDeviceTypes()) 
-        self.devicesRefresh.clicked.connect(self._deviceMapsRefresh)
+             self.setDeviceTypes(self._loadDeviceTypesRPC()) 
+        self.devicesRefresh.clicked.connect(self._deviceMapsRefreshRPC)
         
         dsTopicManager.showLoadingMessage( self.tableDeviceTypes)
         dsTopicManager.showLoadingMessage( self.tableLogical)
@@ -102,7 +102,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         if self._deviceMaps != None:
             self._buildDevicesTables()
         else:
-            self._deviceMapsRefresh()
+            self._deviceMapsRefreshRPC()
         
         if self._deviceTypes != None:
             self._buildDeviceTypesTable()
@@ -154,60 +154,62 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         Log.debug(topics)
         return super(dsTopicManager,self).getTopics(topics) # Merge System topics
 
+    def getDeviceType(self,dMap):
+        return self.getDeviceTypes().getDeviceTypeById(dMap.getDeviceTypeId())
             
     def getDeviceTypes(self):
+        if self._deviceTypes == None:
+            self._deviceTypes = self._loadDeviceTypesRPC()
         return self._deviceTypes
-
-    def getDeviceMaps(self):
-        return self._deviceMaps
     
+    def getDeviceMaps(self,refresh = False):
+        if self._deviceMaps != None and not refresh:
+            return self._deviceMaps
+        try:
+            s = RPCProxy(self._broker.host(),8000).connect()
+            self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
+            Log.debug(self._deviceMaps)
+        except Exception as e:
+            Log.debug("Error loading device maps")
+        finally:
+            return self._deviceMaps
+    
+    def getDeviceMap(self,topic):
+        d = None
+        for deviceKey,device in self.getDeviceMaps():
+            d = DeviceMap.loads(device)
+            if d.getTopic() == topic:
+                dMap  = d
+                break
+        Log.debug(d)
+        return d
+
+    def getBroker(self):
+        return self._broker
+
+
     def setDeviceTypes(self,deviceTypes):
         self._deviceTypes = deviceTypes
 
     def setDeviceMaps(self,deviceMaps):
         self._deviceMaps = deviceMaps
 
+
+    def setDeviceMap(self,deviceMap):
+        try:
+            s = RPCProxy(self._broker.host(),8000).connect()
+            if s.setMap(deviceMap.dumps()):
+                Log.progress("Device map updated")
+                self.dirty = True
+                self.accept()
+            else:
+                Log.critical("There was an error updating this device map")
+        except Exception as e:
+            Log.critical("There was an error updating this device map " + str(e))
         
     def validate(self):
         return True
         
-
-    def _buildDeviceTypesTable(self):
-        devicetypes = self.getDeviceTypes()
-        
-        columns = ["Pin Type","Sensor Type","Model"]
-        tbl = self.tableDeviceTypes
-        tbl.clear()
-
-        tbl.setStyleSheet("font: 10pt \"System\";") 
-        tbl.setRowCount(len(devicetypes.values()))
-        tbl.setColumnCount(len(columns))
-        tbl.setColumnWidth(30,30) #?
-        tbl.setHorizontalHeaderLabels(columns)
-        tbl.verticalHeader().setVisible(True)
-        tbl.horizontalHeader().setVisible(True)
-        tbl.setShowGrid(True)
-
-        row=0
-        for device in devicetypes.values():
-            item = QtGui.QTableWidgetItem(0)
-            item.setText(device.type().upper())
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,0,item)
-
-            item = QtGui.QTableWidgetItem(0)
-            item.setText(device.op())
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,1,item)
-
-            item = QtGui.QTableWidgetItem(0)
-            item.setText(device.model())
-            item.setFlags(Qt.NoItemFlags)
-            tbl.setItem(row,2,item)
-            row = row+1
-
-        tbl.resizeColumnsToContents()
-        tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 
 
     def _buildLogicalDevicesTable(self):
@@ -272,7 +274,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.clear()
         tbl.setRowCount(0)
         tbl.setStyleSheet("font: 10pt \"System\";") 
-        tbl.setRowCount(len(self._deviceMaps))
+        tbl.setRowCount(len(self.getDeviceMaps()))
         tbl.setColumnCount(len(columns))
         tbl.setColumnWidth(30,30) #?
         tbl.setHorizontalHeaderLabels(columns)
@@ -280,7 +282,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.horizontalHeader().setVisible(True)
         tbl.setShowGrid(True)
         row=0
-        for deviceKey,device in self._deviceMaps:
+        for deviceKey,device in self.getDeviceMaps():
 
             devicemap = DeviceMap.loads(device)
 
@@ -330,10 +332,46 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         result = deviceMapDialog.exec_()
         if result == 1 and deviceMapDialog.dirty:
             Log.debug("Got result " + str(result))
-            self.setDeviceMaps(deviceMapDialog.getDeviceMaps())
-            QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
+            self._deviceMapsRefreshRPC()
         pass    
 
+
+    def _buildDeviceTypesTable(self):
+        devicetypes = self.getDeviceTypes()
+        
+        columns = ["Pin Type","Sensor Type","Model"]
+        tbl = self.tableDeviceTypes
+        tbl.clear()
+
+        tbl.setStyleSheet("font: 10pt \"System\";") 
+        tbl.setRowCount(len(devicetypes.values()))
+        tbl.setColumnCount(len(columns))
+        tbl.setColumnWidth(30,30) #?
+        tbl.setHorizontalHeaderLabels(columns)
+        tbl.verticalHeader().setVisible(True)
+        tbl.horizontalHeader().setVisible(True)
+        tbl.setShowGrid(True)
+
+        row=0
+        for device in devicetypes.values():
+            item = QtGui.QTableWidgetItem(0)
+            item.setText(device.type().upper())
+            item.setFlags(Qt.NoItemFlags)
+            tbl.setItem(row,0,item)
+
+            item = QtGui.QTableWidgetItem(0)
+            item.setText(device.op())
+            item.setFlags(Qt.NoItemFlags)
+            tbl.setItem(row,1,item)
+
+            item = QtGui.QTableWidgetItem(0)
+            item.setText(device.model())
+            item.setFlags(Qt.NoItemFlags)
+            tbl.setItem(row,2,item)
+            row = row+1
+
+        tbl.resizeColumnsToContents()
+        tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 
     def _buildDevicesTables(self):
         Log.debug("Rebuilding Physical Devices Tables")
@@ -342,61 +380,30 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         self._buildLogicalDevicesTable()
         QObject.emit(self,QtCore.SIGNAL('topicManagerReady'),True,self)
 
-
-    def _buildDevicesTableCallback(self,mqClient,status,msg,fu="bar"):
-        self.devicesRefresh.setEnabled(True)
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
-        if status:
-            self.setDeviceMaps(DeviceMaps.decode(msg.payload))
-            Log.debug('xxx ' + str(self._deviceTypes))
-            if self._deviceTypes != None:
-                self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
-                self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
-                self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
-                self._buildDevicesTables()
-        else:
-            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,msg.payload)
-            dsTopicManager.showLoadingMessage(self.tablePhysical,msg.payload)
-            dsTopicManager.showLoadingMessage(self.tableLogical,msg.payload)
+    def _deviceMapsRefreshRPC(self):
+        try:
+            deviceMaps = self.getDeviceMaps(True)
+            
+            self.setDeviceMaps(DeviceMaps.decode(deviceMaps))
+            self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
+            self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
+            self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
+            QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
+#            self._buildDevicesTables()
+        except Exception as e: # Check for socket error!
+            Log.critical("Unable to load device maps " + str(e))
 
 
-
-    def _deviceMapsRefresh(self):
-        dsTopicManager.showLoadingMessage(self.tablePhysical)
-        dsTopicManager.showLoadingMessage(self.tableLogical)
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor));
-        self.devicesRefresh.setEnabled(False)
-        Log.progress("Requesting Device Maps")
-        aClient = tlMqttSingleShot(self,
-                                  self._broker.host(),
-                                  self._broker.port(),
-                                  "/digisense/request/device/maps",
-                                  ["/digisense/response/device/maps"])
-        QObject.connect(aClient, QtCore.SIGNAL("mqttOnCompletion"), self._buildDevicesTableCallback)
-        QObject.connect(aClient, QtCore.SIGNAL("mqttConnectionError"), self._deviceMapsRefreshError)
-        QObject.connect(aClient, QtCore.SIGNAL("mqttOnTimeout"), self._deviceMapsRefreshError)
-        aClient.run()
-
-
-    def _deviceMapsRefreshError(self,mqtt,msg = ""):
-        dsTopicManager.showLoadingMessage(self.tablePhysical,msg)
-        dsTopicManager.showLoadingMessage(self.tableLogical,msg)
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor));
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttOnCompletion"), self._buildDevicesTableCallback)
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttConnectionError"),  self._deviceMapsRefreshError)
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttOnTimeout"),  self._deviceMapsRefreshError)
-        mqtt.kill()
-        self.devicesRefresh.setEnabled(True)
-        QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,msg)
-    
     
     def updateDeviceMap(self,map):
         pass
     
         
-    def _loadDeviceTypes(self): # xml file
+    def _loadDeviceTypesRPC(self): # xml file
         try:
-            return DeviceTypes(os.path.join(self.path(),dsTopicManager.kDevicesFile))
+            s =RPCProxy(self._broker.host(),8000).connect()
+            return DeviceTypes(s.getDeviceTypesRPC())
+        
         except Exception as e:
             Log.warn("Failed to load "  + str(e))
             return None
@@ -423,7 +430,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             
     def __del__(self):
        if hasattr(self,'devicesRefresh'):
-           self.devicesRefresh.clicked.disconnect(self._deviceMapsRefresh)
+           self.devicesRefresh.clicked.disconnect(self._deviceMapsRefreshRPC)
        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
 
            

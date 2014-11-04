@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdatatabwidget.ui'
 #
-# Created: Sat Nov  1 13:06:58 2014
+# Created: Tue Nov  4 15:58:16 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,9 +76,23 @@ class Ui_Form(object):
         self.graphicsView.setSizePolicy(sizePolicy)
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
         self.Tabs.addTab(self.chartTab, _fromUtf8(""))
+        self.configTab = QtGui.QWidget()
+        self.configTab.setObjectName(_fromUtf8("configTab"))
+        self.tblParams = QtGui.QTableWidget(self.configTab)
+        self.tblParams.setGeometry(QtCore.QRect(50, 20, 256, 161))
+        self.tblParams.setObjectName(_fromUtf8("tblParams"))
+        self.tblParams.setColumnCount(0)
+        self.tblParams.setRowCount(0)
+        self.btnApply = QtGui.QPushButton(self.configTab)
+        self.btnApply.setGeometry(QtCore.QRect(200, 190, 114, 32))
+        self.btnApply.setObjectName(_fromUtf8("btnApply"))
+        self.label = QtGui.QLabel(self.configTab)
+        self.label.setGeometry(QtCore.QRect(50, 0, 261, 16))
+        self.label.setObjectName(_fromUtf8("label"))
+        self.Tabs.addTab(self.configTab, _fromUtf8(""))
 
         self.retranslateUi(Form)
-        self.Tabs.setCurrentIndex(1)
+        self.Tabs.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -100,4 +114,7 @@ class Ui_Form(object):
         self.btnRefreshc.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
         self.btnRefreshc.setText(_translate("Form", "Draw", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.chartTab), _translate("Form", "Chart", None))
+        self.btnApply.setText(_translate("Form", "Apply", None))
+        self.label.setText(_translate("Form", "Update server based configuration", None))
+        self.Tabs.setTabText(self.Tabs.indexOf(self.configTab), _translate("Form", "Configure", None))
 

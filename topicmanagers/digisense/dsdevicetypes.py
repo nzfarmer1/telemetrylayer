@@ -111,9 +111,11 @@ class dsDeviceTypes:
             return self.devices.values()
 
 
-    def getDeviceTypeById(self,id):
-            if id in self.devices:
-                    return self.devices[id]
+    def getDeviceTypeById(self,_id):
+            Log.debug(_id)
+            Log.debug(self.devices)
+            if _id in self.devices:
+                    return self.devices[_id]
             else:
                     return None
 
