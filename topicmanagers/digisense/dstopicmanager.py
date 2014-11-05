@@ -285,9 +285,12 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         for deviceKey,device in self.getDeviceMaps():
 
             devicemap = DeviceMap.loads(device)
+            
+            addrHigh = devicemap.getAddrHigh()
+         #   addrHigh = addrHigh.replace(' ','-')
 
             item = QtGui.QTableWidgetItem(0)
-            item.setText(devicemap.getAddrHigh())
+            item.setText(addrHigh)
             item.setFlags(Qt.ItemIsSelectable)
             tbl.setItem(row,0,item)
 
@@ -320,7 +323,10 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
             row = row + 1
 
-        tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        tbl.setColumnWidth(0, 80)
+        tbl.horizontalHeader().setResizeMode(1,QtGui.QHeaderView.Stretch)
+        tbl.horizontalHeader().setResizeMode(2,QtGui.QHeaderView.Stretch)
+        tbl.setColumnWidth(4,55)
         self.devicesRefresh.setEnabled(True)
 
     # trick to setup multiple callbacks in a control loop
@@ -389,7 +395,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
             QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
-#            self._buildDevicesTables()
+#            self._buildDevicesTables() $build aynchronously
         except Exception as e: # Check for socket error!
             Log.critical("Unable to load device maps " + str(e))
 

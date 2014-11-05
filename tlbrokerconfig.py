@@ -113,7 +113,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
        elif self._mode == Constants.Update:
 
            self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-           self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Broker ", None) + self.getName())
+           self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure ", None) + self.getName())
            self.connectApply.setText(_translate("tlBrokerConfig", "Apply", None))
            self.dockWidget.visibilityChanged.connect(self.tearDown)
            if self._broker.topicManager() !=None:
