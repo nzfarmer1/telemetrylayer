@@ -11,6 +11,14 @@ except:
 
 class dsDeviceMap:
 
+    """
+    Class to represent a Device Map - essentially a dict representing a set of
+    name value pairs that add meta data to a physical device.
+    
+    Maps the name of the Logical Topic
+    Maps the device with a Device Type definition
+    """
+
     HIBYTE = 2
     LOBYTE = 3
     DTYPE  = 4

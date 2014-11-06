@@ -13,6 +13,15 @@ except:
 
 
 class dsDeviceType:
+    """
+    Class to represent the attributes of a physical device including:
+    - Manufacturer
+    - Model
+    - I/O type
+    - Device type i.e. temerature sensor/relay etc.
+    - Lambda - conversion function
+    """
+    
     def __init__(self,device):
         self.device = device
 

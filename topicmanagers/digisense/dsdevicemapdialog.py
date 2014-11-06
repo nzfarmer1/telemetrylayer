@@ -22,11 +22,13 @@ import traceback, sys
 
 class tlTableParam(QObject):
 
-    LABEL = 0
-    CONTROL = 1
+
+    kLabel = 0
+    kControl = 1
 
     """
-    Todo: add isDirty
+    Populates a table widget with a set of widgets (one one per row) defined by deviceType
+    Todo: add isDirty method - currently dirty regardless
     """
 
     def __init__(self,tbl,row,param,default = None):
@@ -59,19 +61,19 @@ class tlTableParam(QObject):
         item.setWordWrap(True)
         item.setToolTip(self.tooltip)
 
-        self.tbl.setCellWidget(row,self.LABEL, item)
+        self.tbl.setCellWidget(row,self.kLabel, item)
         
         item = QtGui.QTableWidgetItem(0)
         item.setFlags(QtCore.Qt.NoItemFlags)
-        tbl.setItem(row,self.LABEL,item)
+        tbl.setItem(row,self.kLabel,item)
         
         pass
 
     def _setControl(self,height = None):
-        self.tbl.setCellWidget(self.row,self.CONTROL,self.control)
+        self.tbl.setCellWidget(self.row,self.kControl,self.control)
         item = QtGui.QTableWidgetItem(0)
         item.setFlags(QtCore.Qt.NoItemFlags)
-        self.tbl.setItem(self.row,self.LABEL,item)
+        self.tbl.setItem(self.row,self.kLabel,item)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         if height !=None:
             self.tbl.setRowHeight(self.row,height)
@@ -169,7 +171,7 @@ class tlTableParamSlider(tlTableParam):
 
     def setValue(self,value):
         self.value = value
-        item = self.tbl.cellWidget(self.row,self.LABEL)
+        item = self.tbl.cellWidget(self.row,self.kLabel)
         item.setText(self.title + ' ' + str(value) +  ' ' + self.units)
         pass
 

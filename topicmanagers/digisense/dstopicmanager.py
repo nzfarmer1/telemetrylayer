@@ -43,10 +43,13 @@ deviceTypesPath  =""
 
 class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     
+    """
+    Implementation of tlTopicManager
+    """
+    
     kDeviceMapsTabId     = 0
     kDeviceLogicalTabId  = 1
     kDeviceTypesTabId    = 2
-    kDevicesFile         = "dsdevices.xml"
      
     
     @staticmethod
@@ -394,6 +397,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
+
             QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
 #            self._buildDevicesTables() $build aynchronously
         except Exception as e: # Check for socket error!
