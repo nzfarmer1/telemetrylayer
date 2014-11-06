@@ -40,7 +40,13 @@ except AttributeError:
 
 
 class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
-    
+
+    """
+    Class to manage the addition/deletion/configuration of Brokers
+    Supports loading of dyanmic Topic Manager
+    """
+
+
     kBrokerConfigTabId    = 0
     kFeatureListTabId     = 1
     kTopicManagerTabId    = 2

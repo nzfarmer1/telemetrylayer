@@ -26,12 +26,18 @@ except AttributeError:
 from qgis.core import QGis
 
 _this = None
-
-#def featureDialog(dialog,layerid,featureid):
-#    Log.debug("Layer Manager " + str(_this))
     
 
 class layerManager(QObject):
+
+    """
+    Manage all individual "telemetry" layers
+    - providing QObject signal connect to the iFace
+    - managing the legend group interface/integrity
+    - responding to request to add new layers, add/delete features
+    
+    Note: breaks the naming conventions. should be called tLayerManager perhaps?
+    """
 
     _this = None
     _rebuildingLegend = False

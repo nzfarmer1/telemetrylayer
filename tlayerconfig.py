@@ -34,7 +34,9 @@ except AttributeError:
 
 
 class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
-    
+    """
+    Dialog to support creation of a new Telemetry Layer
+    """
     def __init__(self,creator):
         super(tLayerConfig, self).__init__()
     

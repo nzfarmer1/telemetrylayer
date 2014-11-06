@@ -36,7 +36,11 @@ this = None
 
 
 def featureDialog(dialog,layer,feature):
-    
+    """
+    boot loader for the tlFeatureDialog object
+    maps layer to tLayer via layer manager
+    layer's topic manager available via tLayer
+    """
     
     try:
 #        layer.startEditing() # Doesn't work

@@ -25,6 +25,11 @@ class BrokersNotDefined(Exception):
 
 class tlBrokers(QObject):
 
+    """
+    Class to manage array of Brokers including storage
+    
+    """
+
     _this = None
     brokersLoaded  = pyqtSignal(object)
 
@@ -167,6 +172,11 @@ class tlBrokers(QObject):
         return self._dirty
 
 class tlBroker(QObject):
+
+    """
+    Class to represent a single Broker
+    
+    """
 
     def __init__(self,brokerId,properties = {}):
         self._properties = properties

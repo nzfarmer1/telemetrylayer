@@ -49,9 +49,12 @@ except AttributeError:
 
 
 class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
- 
-    UPDATE = 1
-    DELETE = 2 
+
+    """
+    Class to provide the intial settings dialog - interface to broker management etc.
+    
+    Note - QGIS names all classes as TelemetryLayer.xxx[.xxx] so this becomes: TelemetryLayer.TelemetryLayer
+    """
 
     _this = None
 
@@ -122,11 +125,6 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
        self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG)) 
        self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS)) 
  
-#       self.logCritical.setCheckState(self._getQtBoxStateValue(Settings.get('logCritical',True)))
-#       self.logWarn.setCheckState(self._getQtBoxStateValue(Settings.get('logWarn',False)))
-#       self.logDebug.setCheckState(self._getQtBoxStateValue(Settings.get('logDebug',False)))
-#       self.logInfo.setCheckState(self._getQtBoxStateValue(Settings.get('logInfo',False)))
-       
        self._buildBrokerTable()
 
     def checkBrokerConfig(self):
@@ -195,18 +193,18 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             tbl.setItem(row,0,item)
 
             button = QtGui.QPushButton('Edit', self)
-            button.clicked.connect(self._callback(broker,TelemetryLayer.UPDATE))
+            button.clicked.connect(self._callback(broker,Constants.Update))
             tbl.setCellWidget(row,1,button)
 
             button = QtGui.QPushButton('Delete', self)
-            button.clicked.connect(self._callback(broker,TelemetryLayer.DELETE))
+            button.clicked.connect(self._callback(broker,Constants.Deleted))
             tbl.setCellWidget(row,2,button)
             row=row+1
     
     def _callback(self,param,action):
-        if action == TelemetryLayer.UPDATE:
+        if action == Constants.Update:
             return lambda: self._updateBroker(param)
-        if action == TelemetryLayer.DELETE:
+        if action == Constants.Deleted:
             return lambda: self._delBroker(param)
         return None
 

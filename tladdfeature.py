@@ -28,7 +28,9 @@ except AttributeError:
 
 
 class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
-    
+    """
+    Dialog to manage Add Features
+    """
     def __init__(self,broker,topicType):
        super(tlAddFeature, self).__init__()
        self._broker = broker

@@ -25,7 +25,16 @@ from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
 class tlFeatureDialog(QObject):
+
+    """
+    Parent class for custom FeatureDialogs.
     
+    Custom Feature Dialogs are supported in QGIS and configured to be layer specific.
+    An init. class and .ui file used to define the dialog within the layer creation process.
+    
+    Custom topic managers can inherit from this class to provide custom functionality.
+    """
+
     kOverviewTabId = 0
     kSettingsTabId = 1
     kHistoryTabId  = 2
@@ -171,7 +180,10 @@ class tlFeatureDialog(QObject):
 
 
 class tlSysFeatureDialog(tlFeatureDialog):
-    
+    """
+    Example child class of tlFeatureDialog to handle generic MQTT $SYS topics
+    """
+
     def __init__(self,dialog,tLayer,feature):
         super(tlSysFeatureDialog,self).__init__(dialog,tLayer,feature)
 
@@ -194,7 +206,15 @@ class tlSysFeatureDialog(tlFeatureDialog):
 
 
 class tlTopicManager(QDialog,QObject):
+    """
+    Super class for all custom topic managers.
     
+    Topic managers need to inherit from this class to provide the core list of topics
+    and any additional configuration functions.
+    
+    Provides default handler's for defining a tLayer's settings (look and feel).
+    
+    """
     topicManagerReady       = QtCore.SIGNAL('topicManagerReady(QObject,QObject)')
     topicManagerError       = QtCore.SIGNAL('topicManagerError(QObject,QObject)')
 

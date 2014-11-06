@@ -22,9 +22,18 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 
     # TODO
-    # Add eExceptions for 32 Broke Pioe and 54 Connection Reset by Peer
+    # Add eExceptions for 32 Broke Pipe and 54 Connection Reset by Peer
 
 class MQTTClient(QtCore.QObject):
+
+    """
+    Wrapper class for Mosquitto MQTT client
+    Provides inherited helper classes for SingleShot and Test requests
+    Initial approach was to sub class QThread, but reading revealed that
+    running the timers within a thread was the preferred approach.
+    
+    
+    """
 
     kMaxAttempts  = 3
     kMinKeepAlive = 5

@@ -69,10 +69,14 @@ def is_silent(values, feature, parent):
 
 
 class tlTopicManagerFactory():
+
+    """
+    Factory class to keep register and keep track of all custom topic managers
+    
+    """
     
     registered = []
     featureDialogs = []
-    
     topicManagers  = []
 
     @staticmethod

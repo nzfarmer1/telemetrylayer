@@ -17,18 +17,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
-
-TODO
-
-Global updates of all features where features <=> topic
-Add History to DigiSense Topic Manager
-Alternative host name selection
-Username password for MQTT Broker
-Stabilty and feature dialog for Windows and Linux
-
-
 """
+
 
 from PyQt4 import QtCore
 from PyQt4.QtCore import pyqtSlot,SIGNAL,SLOT
@@ -56,6 +46,13 @@ import sys,os
 
 
 class TelemetryLayerPlugin(QObject):
+    """
+    Plugin Class - providing hook into QGIS core; starting point for setup and teardown;
+    including creation of menu/icon actions.
+    
+    Todo: Alternative host name selection
+    Username password for MQTT Broker
+    """
 
     def __init__(self, iface):
         # Save reference to the QGIS interface

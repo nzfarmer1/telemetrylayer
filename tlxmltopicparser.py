@@ -13,6 +13,11 @@ from lib.tllogging import tlLogging as Log
 
 
 class tlXMLTopicParser():
+  """
+  Class to parse a list topic definitions from an XML file.
+  
+  See data/systopcs.xml for an example format
+  """
 
   def __init__(self,xml):
 
