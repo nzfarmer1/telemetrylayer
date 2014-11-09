@@ -437,7 +437,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
              attributes = [ QgsField("alert",       QVariant.Int, "Alert",0,0,"Low water alert level") ]
          
         return attributes
-     
+        
     def setLabelFormatter(self,layer,topicType):
         try:
             palyr               = QgsPalLayerSettings()
@@ -461,3 +461,4 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
            self.devicesRefresh.clicked.disconnect(self._deviceMapsRefreshRPC)
        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
 
+    

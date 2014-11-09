@@ -78,6 +78,7 @@ class tlTopicManagerFactory():
     registered = []
     featureDialogs = []
     topicManagers  = []
+    classObjects = {}
 
     @staticmethod
     def featureUpdated(layer,feature):
@@ -120,10 +121,17 @@ class tlTopicManagerFactory():
     @staticmethod
     def getTopicManager(broker,create = False):
         try:
-            _class = tlTopicManagerFactory.getTopicManagerById(broker.topicManager())
+            tmId = broker.topicManager()
+            if not create and tmId in tlTopicManagerFactory.classObjects:
+                return tlTopicManagerFactory.classObjects[tmId]
+
+            _class = tlTopicManagerFactory.getTopicManagerById(tmId)
             if not _class:
                 Log.alert("Error loading topic manager " + str(broker.id()))
-            return _class(broker,create)
+                return None
+            
+            tlTopicManagerFactory.classObjects[tmId] =  _class(broker,create)
+            return tlTopicManagerFactory.classObjects[tmId]
         except Exception as e:
             Log.debug("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
