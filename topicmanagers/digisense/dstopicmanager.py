@@ -102,8 +102,6 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         else:
             self._mode = tlConstants.Update
             self.deviceTabs.setCurrentIndex(dsTopicManager.kDeviceLogicalTabId); # First index
-     
-        Log.debug("Setup UI")
         
         try:
             s = RPCProxy(self._broker.host(),8000).connect()
@@ -152,7 +150,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             devicemap = DeviceMap.loads(device)
             if not devicemap.isMapped():
                 continue
-            dtype = self._deviceTypes.getDeviceTypeById(devicemap.getDeviceTypeId())
+            dtype = self.getDeviceType(devicemap)
             
             # Add Type(QVariant.XXX) to Params so we now how to create feature 
             params = []
@@ -162,19 +160,20 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
                 ptype   = param.find("Type").text
                 params.append({'name':pname,'value':pvalue,'type':ptype})
             
+            
             topics.append({'topic':devicemap.getTopic(), \
                             'name':devicemap.getName(), \
                             'units':devicemap.getUnits(), \
                             'type':dtype.op(), \
                             'params':params})
-        Log.debug(topics)
+
         return super(dsTopicManager,self).getTopics(topics) # Merge System topics
 
     def getDeviceType(self,dMap):
         return self.getDeviceTypes().getDeviceTypeById(dMap.getDeviceTypeId())
             
     def getDeviceTypes(self):
-        if self._deviceTypes == None:
+        if not self._deviceTypes:
             self._deviceTypes = self._loadDeviceTypesRPC()
         return self._deviceTypes
     
@@ -254,7 +253,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             if not devicemap.isMapped():
                 continue
 
-            dtype = self._deviceTypes.getDeviceTypeById(devicemap.getDeviceTypeId())
+            dtype = self.getDeviceTypes().getDeviceTypeById(devicemap.getDeviceTypeId())
  
             tbl.setRowCount(row+1)
 
@@ -420,11 +419,9 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         except Exception as e: # Check for socket error!
             Log.progress("Unable to load device maps " + str(e))
 
-
     
     def updateDeviceMap(self,map):
         pass
-    
         
     def _loadDeviceTypesRPC(self): # xml file
         try:
@@ -435,10 +432,17 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             Log.progress("Error accessing server")
             return None
         
-
+   
+    def getAttributes(self,layer,topicType):
+        attributes = []
+        if topicType == 'Tank':
+             attributes = [ QgsField("alert",       QVariant.Int, "Alert",0,0,"Low water alert level") ]
+         
+        return attributes
+     
     def setLabelFormatter(self,layer,topicType):
         try:
-            palyr = QgsPalLayerSettings()
+            palyr               = QgsPalLayerSettings()
             palyr.readFromLayer(layer)
             palyr.enabled       = True 
             palyr.placement     = QgsPalLayerSettings.OverPoint
@@ -459,5 +463,3 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
            self.devicesRefresh.clicked.disconnect(self._deviceMapsRefreshRPC)
        QObject.disconnect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
 
-           
-        
