@@ -415,10 +415,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
 
             QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
-#            self._buildDevicesTables() $build aynchronously
         except Exception as e: # Check for socket error!
             Log.progress("Unable to load device maps " + str(e))
-
     
     def updateDeviceMap(self,map):
         pass
@@ -435,7 +433,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
    
     def getAttributes(self,layer,topicType):
         attributes = []
-        if topicType == 'Tank':
+        if topicType == 'Tank':  # Consider adding an <Alerts><Alert .. tag(s) each with their own lamda functions
              attributes = [ QgsField("alert",       QVariant.Int, "Alert",0,0,"Low water alert level") ]
          
         return attributes

@@ -92,7 +92,6 @@ class dsDataView(QObject):
         if not status:
             Log.alert(msg)
             return
-        
         if 'compressed' in msg.topic:
             response = json.loads(zlib.decompress(msg.payload))
         else:
@@ -190,7 +189,8 @@ class dsDataLoggerView(dsDataView):
     
             row=0
             for (x,y) in list(data):
-                d =  datetime.datetime.fromtimestamp(x)
+                Log.debug(x)
+                d =  datetime.datetime.fromtimestamp(float(x))
     
                 tbl.setRowCount(row+1)
                 item = QtGui.QTableWidgetItem(0)
