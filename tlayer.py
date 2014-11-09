@@ -385,15 +385,6 @@ class tLayer(MQTTClient):
             
             return attributes
 
-          #  feat = QgsFeature()
-          #  feat.setGeometry( QgsGeometry.fromPoint(QgsPoint(10,10)) )
-          #  feat.setAttributes(["Broker Uptime","MQTT Property","$SYS/broker/uptime","",int(time.time()),int(time.time()),False])
-
-           # pr.addFeatures([feat])
-           
-
-   # Respond to add Feature
-
     def beforeRollBack(self):
         pass    
 #              Log.debug("before rollback")
