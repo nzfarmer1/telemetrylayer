@@ -121,17 +121,16 @@ class tlTopicManagerFactory():
     @staticmethod
     def getTopicManager(broker,create = False):
         try:
-            tmId = broker.topicManager()
-            if not create and tmId in tlTopicManagerFactory.classObjects:
-                return tlTopicManagerFactory.classObjects[tmId]
+            if not create and broker.id() in tlTopicManagerFactory.    classObjects:
+                return tlTopicManagerFactory.classObjects[broker.id()]
 
-            _class = tlTopicManagerFactory.getTopicManagerById(tmId)
+            _class = tlTopicManagerFactory.getTopicManagerById(broker.topicManager())
             if not _class:
                 Log.alert("Error loading topic manager " + str(broker.id()))
                 return None
             
-            tlTopicManagerFactory.classObjects[tmId] =  _class(broker,create)
-            return tlTopicManagerFactory.classObjects[tmId]
+            tlTopicManagerFactory.classObjects[broker.id()] =  _class(broker,create)
+            return tlTopicManagerFactory.classObjects[broker.id()]
         except Exception as e:
             Log.debug("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()

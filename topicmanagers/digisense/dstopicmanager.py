@@ -143,6 +143,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         return self.Tabs.widget(0)
 
     def getTopics(self):
+        Log.debug("GET TOPICS")
         topics = []
         if  self._deviceMaps == None:
             return []
@@ -413,6 +414,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId,True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId,True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId,True)
+            self._buildDevicesTables()
 
             QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
         except Exception as e: # Check for socket error!

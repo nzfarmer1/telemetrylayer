@@ -371,13 +371,17 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
 # Validate deletion of a Device Map
 
     def validateDeleteRPC(self,status):
+        if self._creator.isDemo():
+            Log.progress("Demo mode - no changes can be applied")
+            self.dirty = False
+            self.accept()
+            return
+
         msg = "Are you sure you want to delete this mapping?  Please note you will need to edit/delete any features that use this Topic"
         if not Log.confirm(msg):
             return
 
-        if self._creator.isDemo():
-            Log.progress("Demo mode - no changes can be applied")
-            return
+
         try:
             s = RPCProxy(self._broker.host(),8000).connect()
             Log.debug(self._deviceMap.dumps())
@@ -399,6 +403,8 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         Log.debug("Apply RPC")   
         if self._creator.isDemo():
             Log.progress("Demo mode - no changes can be applied")
+            self.dirty = False
+            self.accept()
             return
         
         if len(self.name.text()) < 8:
