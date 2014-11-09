@@ -324,6 +324,7 @@ class dsConfigView(QObject):
         self.pTable = None
         self._topicManager = tLayer.topicManager()
         self._deviceMap  = None
+        
 
         try:
             self._deviceMap = self._topicManager.getDeviceMap(str(feature['topic']))
@@ -334,6 +335,9 @@ class dsConfigView(QObject):
             Log.debug("Error loading Configuration tab " + str(e))
             
     def _apply(self):
+        if self._topicManager.isDemo():
+            Log.progress("Demo mode - no changes can be applied")
+            return
         params = self.pTable.params()
         self._deviceMap.set('params',params)
         self._topicManager.setDeviceMap(self._deviceMap)

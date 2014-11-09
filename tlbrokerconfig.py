@@ -279,6 +279,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _loadTopicManager(self,topicManagerId = 'digisense'):
         try:
             if self._create:
+                # Add username/password!
+                self._broker.setHost(self.getHost())
+                self._broker.setPort(self.getPort())
                 self._broker.setTopicManager(topicManagerId)
             self._topicManager = topicManagerFactory.getTopicManager(self._broker,self._create)
             QObject.connect(self._topicManager,SIGNAL("topicManagerReady"),self._topicManagerLoaded)
@@ -298,7 +301,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.Tabs.setTabEnabled(self.kTopicManagerTabId,True)
             self.connectApply.setEnabled(True)
         else:
-            Log.critical(obj)
+            Log.debug(obj)
 
 
     def getTopicManager(self):

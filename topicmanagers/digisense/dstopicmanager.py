@@ -6,7 +6,13 @@
  DigiSense Topic Manager - needs backend DigiSense server. 
 
  ***************************************************************************/
+Todo:
+Save device type parameters as attributes
+Use these to create traffic lights on icon or set alerts
+
 """
+
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -76,7 +82,16 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         self._deviceTypes = None
         self._create = create
         self._broker= broker
-          
+        self._demo = False
+        
+        try:
+            s = RPCProxy(self._broker.host(),8000).connect()
+            self._demo = s.isDemo()
+        except socket.error as err:
+            Log.progress("Error making connection to server " + str(err))
+        except Exception as e:
+            Log.debug(e)
+            
 
     def setupUi(self):
         super(dsTopicManager,self).setupUi()
@@ -88,35 +103,33 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._mode = tlConstants.Update
             self.deviceTabs.setCurrentIndex(dsTopicManager.kDeviceLogicalTabId); # First index
      
-        QObject.connect(self,SIGNAL("deviceMapsRefreshed"),self._buildDevicesTables)
-#        QObject.connect(self,SIGNAL("deviceMapsRefreshed"),self._updateLayers)
+        Log.debug("Setup UI")
         
-        if self._deviceTypes == None:
-             Log.debug("Loading device types")  
-             self.setDeviceTypes(self._loadDeviceTypesRPC()) 
+        try:
+            s = RPCProxy(self._broker.host(),8000).connect()
+            self._demo = s.isDemo()
+        except socket.error as err:
+            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,"Unable to load Topic Manager Digisense:" + str(err))
+            return
+        except Exception as e:
+            Log.debug("setupUI " + str(e))
+            QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,"Unable to load Topic Manager Digisense:" + str(e))
+            return
+
+        self._buildDevicesTables()
         self.devicesRefresh.clicked.connect(self._deviceMapsRefreshRPC)
-        
-        dsTopicManager.showLoadingMessage( self.tableDeviceTypes)
-        dsTopicManager.showLoadingMessage( self.tableLogical)
-        dsTopicManager.showLoadingMessage( self.tablePhysical)
-        
         self.tableLogical.doubleClicked.connect(self._editTopicRow)
 
-        if self._deviceMaps != None:
-            self._buildDevicesTables()
-        else:
-            self._deviceMapsRefreshRPC()
-        
-        if self._deviceTypes != None:
-            self._buildDeviceTypesTable()
-        else:
-           QObject.emit(self,QtCore.SIGNAL('topicManagerError'),False,"Unable to load device types")
+    
 
 
     def featureDialog(self,dialog,tLayer,featureId):
         # Check tLayer.topicType type
          return dsFeatureDialog(dialog,tLayer,featureId)
 
+           
+    def isDemo(self):
+        return self._demo
            
     def _updateFeatures(self):
         # Iterate through a list of tlLayers and if they are using
@@ -166,15 +179,16 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         return self._deviceTypes
     
     def getDeviceMaps(self,refresh = False):
-        if self._deviceMaps != None and not refresh:
+        if self._deviceMaps and not refresh:
             return self._deviceMaps
         try:
             s = RPCProxy(self._broker.host(),8000).connect()
             self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
-            Log.debug(self._deviceMaps)
         except Exception as e:
-            Log.debug("Error loading device maps")
+            Log.progress("Error loading device maps from server")
         finally:
+            if not self._deviceMaps:
+                return []
             return self._deviceMaps
     
     def getDeviceMap(self,topic):
@@ -347,6 +361,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildDeviceTypesTable(self):
         devicetypes = self.getDeviceTypes()
+        if not devicetypes:
+            return
         
         columns = ["Pin Type","Sensor Type","Model"]
         tbl = self.tableDeviceTypes
@@ -387,6 +403,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         self._buildPhysicalDevicesTable()
         Log.debug("Rebuilding Logical Devices Tables")
         self._buildLogicalDevicesTable()
+        self._buildDeviceTypesTable()
         QObject.emit(self,QtCore.SIGNAL('topicManagerReady'),True,self)
 
     def _deviceMapsRefreshRPC(self):
@@ -401,7 +418,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             QObject.emit(self,QtCore.SIGNAL("deviceMapsRefreshed"))
 #            self._buildDevicesTables() $build aynchronously
         except Exception as e: # Check for socket error!
-            Log.critical("Unable to load device maps " + str(e))
+            Log.progress("Unable to load device maps " + str(e))
 
 
     
@@ -415,12 +432,11 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             return DeviceTypes(s.getDeviceTypesRPC())
         
         except Exception as e:
-            Log.warn("Failed to load "  + str(e))
+            Log.progress("Error accessing server")
             return None
         
 
     def setLabelFormatter(self,layer,topicType):
-        Log.debug( str(self) + " setFormatter")
         try:
             palyr = QgsPalLayerSettings()
             palyr.readFromLayer(layer)

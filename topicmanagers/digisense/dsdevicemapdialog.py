@@ -305,6 +305,10 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self.createTypesCombo(self._deviceMap.getDeviceTypeId())
             self.applyButton.clicked.connect(self.validateApplyRPC)
 
+            #if self._creator.isDemo():
+            #    Log.progress("Demo mode - no changes can be applied")
+            #    self.applyButton.setEnabled(False)
+
             noSpaceValidator= QRegExpValidator(QRegExp("^[\$A-Za-z0-9\/]+"),self);
             self.topic.setValidator(noSpaceValidator)
             self.topic.setReadOnly(True)
@@ -370,6 +374,10 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         msg = "Are you sure you want to delete this mapping?  Please note you will need to edit/delete any features that use this Topic"
         if not Log.confirm(msg):
             return
+
+        if self._creator.isDemo():
+            Log.progress("Demo mode - no changes can be applied")
+            return
         try:
             s = RPCProxy(self._broker.host(),8000).connect()
             Log.debug(self._deviceMap.dumps())
@@ -389,6 +397,9 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
     
     def validateApplyRPC(self,status):
         Log.debug("Apply RPC")   
+        if self._creator.isDemo():
+            Log.progress("Demo mode - no changes can be applied")
+            return
         
         if len(self.name.text()) < 8:
             Log.alert("Please ensure the name is at least 8 characters long")
