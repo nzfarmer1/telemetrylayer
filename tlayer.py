@@ -142,6 +142,10 @@ class tLayer(MQTTClient):
     def kill(self):
             super(tLayer,self).kill()
 
+    def stop(self):
+            super(tLayer,self).stop()
+            self._layer.triggerRepaint()
+
 
     def onConnect(self,mosq, obj, rc):
             #Log.debug(self._layer.rendererV2().dump())
@@ -193,7 +197,7 @@ class tLayer(MQTTClient):
                             self.unsubscribe(topic)
             self._layer.triggerRepaint()
             
-
+    
     """
     Update values foreach topic:featureId
 
@@ -497,10 +501,6 @@ class tLayer(MQTTClient):
 
     def refresh(self,state):
             self.commitChanges()
-#                
-#                if not self.hasFeatures():
-#                    return # nothing to do
-            
             if state:
                     self.resume()
             else:

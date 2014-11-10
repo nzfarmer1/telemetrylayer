@@ -52,16 +52,15 @@ TODO:
 
 This is my top list. There's lots more of course!
 
-- add support for roll back when adding/deleting/updating features
-- configure attribute types (currently these are all editable - should be hidden)
-- introduce invisible features for no geo specific sensors ( Partially done )
-- add support for configurable QoS per feature
-- programmatically create rules based renderer for layers
+- add support for roll back/undo when adding/deleting/updating features
+- extend rules based renderer for layers with better examples
 - icons for symbols and application - including sensor state symbology
-- refactor topicmanager classes so these can be located in their own sub directories (Done - see /topicmanagers package)
-- support to add / edit parameters as additional feature attributes (Done via Feature tab)
+- support to add / edit parameters as additional feature attributes (Done via Feature tab - server side changes only)
 - integrate with QGIS native help with splash screen showing new features
 - replace mosquitto client with paho.Client
+
+- set default broker config tab to be list of brokers
+- add details of broker port/host etc when selecting from list
 
 If you want to help with any of this, please get in touch!!!
 

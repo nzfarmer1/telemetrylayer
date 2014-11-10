@@ -305,7 +305,6 @@ class layerManager(QObject):
         Log.debug("Layer Properties Changed " + str(val))
     
     def renderStarting(self):
-#        Log.debug("Rendering")
         for lid,tLayer in self.getTLayers().iteritems():
             visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
            #if not visible:
