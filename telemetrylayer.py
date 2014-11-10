@@ -25,9 +25,9 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from ui_telemetrylayer import Ui_TelemetryLayer
-from tlbrokers import tlBrokers as Brokers,  BrokerNotSynced, BrokerNotFound
+from tlbrokers import tlBrokers as Brokers, BrokerNotSynced, BrokerNotFound
 from tlbrokerconfig import tlBrokerConfig as BrokerConfig
-from lib.tlsettings import tlSettings as Settings,tlConstants as Constants
+from lib.tlsettings import tlSettings as Settings, tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 
 # Add Help Button
@@ -40,6 +40,7 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
@@ -47,9 +48,7 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-
 class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
-
     """
     Class to provide the intial settings dialog - interface to broker management etc.
     
@@ -58,124 +57,124 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
     _this = None
 
-    @staticmethod   
+    @staticmethod
     def _getQtBoxStateValue(state):
         if eval(str(state)):
             return Qt.Checked
         else:
             return Qt.Unchecked
-    
-    def __init__(self,creator):
-       super(TelemetryLayer, self).__init__()
 
-       self.iface = creator.iface
-       self.plugin_dir = creator.plugin_dir
-       self._brokerDlg = None
-       self._brokers = Brokers.instance()
-       self._layerManager = creator.layerManager
-       self._setup = False
-       self.dockWidget = None
-       TelemetryLayer._this = self
+    def __init__(self, creator):
+        super(TelemetryLayer, self).__init__()
 
-       pass
-    
+        self.iface = creator.iface
+        self.plugin_dir = creator.plugin_dir
+        self._brokerDlg = None
+        self._brokers = Brokers.instance()
+        self._layerManager = creator.layerManager
+        self._setup = False
+        self.dockWidget = None
+        TelemetryLayer._this = self
+
+        pass
+
     @staticmethod
     def instance():
         return TelemetryLayer._this
 
-    def show(self,broker = None):
+    def show(self, broker=None):
         if not self._setup:
             self.setupUi()
             self._setup = True
 
         if not self.dockWidget.isVisible():
-            self.iface.addDockWidget( Qt.LeftDockWidgetArea,   self.dockWidget )
+            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
         self.dockWidget.setVisible(True)
-        
-        if broker !=None:
-#            if self._brokerDlg.dockWidget.isVisible():
-#                self._brokerDlg.dockWidget.setVisible(False)
+
+        if broker is not None:
+            # if self._brokerDlg.dockWidget.isVisible():
+            #                self._brokerDlg.dockWidget.setVisible(False)
             # Add check to see if _brokerDlg is currently open and a prompt to change it if dirty!
-            self._updateBroker(broker,True)
-        
+            self._updateBroker(broker, True)
+
 
     def hide(self):
         if self.dockWidget.isVisible():
             self.dockWidget.setVisible(False)
-        
+
 
     def setupUi(self):
-       super(TelemetryLayer,self).setupUi(self)
-       self.dockWidget.setFixedHeight(self.height()) # paramterise
-       self.dockWidget.setFeatures(QtGui.QDockWidget.DockWidgetClosable)
-       self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Telemetry Layer", None))
-       self.ckShowLog.clicked.connect(self._showLog)
-       self.ckShowLog.setCheckState(self._getQtBoxStateValue(Log.logDockVisible()))
-      
-       self.dockWidget.visibilityChanged.connect(self._visibilityChanged)
-       
-       self.btnApply.clicked.connect(self._apply)
-       self.btnAdd.clicked.connect(self._addBroker)
+        super(TelemetryLayer, self).setupUi(self)
+        self.dockWidget.setFixedHeight(self.height())  # paramterise
+        self.dockWidget.setFeatures(QtGui.QDockWidget.DockWidgetClosable)
+        self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Telemetry Layer", None))
+        self.ckShowLog.clicked.connect(self._showLog)
+        self.ckShowLog.setCheckState(self._getQtBoxStateValue(Log.logDockVisible()))
 
-       logStates = int(Settings.get('logStates',Log.CRITICAL))
-       
-       self.logCritical.setCheckState(self._getQtBoxStateValue(logStates & Log.CRITICAL))
-       self.logInfo.setCheckState(self._getQtBoxStateValue(logStates & Log.INFO))
-       self.logWarn.setCheckState(self._getQtBoxStateValue(logStates & Log.WARN)) 
-       self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG)) 
-       self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS)) 
- 
-       self._buildBrokerTable()
+        self.dockWidget.visibilityChanged.connect(self._visibilityChanged)
+
+        self.btnApply.clicked.connect(self._apply)
+        self.btnAdd.clicked.connect(self._addBroker)
+
+        logStates = int(Settings.get('logStates', Log.CRITICAL))
+
+        self.logCritical.setCheckState(self._getQtBoxStateValue(logStates & Log.CRITICAL))
+        self.logInfo.setCheckState(self._getQtBoxStateValue(logStates & Log.INFO))
+        self.logWarn.setCheckState(self._getQtBoxStateValue(logStates & Log.WARN))
+        self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG))
+        self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS))
+
+        self._buildBrokerTable()
 
     def checkBrokerConfig(self):
-        if len(self._brokers.list()) ==0:
+        if len(self._brokers.list()) == 0:
             raise BrokersNotDefined
-        
+
         if self.dirty():
             if Log.confirm("You have unsaved changed in your broker configuration. Save now?"):
                 self.apply()
             else:
                 raise BrokerNotSynced("Unsaved changes")
-    
 
-    def _showLog(self,state):
+
+    def _showLog(self, state):
         logDock = self.iface.mainWindow().findChild(QtGui.QDockWidget, 'MessageLog')
         if state:
             logDock.show()
         else:
             logDock.hide()
-    
+
 
     def _apply(self):
         logStates = 0
-        if self.logCritical.checkState() ==  self._getQtBoxStateValue(True):
+        if self.logCritical.checkState() == self._getQtBoxStateValue(True):
             logStates |= Log.CRITICAL
 
-        if self.logWarn.checkState() ==  self._getQtBoxStateValue(True):
+        if self.logWarn.checkState() == self._getQtBoxStateValue(True):
             logStates |= Log.WARN
 
-        if self.logInfo.checkState() ==  self._getQtBoxStateValue(True):
+        if self.logInfo.checkState() == self._getQtBoxStateValue(True):
             logStates |= Log.INFO
 
-        if self.logDebug.checkState() ==  self._getQtBoxStateValue(True):
+        if self.logDebug.checkState() == self._getQtBoxStateValue(True):
             logStates |= Log.DEBUG
-            
-        if self.logStatus.checkState() ==  self._getQtBoxStateValue(True):
+
+        if self.logStatus.checkState() == self._getQtBoxStateValue(True):
             logStates |= Log.STATUS
 
         Log.setLogStates(logStates)
 
     def _buildBrokerTable(self):
         brokers = self._brokers.list()
-        
-        columns = ["Name","Edit","Delete"]
+
+        columns = ["Name", "Edit", "Delete"]
         tbl = self.tableBrokerList
         tbl.clear()
 
-        tbl.setStyleSheet("font: 10pt \"System\";") 
+        tbl.setStyleSheet("font: 10pt \"System\";")
         tbl.setRowCount(len(brokers))
         tbl.setColumnCount(len(columns))
-        tbl.setColumnWidth(30,30) #?
+        tbl.setColumnWidth(30, 30)  # ?
         tbl.setHorizontalHeaderLabels(columns)
         tbl.verticalHeader().setVisible(True)
         tbl.horizontalHeader().setVisible(True)
@@ -184,93 +183,93 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
         tbl.setShowGrid(True)
 
-        row=0
+        row = 0
         for broker in self._brokers.list():
             item = QtGui.QTableWidgetItem(0)
             item.setText(broker.name())
             item.setFlags(Qt.NoItemFlags)
-           # item.setData(Qt.UserRole,broker)
-            tbl.setItem(row,0,item)
+            # item.setData(Qt.UserRole,broker)
+            tbl.setItem(row, 0, item)
 
             button = QtGui.QPushButton('Edit', self)
-            button.clicked.connect(self._callback(broker,Constants.Update))
-            tbl.setCellWidget(row,1,button)
+            button.clicked.connect(self._callback(broker, Constants.Update))
+            tbl.setCellWidget(row, 1, button)
 
             button = QtGui.QPushButton('Delete', self)
-            button.clicked.connect(self._callback(broker,Constants.Deleted))
-            tbl.setCellWidget(row,2,button)
-            row=row+1
-    
-    def _callback(self,param,action):
+            button.clicked.connect(self._callback(broker, Constants.Deleted))
+            tbl.setCellWidget(row, 2, button)
+            row += 1
+
+    def _callback(self, param, action):
         if action == Constants.Update:
             return lambda: self._updateBroker(param)
         if action == Constants.Deleted:
             return lambda: self._delBroker(param)
         return None
 
-    def _updateBroker(self,broker,groupClicked = False):
-        if self._brokerDlg != None:
+    def _updateBroker(self, broker, groupClicked=False):
+        if self._brokerDlg is not None:
             self._brokerDlg.dockWidget.setVisible(False)
             self._brokerDlg = None
-        self._brokerDlg = BrokerConfig(self,broker,False)
+        self._brokerDlg = BrokerConfig(self, broker, False)
         self._brokerDlg.connectApply.clicked.connect(self._updateBrokerApply)
         self._brokerDlg.connectCancel.clicked.connect(self._addBrokerCancel)
-        self.dockWidget.setFixedHeight(25) # paramterise
-        #self.dockWidget.setMaximumHeight(25) # paramterise
-        if groupClicked == True:
+        self.dockWidget.setFixedHeight(25)  # paramterise
+        # self.dockWidget.setMaximumHeight(25) # paramterise
+        if groupClicked:
             self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kFeatureListTabId)
         self.dockWidget.repaint()
-        self.iface.addDockWidget( Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget )
+        self.iface.addDockWidget(Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget)
 
     def dirty(self):
-        return self._brokerDlg !=None and self._brokerDlg.dirty()
+        return self._brokerDlg is not None and self._brokerDlg.dirty()
 
     def apply(self):
         self._apply()
-        if self._brokerDlg == None:
+        if self._brokerDlg is None:
             return
         if self._brokerDlg.mode() == Constants.Create:
             self._addBrokerApply()
         elif self._brokerDlg.mode() == Constants.Update:
             self._updateBrokerApply()
-    
+
 
     def _updateBrokerApply(self):
         if not self._brokerDlg.validate():
             return
         self._brokerDlg.dockWidget.setVisible(False)
-        self.dockWidget.setFixedHeight(self.height()) # paramterise
+        self.dockWidget.setFixedHeight(self.height())  # paramterise
         broker = self._brokerDlg.getBroker()
         self._brokers.update(broker)
         self._brokers.sync(True)
         self._buildBrokerTable()
-            
 
-    def _delBroker(self,broker):
+
+    def _delBroker(self, broker):
         self._brokers.delete(broker)
         self._brokers.sync()
         self._buildBrokerTable()
 
     def _addBroker(self):
-        if self._brokerDlg != None:
+        if self._brokerDlg is not None:
             self._brokerDlg.dockWidget.setVisible(False)
             self._brokerDlg = None
         broker = self._brokers.create()
-        self._brokerDlg = BrokerConfig(self,broker,True)
+        self._brokerDlg = BrokerConfig(self, broker, True)
         self._brokerDlg.connectApply.clicked.connect(self._addBrokerApply)
         self._brokerDlg.connectCancel.clicked.connect(self._addBrokerCancel)
-        self.dockWidget.setFixedHeight(25) # paramterise
-        #self.dockWidget.setMaximumHeight(25) # paramterise
+        self.dockWidget.setFixedHeight(25)  # paramterise
+        # self.dockWidget.setMaximumHeight(25) # paramterise
         self.dockWidget.repaint()
-        self.iface.addDockWidget( Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget )
-    
-    
+        self.iface.addDockWidget(Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget)
+
+
     def _addBrokerApply(self):
         if not self._brokerDlg.validate():
             self._brokers.load()
             return
         self._brokerDlg.dockWidget.setVisible(False)
-        self.dockWidget.setFixedHeight(self.height()) # paramterise
+        self.dockWidget.setFixedHeight(self.height())  # paramterise
         broker = self._brokerDlg.getBroker()
         self._brokers.update(broker)
         self._brokers.sync(True)
@@ -279,19 +278,19 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
     def _addBrokerCancel(self):
         self._brokerDlg.dockWidget.setVisible(False)
-        self.dockWidget.setFixedHeight(self.height()) # paramterise
+        self.dockWidget.setFixedHeight(self.height())  # paramterise
         self._brokers.load()
 
-    def _visibilityChanged(self,state):
+    def _visibilityChanged(self, state):
         if not state:
             self.tearDown()
 
     def tearDown(self):
-        if self.dockWidget ==None:
+        if self.dockWidget is None:
             return
         self.dockWidget.setVisible(False)
-        self.dockWidget.setFixedHeight(self.height()) # paramterise
-        if self._brokerDlg !=None:
+        self.dockWidget.setFixedHeight(self.height())  # paramterise
+        if self._brokerDlg is not None:
             self._brokerDlg.dockWidget.setVisible(False)
             self._brokerDlg = None
         

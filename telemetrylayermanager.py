@@ -3,7 +3,7 @@
 Layer Manager - managers groups, legends, and controls individual layers
 """
 from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot,SIGNAL
+from PyQt4.QtCore import pyqtSlot, SIGNAL
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
@@ -12,7 +12,7 @@ from qgis.gui import *
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlayer import tLayer as TLayer
-from tlbrokers import tlBrokers as Brokers,BrokerNotFound, BrokerNotSynced,BrokersNotDefined
+from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, BrokersNotDefined
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
@@ -26,10 +26,9 @@ except AttributeError:
 from qgis.core import QGis
 
 _this = None
-    
+
 
 class layerManager(QObject):
-
     """
     Manage all individual "telemetry" layers
     - providing QObject signal connect to the iFace
@@ -41,52 +40,53 @@ class layerManager(QObject):
 
     _this = None
     _rebuildingLegend = False
-    
-    
+
+
     @staticmethod
     def getLayers():
-        layers = [] 
+        layers = []
         for l in QgsMapLayerRegistry.instance().mapLayers().values():
             if TLayer.isTLayer(l):
                 layers.append(l)
-                
+
         return layers
-    
 
 
-    @staticmethod    
-    def refresh():    
+    @staticmethod
+    def refresh():
         for layer in tl.getLayers():
             layer.triggerRepaint()
-            
+
     @staticmethod
     def instance():
-        if layerManager._this == None:
+        if layerManager._this is None:
             raise Exception('Telemetry Layer Manager not created')
         return layerManager._this
 
-    def __init__(self,creator):
+    def __init__(self, creator):
         Log.debug('init Layer Manager')
-        super(layerManager,self).__init__()
+        super(layerManager, self).__init__()
         self._creator = creator
-        self._iface =  creator.iface
-        self._plugin_dir =  creator.plugin_dir
+        self._iface = creator.iface
+        self._plugin_dir = creator.plugin_dir
         self.disableDialog = False
-        self.actions ={}
+        self.actions = {}
         self.menuName = Settings.getMeta('name')
         self._tLayers = {}
         layerManager._rebuildingLegend = False
         Log.debug('success')
 
         layers = layerManager.getLayers()
-        if len(layers) > 0: # Existing layers
+        if len(layers) > 0:  # Existing layers
             for layer in layers:
-                if self.initLayer(layer) == None:
-                    self.removeLayer(layer,True)
+                if self.initLayer(layer) is None:
+                    self.removeLayer(layer, True)
 
-        self._disable_enter_attribute_values_dialog_global_default =  QSettings().value( "/qgis/digitizing/disable_enter_attribute_values_dialog")
- 
-        self.actions['config'] = QAction(QIcon(":/plugins/digisense/icon.png"), u"Configure", self._iface.legendInterface() )
+        self._disable_enter_attribute_values_dialog_global_default = QSettings().value(
+            "/qgis/digitizing/disable_enter_attribute_values_dialog")
+
+        self.actions['config'] = QAction(QIcon(":/plugins/digisense/icon.png"), u"Configure",
+                                         self._iface.legendInterface())
 
         self.actions['pause'] = QAction(
             QIcon(":/plugins/digisense/icon.png"),
@@ -96,81 +96,84 @@ class layerManager(QObject):
             QIcon(":/plugins/digisense/icon.png"),
             "Resume", self._iface.legendInterface())
 
-        self._iface.legendInterface().addLegendLayerAction(self.actions['resume']  ,self.menuName, u"id1", QgsMapLayer.VectorLayer, False )
-        self._iface.legendInterface().addLegendLayerAction(self.actions['config']  , self.menuName, u"id1", QgsMapLayer.VectorLayer, False )
-        self._iface.legendInterface().addLegendLayerAction(self.actions['pause']  , self.menuName, u"id1", QgsMapLayer.VectorLayer, False )
+        self._iface.legendInterface().addLegendLayerAction(self.actions['resume'], self.menuName, u"id1",
+                                                           QgsMapLayer.VectorLayer, False)
+        self._iface.legendInterface().addLegendLayerAction(self.actions['config'], self.menuName, u"id1",
+                                                           QgsMapLayer.VectorLayer, False)
+        self._iface.legendInterface().addLegendLayerAction(self.actions['pause'], self.menuName, u"id1",
+                                                           QgsMapLayer.VectorLayer, False)
 
-        #self.actions['resume'].setEnabled(False)
-    
-        QgsMapLayerRegistry.instance().layerWillBeRemoved.connect(self.layerWillBeRemoved) # change to when layer is loaded also!
-       
-        self._iface.legendInterface().currentLayerChanged.connect(self.currentLayerChanged) # change to when layer is loaded also!
+        # self.actions['resume'].setEnabled(False)
+
+        QgsMapLayerRegistry.instance().layerWillBeRemoved.connect(
+            self.layerWillBeRemoved)  # change to when layer is loaded also!
+
+        self._iface.legendInterface().currentLayerChanged.connect(
+            self.currentLayerChanged)  # change to when layer is loaded also!
         self._iface.mapCanvas().renderStarting.connect(self.renderStarting)
 
         QgsProject.instance().readProject.connect(self.readProject)
-     
+
         QgsProject.instance().layerLoaded.connect(self.layerLoaded)
-        
+
         mw = self._iface.mainWindow()
         self.lgd = mw.findChild(QTreeView, "theLayerTreeView")
         self.lgd.clicked.connect(self.legendPressed)
         self.lgd.doubleClicked.connect(self.legendDblClicked)
         self._iface.legendInterface().groupRelationsChanged.connect(self.legendRelationsChanged)
-        
 
         for layer in layers:
             layer.triggerRepaint()
-        
+
         layerManager._this = self
 
-    def _isBrokerGroup(self,nodeGrp):
-        if 'Group' in str(type(nodeGrp)) and nodeGrp.customProperty(TLayer.kBrokerId,-1) != -1:
+    def _isBrokerGroup(self, nodeGrp):
+        if 'Group' in str(type(nodeGrp)) and nodeGrp.customProperty(TLayer.kBrokerId, -1) != -1:
             return True
         else:
             return None
 
-    def _getGroup(self,broker,create = False):
+    def _getGroup(self, broker, create=False):
         root = QgsProject.instance().layerTreeRoot()
         # replace with _getGroupNode
         nodeGrp = root.findGroup(broker.name())
-        if nodeGrp == None and create:
-            nodeGrp = root.insertGroup(len(root.children()),broker.name())
-        #    nodeGrp.setToolTip("Double click to view features")
-            nodeGrp.setCustomProperty(TLayer.kBrokerId,broker.id())
+        if nodeGrp is None and create:
+            nodeGrp = root.insertGroup(len(root.children()), broker.name())
+            # nodeGrp.setToolTip("Double click to view features")
+            nodeGrp.setCustomProperty(TLayer.kBrokerId, broker.id())
 
         return nodeGrp
-        
 
 
     """
     Add new Layer to a Group. Create group if required
     """
- 
-    def _addLayerToGroup(self,layer,broker):
+
+    def _addLayerToGroup(self, layer, broker):
 
         li = self._iface.legendInterface()
-        nodeGrp = self._getGroup(broker,True)
+        nodeGrp = self._getGroup(broker, True)
         nodeLayer = nodeGrp.findLayer(layer.id())
         if not nodeLayer:
-             Log.debug("Moving node to group " + broker.name())
-             root = QgsProject.instance().layerTreeRoot()
-             nodeLayer = root.findLayer(layer.id())
-             self._iface.legendInterface().setCurrentLayer(layer)
-             if nodeLayer == None:
+            Log.debug("Moving node to group " + broker.name())
+            root = QgsProject.instance().layerTreeRoot()
+            nodeLayer = root.findLayer(layer.id())
+            self._iface.legendInterface().setCurrentLayer(layer)
+            if nodeLayer is None:
                 return None
-             newNodeLayer = nodeLayer.clone()
-             nodeGrp.insertChildNode(1,newNodeLayer)
-             nodeGrp.setCustomProperty(TLayer.kBrokerId,broker.id())
-             nodeLayer.parent().removeChildNode(nodeLayer)
-             nodeLayer =  newNodeLayer
+            newNodeLayer = nodeLayer.clone()
+            nodeGrp.insertChildNode(1, newNodeLayer)
+            nodeGrp.setCustomProperty(TLayer.kBrokerId, broker.id())
+            nodeLayer.parent().removeChildNode(nodeLayer)
+            nodeLayer = newNodeLayer
 
         return nodeLayer
-             
+
     def readProject(self):
         Log.debug("Read Project")
-        for lid,tLayer in self.getTLayers().iteritems():
+        for lid, tLayer in self.getTLayers().iteritems():
             Log.debug("Adding V2 Format data to loaded layers")
-            tLayer._setFormatters() # Memory Layer Saver doesn't save some V2 format data
+            tLayer._setFormatters()  # Memory Layer Saver doesn't save some V2 format data
         return
 
     """
@@ -178,99 +181,99 @@ class layerManager(QObject):
     """
 
     def rebuildLegend(self):
-        if  layerManager._rebuildingLegend:
+        if layerManager._rebuildingLegend:
             return
 
         layerManager._rebuildingLegend = True
-        
+
         root = QgsProject.instance().layerTreeRoot()
         try:
             parentsToRoot = []
-            for lid,tLayer in self.getTLayers(False).iteritems():
-                if Brokers.instance().find(TLayer.getBrokerId(tLayer.layer())) == None:
+            for lid, tLayer in self.getTLayers(False).iteritems():
+                if Brokers.instance().find(TLayer.getBrokerId(tLayer.layer())) is None:
                     continue
 
                 broker = tLayer.getBroker()
-                nodeLayer  = self._addLayerToGroup(tLayer.layer(),broker)
+                nodeLayer = self._addLayerToGroup(tLayer.layer(), broker)
                 if nodeLayer.parent().parent() != root:
                     if not nodeLayer.parent() in parentsToRoot:
                         parentsToRoot.append(nodeLayer.parent())
-           
+
             # handle nested node groups!
             for parent in parentsToRoot:
-                    broker = Brokers.instance().findByName(parent.name())
-                    nodeGroup = root.addGroup(broker.name())
-                    nodeGroup.setCustomProperty(TLayer.kBrokerId,broker.id())
-                    for child in parent.findLayers():
-                       nodeGroup.insertChildNode(1,child.clone())
-                    parent.removeAllChildren()                   
-                    parent.parent().removeChildNode(parent)
-                    
-            #handle removed brokers
+                broker = Brokers.instance().findByName(parent.name())
+                nodeGroup = root.addGroup(broker.name())
+                nodeGroup.setCustomProperty(TLayer.kBrokerId, broker.id())
+                for child in parent.findLayers():
+                    nodeGroup.insertChildNode(1, child.clone())
+                parent.removeAllChildren()
+                parent.parent().removeChildNode(parent)
+
+            # handle removed brokers
             removed = []
             for lid in root.findLayerIds():
                 layer = QgsMapLayerRegistry.instance().mapLayer(lid)
                 if TLayer.isTLayer(layer):
                     bid = TLayer.getBrokerId(layer)
-                    if Brokers.instance().find(bid) == None:
+                    if Brokers.instance().find(bid) is None:
                         Log.debug("Broker not found")
                         nodeLayer = root.findLayer(lid)
                         if not nodeLayer.parent().name() in removed:
                             removed.append(nodeLayer.parent().name())
                         root.removeChildNode(nodeLayer)
-            
+
             # Remove empty or groups referencing older renamed brokers
             for node in root.children():
                 if self._isBrokerGroup(node) and len(node.children()) == 0:
-                       removed.append(node.name())
-                    
+                    removed.append(node.name())
+
             # perform removal                
             for group in removed:
-                Log.warn("Broker " + group + " not found in list of Brokers. Removing from legend" )
+                Log.warn("Broker " + group + " not found in list of Brokers. Removing from legend")
                 nodeGrp = root.findGroup(group)
                 root.removeChildNode(root.findGroup(group))
-                    
+
         except Exception as e:
             Log.debug(e)
-            
+
         layerManager._rebuildingLegend = False
- 
-    def getTLayers(self,add = True):  
+
+    def getTLayers(self, add=True):
         for l in layerManager.getLayers():
-                self.getTLayer(l.id(),add)
+            self.getTLayer(l.id(), add)
 
         return self._tLayers
-        
-    def legendPressed(self,item):
+
+    def legendPressed(self, item):
         model = self.lgd
         item = "Broker4"
-        
-#        Items = model.match(model.index(0, 0),Qt.DisplayRole,
-#            QVariant.fromValue(item),
-#            2, 
-#            Qt.MatchRecursive)
-  #      Log.debug(Items)
-#        for child in self.lgd.children():
- #           Log.debug(item)
-            #if 'QWidget' in str(type(child)):
-             #   Log.debug(child.children())
+
+        # Items = model.match(model.index(0, 0),Qt.DisplayRole,
+        #            QVariant.fromValue(item),
+        #            2,
+        #            Qt.MatchRecursive)
+        #      Log.debug(Items)
+        #        for child in self.lgd.children():
+        #           Log.debug(item)
+        #if 'QWidget' in str(type(child)):
+        #   Log.debug(child.children())
 
         pass
-            
-    def legendDblClicked(self,item):
 
-        model   = 	QgsLayerTreeModel( QgsProject.instance().layerTreeRoot())
-        node    =   model.index2node(item)
+    def legendDblClicked(self, item):
+
+        model = QgsLayerTreeModel(QgsProject.instance().layerTreeRoot())
+        node = model.index2node(item)
         if self._isBrokerGroup(node):
-            bid = node.customProperty(TLayer.kBrokerId,-1)
+            bid = node.customProperty(TLayer.kBrokerId, -1)
             broker = Brokers.instance().find(bid)
-            if broker !=None:
+            if broker is not None:
                 telemetryLayer.instance().show(broker)
             else:
                 # handle missing broker
                 pass
 
-    
+
     def legendRelationsChanged(self):
         """
         Note: when a projec is loading this will cause
@@ -278,94 +281,94 @@ class layerManager(QObject):
         and the possibility of multiple broker removals
         """
         self.rebuildLegend()
-        
-    def brokersLoaded(self,changed = []):
+
+    def brokersLoaded(self, changed=[]):
         remove = []
         Log.debug("Brokers Loaded")
-        for lid,tLayer in self.getTLayers().iteritems():
+        for lid, tLayer in self.getTLayers().iteritems():
             old_broker = tLayer.getBroker()
             broker = Brokers.instance().find(old_broker.id())
-            if broker == None:
+            if broker is None:
                 remove.append(tLayer.layer())
                 continue
             tLayer.setBroker(broker)
-        
-        if len(remove) >0:
+
+        if len(remove) > 0:
             Log.alert("Broker Not found - Removing associated layers!")
             for layer in remove:
-                self.removeLayer(tLayer.layer(),False)
+                self.removeLayer(tLayer.layer(), False)
 
         self.rebuildLegend()
-        for lid,tLayer in self.getTLayers().iteritems():
+        for lid, tLayer in self.getTLayers().iteritems():
             if tLayer.isRunning() and tLayer.getBroker().id() in changed:
-                Log.debug("Restarting  " + tLayer.getBroker().name() )
+                Log.debug("Restarting  " + tLayer.getBroker().name())
                 tLayer.restart()
-        
-    def layerPropertiesChanged(self,val = 0):
+
+    def layerPropertiesChanged(self, val=0):
         Log.debug("Layer Properties Changed " + str(val))
-    
+
     def renderStarting(self):
-        for lid,tLayer in self.getTLayers().iteritems():
+        for lid, tLayer in self.getTLayers().iteritems():
             visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
-           #if not visible:
+            # if not visible:
             #    self.actions['pause' + lid].setEnabled(False)
             #    self.actions['resume' + lid].setEnabled(False)
             #else:
             #    self.actions['pause' + lid].setEnabled(not tLayer.isPaused())
             #    self.actions['resume' + lid].setEnabled(tLayer.isPaused())
             tLayer.refresh(visible and not tLayer.isPaused())
-        
 
-    def getTLayer(self,lid,add = True):
-        remove = []    
-        if  lid in self._tLayers:
+
+    def getTLayer(self, lid, add=True):
+        remove = []
+        if lid in self._tLayers:
             return self._tLayers[lid]
-        elif add == True:
+        elif add:
             try:
                 layer = QgsMapLayerRegistry.instance().mapLayer(lid)
-                self._tLayers[lid] = TLayer(self,QgsMapLayerRegistry.instance().mapLayer(lid))
+                self._tLayers[lid] = TLayer(self, QgsMapLayerRegistry.instance().mapLayer(lid))
                 layer.triggerRepaint()
                 return self._tLayers[lid]
             except BrokerNotFound:
-                   
-                   return None
+
+                return None
             except Exception as e:
                 Log.warn(e.__str__())
         else:
             return None
 
-    def delTLayer(self,lid):
+    def delTLayer(self, lid):
         try:
             del self._tLayers[lid]
         except:
             pass
 
-    def initLayer(self,layer,broker=None,topicType=None):
-        
+    def initLayer(self, layer, broker=None, topicType=None):
+
         tLayer = None
-        if broker != None and topicType !=None:
-        
+        if broker is not None and topicType is not None:
+
             QgsMapLayerRegistry.instance().addMapLayer(layer)  # API >= 1.9
             lid = layer.id()
-            
-            tLayer  = TLayer(self,
-                                QgsMapLayerRegistry.instance().mapLayer(lid),
-                                broker,
-                                topicType)
-            
-            if tLayer == None:
+
+            tLayer = TLayer(self,
+                            QgsMapLayerRegistry.instance().mapLayer(lid),
+                            broker,
+                            topicType)
+
+            if tLayer is None:
                 Log.debug("Unable to create Telemetry Layer")
                 return None
             else:
                 self._tLayers[lid] = tLayer
         else:
-            tLayer = self.getTLayer(layer.id(),True)
-            if tLayer == None:
+            tLayer = self.getTLayer(layer.id(), True)
+            if tLayer is None:
                 return None
 
         self.actions['config' + layer.id()] = QAction(
             QIcon(":/plugins/digisense/icon.png"),
-            u"Configure", self._iface.legendInterface() )
+            u"Configure", self._iface.legendInterface())
 
         self.actions['pause' + layer.id()] = QAction(
             QIcon(":/plugins/digisense/icon.png"),
@@ -375,39 +378,45 @@ class layerManager(QObject):
             QIcon(":/plugins/digisense/icon.png"),
             u"Resume", self._iface.legendInterface())
 
-        if 0: # disable menu actions
-            self._iface.legendInterface().addLegendLayerAction(self.actions['config' + layer.id()] , self.menuName, u"id2", QgsMapLayer.VectorLayer, False )
-            self._iface.legendInterface().addLegendLayerAction(self.actions['pause' + layer.id()]  , self.menuName, u"id2", QgsMapLayer.VectorLayer, False )
-            self._iface.legendInterface().addLegendLayerAction(self.actions['resume' + layer.id()] , self.menuName, u"id2", QgsMapLayer.VectorLayer, False )
-     
-            self._iface.legendInterface().addLegendLayerActionForLayer(  self.actions['config' + layer.id()], layer )
-            self._iface.legendInterface().addLegendLayerActionForLayer(  self.actions['pause'  + layer.id()], layer )
-            self._iface.legendInterface().addLegendLayerActionForLayer(  self.actions['resume' + layer.id()], layer )
-    
-            QObject.connect(self.actions['config' + layer.id()], SIGNAL("triggered()"),lambda: self.editLayer(layer.id()))
-            QObject.connect(self.actions['pause'  + layer.id()], SIGNAL("triggered()"),lambda: self.pauseLayer(layer.id()))
-            QObject.connect(self.actions['resume' + layer.id()], SIGNAL("triggered()"),lambda: self.resumeLayer(layer.id()))
-            self.actions['pause' + layer.id()].setEnabled(False)
-        
-#        layer.beforeRollBack.connect(self.beforeRollBack) #implement
-        layer.featureAdded.connect(self.featureAdded) #implement
-        layer.featureDeleted.connect(self.featureDeleted) #implement
-        
-#        layer.repaintRequested.connect(tLayer.repaintRequested) # Refresh method was better
+        if 0:  # disable menu actions
+            self._iface.legendInterface().addLegendLayerAction(self.actions['config' + layer.id()], self.menuName,
+                                                               u"id2", QgsMapLayer.VectorLayer, False)
+            self._iface.legendInterface().addLegendLayerAction(self.actions['pause' + layer.id()], self.menuName,
+                                                               u"id2", QgsMapLayer.VectorLayer, False)
+            self._iface.legendInterface().addLegendLayerAction(self.actions['resume' + layer.id()], self.menuName,
+                                                               u"id2", QgsMapLayer.VectorLayer, False)
 
-        layer.editingStarted.connect(tLayer.layerEditStarted) # change to when layer is loaded also!
+            self._iface.legendInterface().addLegendLayerActionForLayer(self.actions['config' + layer.id()], layer)
+            self._iface.legendInterface().addLegendLayerActionForLayer(self.actions['pause' + layer.id()], layer)
+            self._iface.legendInterface().addLegendLayerActionForLayer(self.actions['resume' + layer.id()], layer)
+
+            QObject.connect(self.actions['config' + layer.id()], SIGNAL("triggered()"),
+                            lambda: self.editLayer(layer.id()))
+            QObject.connect(self.actions['pause' + layer.id()], SIGNAL("triggered()"),
+                            lambda: self.pauseLayer(layer.id()))
+            QObject.connect(self.actions['resume' + layer.id()], SIGNAL("triggered()"),
+                            lambda: self.resumeLayer(layer.id()))
+            self.actions['pause' + layer.id()].setEnabled(False)
+
+        # layer.beforeRollBack.connect(self.beforeRollBack) #implement
+        layer.featureAdded.connect(self.featureAdded)  # implement
+        layer.featureDeleted.connect(self.featureDeleted)  # implement
+
+        # layer.repaintRequested.connect(tLayer.repaintRequested) # Refresh method was better
+
+        layer.editingStarted.connect(tLayer.layerEditStarted)  # change to when layer is loaded also!
         layer.editingStopped.connect(tLayer.layerEditStopped)
         QApplication.instance().focusChanged.connect(tLayer.focusChange)
-        
+
         layer.triggerRepaint()
-        return self.getTLayer(layer.id(),False)
-    
-    def removeLayer(self,layer,confirm = True):
+        return self.getTLayer(layer.id(), False)
+
+    def removeLayer(self, layer, confirm=True):
         lid = layer.id()
         if confirm and Log.confirm("Are you sure you want to remove layer " + layer.name() + "?"):
             try:
                 Log.debug("Removing layer")
- #               QgsMapLayerRegistry.instance().removeMapLayers(layer.id())
+                # QgsMapLayerRegistry.instance().removeMapLayers(layer.id())
                 QgsProject.instance().layerTreeRoot().removeLayer(layer)
 
                 self.delTLayer(lid)
@@ -415,20 +424,20 @@ class layerManager(QObject):
                 Log.debug("Layer removed " + str(e))
         elif not confirm:
             QgsProject.instance().layerTreeRoot().removeLayer(layer)
-        
-#         QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+
+            # QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
             self.delTLayer(lid)
 
         Log.debug("Layer removed")
- 
-        
-    def layerWillBeRemoved(self,layerId):
+
+
+    def layerWillBeRemoved(self, layerId):
         layer = QgsMapLayerRegistry.instance().mapLayer(layerId)
         try:
-            self._iface.legendInterface().setLayerVisible(layer,False)
-            tLayer =  self.getTLayer(layerId)
-            
-            if tLayer !=None:
+            self._iface.legendInterface().setLayerVisible(layer, False)
+            tLayer = self.getTLayer(layerId)
+
+            if tLayer is not None:
                 tLayer.tearDown()
                 self.delTLayer(layerId)
                 self.rebuildLegend()
@@ -437,33 +446,33 @@ class layerManager(QObject):
             self.delTLayer(layerId)
             Log.debug(e)
 
-    def pauseLayer(self,lid):
+    def pauseLayer(self, lid):
         tLayer = self.getTLayer(lid)
         tLayer.setPaused(True)
-        #self.actions['pause'+lid].setEnabled(False)
+        # self.actions['pause'+lid].setEnabled(False)
         #self.actions['resume'+lid].setEnabled(True)
         tLayer.layer().triggerRepaint()
 
-    def resumeLayer(self,lid):
+    def resumeLayer(self, lid):
         tLayer = self.getTLayer(lid)
         tLayer.setPaused(False)
-        #self.actions['pause'+lid].setEnabled(True)
+        # self.actions['pause'+lid].setEnabled(True)
         #self.actions['resume'+lid].setEnabled(False)
         tLayer.layer().triggerRepaint()
 
-    def editLayer(self,lid):
+    def editLayer(self, lid):
         tLayer = self.getTLayer(lid)
-        
+
         dlg = tLayer.getConfigDialog()
         if not dlg.dockWidget.isVisible():
-            self._creator.iface.addDockWidget( Qt.LeftDockWidgetArea,  dlg.dockWidget )
-            dlg.connectApply.clicked.connect(lambda : tLayer.update(dlg))
-        
-    def layerLoaded(self,i,n):
-        if i == n: # Last layer
+            self._creator.iface.addDockWidget(Qt.LeftDockWidgetArea, dlg.dockWidget)
+            dlg.connectApply.clicked.connect(lambda: tLayer.update(dlg))
+
+    def layerLoaded(self, i, n):
+        if i == n:  # Last layer
             for layer in self.getLayers():
-                    self.initLayer(layer)
-    
+                self.initLayer(layer)
+
     def getIface(self):
         return self._iface
 
@@ -476,101 +485,101 @@ class layerManager(QObject):
         except BrokersNotDefined:
             Log.progress("Please configure your MQTT Brokers first - see Plugin -> Telemetry Layer -> Configure")
             return
-            
-        
+
         dlg = layerConfig(self)
         result = dlg.exec_()
-        if (result == 0): # object will be garbage collected
+        if result == 0:  # object will be garbage collected
             return False
 
-        geomType    = 'Point' + '?crs=proj4:' + QgsProject.instance().readEntry("SpatialRefSys","/ProjectCRSProj4String")[0] #dodana linia - from Menory Layer Module
-        broker      = dlg.getBroker()
-        topicType   = dlg.getTopicType()
-        layer       = QgsVectorLayer(geomType,topicType, 'memory') #zmieniona linia
-        
-        tLayer = self.initLayer(layer,broker,topicType)
-        #self._iface.legendInterface().setCurrentLayer(layer)
+        geomType = 'Point' + '?crs=proj4:' + QgsProject.instance().readEntry("SpatialRefSys", "/ProjectCRSProj4String")[
+            0]  # dodana linia - from Menory Layer Module
+        broker = dlg.getBroker()
+        topicType = dlg.getTopicType()
+        layer = QgsVectorLayer(geomType, topicType, 'memory')  # zmieniona linia
+
+        tLayer = self.initLayer(layer, broker, topicType)
+        # self._iface.legendInterface().setCurrentLayer(layer)
         Log.debug("telemetrylayermanager - set Current Layer")
-        
+
         self.rebuildLegend()
         layer.triggerRepaint()
- 
+
 
     def beforeRollBack(self):
-        layer    = self._iface.activeLayer()
-        tLayer   = self.getTLayer(layer.id())
+        layer = self._iface.activeLayer()
+        tLayer = self.getTLayer(layer.id())
         tLayer.beforeRollBack()
 
-    def featureAdded(self,fid):
+    def featureAdded(self, fid):
         layer = self._iface.activeLayer()
-        if layer == None:
+        if layer is None:
             return
         tLayer = self.getTLayer(layer.id())
-        if tLayer == None:
+        if tLayer is None:
             Log.debug("Error Loading tLayer")
             return
         result = tLayer.addFeature(fid)
         Log.debug("Adding Feature")
-        if result !=None:
-                tLayer.restart()
+        if result is not None:
+            tLayer.restart()
 
 
-    def featureDeleted(self,fid):
-        if fid <0:
+    def featureDeleted(self, fid):
+        if fid < 0:
             return
         layer = self._iface.activeLayer()
         tLayer = self.getTLayer(layer.id())
         Log.debug("Feature Deleted " + str(fid))
         tLayer.restart()
 
-        
+
     def currentLayerChanged(self):
         layer = self._iface.activeLayer()
         # Ensure settings dialog doesn't come up
-        
-        if TLayer.isTLayer(layer):
-             QSettings().setValue( '/qgis/digitizing/disable_enter_attribute_values_dialog', True )
-        else:
-             QSettings().setValue( '/qgis/digitizing/disable_enter_attribute_values_dialog', 
-                                  self._disable_enter_attribute_values_dialog_global_default)
 
+        if TLayer.isTLayer(layer):
+            QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
+        else:
+            QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog',
+                                 self._disable_enter_attribute_values_dialog_global_default)
 
 
     def tearDownTLayers(self):
 
-        for lid,tLayer in self.getTLayers(False).iteritems():
-           QApplication.instance().focusChanged.disconnect(tLayer.focusChange)
- #          if 0:
- #           self._iface.legendInterface().removeLegendLayerAction( self.actions['config'+lid] )
- #           self._iface.legendInterface().removeLegendLayerAction(  self.actions['pause'+lid] )
- #           self._iface.legendInterface().removeLegendLayerAction(  self.actions['resume'+lid] )
-           #tLayer.layer().beforeRollBack.disconnect(self.beforeRollBack) #implement
-           tLayer.layer().featureAdded.disconnect(self.featureAdded) #implement
-           tLayer.layer().featureDeleted.disconnect(self.featureDeleted) #implement
-           
-#           tLayer.layer().repaintRequested.disconnect(tLayer.repaintRequested) 
-           tLayer.layer().editingStarted.disconnect(tLayer.layerEditStarted) # change to when layer is loaded also!
-           tLayer.layer().editingStopped.disconnect(tLayer.layerEditStopped)
-           tLayer.tearDown()
+        for lid, tLayer in self.getTLayers(False).iteritems():
+            QApplication.instance().focusChanged.disconnect(tLayer.focusChange)
+            # if 0:
+            #           self._iface.legendInterface().removeLegendLayerAction( self.actions['config'+lid] )
+            #           self._iface.legendInterface().removeLegendLayerAction(  self.actions['pause'+lid] )
+            #           self._iface.legendInterface().removeLegendLayerAction(  self.actions['resume'+lid] )
+            #tLayer.layer().beforeRollBack.disconnect(self.beforeRollBack) #implement
+            tLayer.layer().featureAdded.disconnect(self.featureAdded)  #implement
+            tLayer.layer().featureDeleted.disconnect(self.featureDeleted)  #implement
+
+            #           tLayer.layer().repaintRequested.disconnect(tLayer.repaintRequested)
+            tLayer.layer().editingStarted.disconnect(tLayer.layerEditStarted)  # change to when layer is loaded also!
+            tLayer.layer().editingStopped.disconnect(tLayer.layerEditStopped)
+            tLayer.tearDown()
 
     def tearDown(self):
         Log.debug("Layer Manager Teardown")
         self.tearDownTLayers()
         self._iface.legendInterface().groupRelationsChanged.disconnect(self.legendRelationsChanged)
         if 0:
-            self._iface.legendInterface().removeLegendLayerAction( self.actions['config'] )
-            self._iface.legendInterface().removeLegendLayerAction(  self.actions['pause'] )
-            self._iface.legendInterface().removeLegendLayerAction(  self.actions['resume'] )
+            self._iface.legendInterface().removeLegendLayerAction(self.actions['config'])
+            self._iface.legendInterface().removeLegendLayerAction(self.actions['pause'])
+            self._iface.legendInterface().removeLegendLayerAction(self.actions['resume'])
         QgsProject.instance().readProject.disconnect(self.readProject)
         QgsProject.instance().layerLoaded.disconnect(self.layerLoaded)
         QgsMapLayerRegistry.instance().layerWillBeRemoved.disconnect(self.layerWillBeRemoved)
         self.lgd.clicked.disconnect(self.legendPressed)
         self.lgd.doubleClicked.disconnect(self.legendDblClicked)
 
-        self._iface.legendInterface().currentLayerChanged.disconnect(self.currentLayerChanged) # change to when layer is loaded also!
+        self._iface.legendInterface().currentLayerChanged.disconnect(
+            self.currentLayerChanged)  # change to when layer is loaded also!
         self._iface.mapCanvas().renderStarting.disconnect(self.renderStarting)
 
-    
+
     def __del__(self):
         pass
 

@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'ui_tlbrokerconfig.ui'
 #
 # Created: Thu Oct 16 04:30:41 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_tlBrokerConfig(object):
     def setupUi(self, tlBrokerConfig):
@@ -104,7 +106,8 @@ class Ui_tlBrokerConfig(object):
         self.connectHelp.setObjectName(_fromUtf8("connectHelp"))
         self.connectPassword = QtGui.QLineEdit(self.tabConnect)
         self.connectPassword.setGeometry(QtCore.QRect(132, 160, 91, 22))
-        self.connectPassword.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText)
+        self.connectPassword.setInputMethodHints(
+            QtCore.Qt.ImhHiddenText | QtCore.Qt.ImhNoAutoUppercase | QtCore.Qt.ImhNoPredictiveText)
         self.connectPassword.setInputMask(_fromUtf8(""))
         self.connectPassword.setText(_fromUtf8(""))
         self.connectPassword.setMaxLength(24)
@@ -174,7 +177,9 @@ class Ui_tlBrokerConfig(object):
     def retranslateUi(self, tlBrokerConfig):
         tlBrokerConfig.setWindowTitle(_translate("tlBrokerConfig", "Broker Configuration", None))
         self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Broker Configuration", None))
-        self.connectPoll.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Keep Alive values for MQTT Connection settings - default 60 seconds</p></body></html>", None))
+        self.connectPoll.setToolTip(_translate("tlBrokerConfig",
+                                               "<html><head/><body><p>Keep Alive values for MQTT Connection settings - default 60 seconds</p></body></html>",
+                                               None))
         self.connectPoll.setItemText(0, _translate("tlBrokerConfig", "0", None))
         self.connectPoll.setItemText(1, _translate("tlBrokerConfig", "1", None))
         self.connectPoll.setItemText(2, _translate("tlBrokerConfig", "2", None))
@@ -184,50 +189,85 @@ class Ui_tlBrokerConfig(object):
         self.connectPoll.setItemText(6, _translate("tlBrokerConfig", "10", None))
         self.connectPoll.setItemText(7, _translate("tlBrokerConfig", "30", None))
         self.connectPoll.setItemText(8, _translate("tlBrokerConfig", "60", None))
-        self.connectUsername.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Username</p></body></html>", None))
-        self.connectTest.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Test and save the connection settings</p></body></html>", None))
+        self.connectUsername.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Username</p></body></html>", None))
+        self.connectTest.setToolTip(_translate("tlBrokerConfig",
+                                               "<html><head/><body><p>Test and save the connection settings</p></body></html>",
+                                               None))
         self.connectTest.setText(_translate("tlBrokerConfig", "Test", None))
-        self.connectPollLabel2.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
+        self.connectPollLabel2.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
         self.connectPollLabel2.setText(_translate("tlBrokerConfig", "Seconds", None))
-        self.connectPort.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Port of MQTT Broker</p></body></html>", None))
+        self.connectPort.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>Port of MQTT Broker</p></body></html>", None))
         self.connectPort.setText(_translate("tlBrokerConfig", "1883", None))
-        self.connectApply.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Test and save the connection settings</p></body></html>", None))
+        self.connectApply.setToolTip(_translate("tlBrokerConfig",
+                                                "<html><head/><body><p>Test and save the connection settings</p></body></html>",
+                                                None))
         self.connectApply.setText(_translate("tlBrokerConfig", "Apply", None))
-        self.connectName.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Username</p></body></html>", None))
+        self.connectName.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Username</p></body></html>", None))
         self.connectName.setText(_translate("tlBrokerConfig", "Broker1", None))
-        self.connectNameLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
+        self.connectNameLabel.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
         self.connectNameLabel.setText(_translate("tlBrokerConfig", "Name", None))
-        self.connectPasswordLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>8 Digit Network ID</p></body></html>", None))
+        self.connectPasswordLabel.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>8 Digit Network ID</p></body></html>", None))
         self.connectPasswordLabel.setText(_translate("tlBrokerConfig", "Password", None))
         self.connectPortLabel.setText(_translate("tlBrokerConfig", "Port", None))
-        self.connectUsernameLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
+        self.connectUsernameLabel.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p><br/></p></body></html>", None))
         self.connectUsernameLabel.setText(_translate("tlBrokerConfig", "Username", None))
-        self.connectCancel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Test and save the connection settings</p></body></html>", None))
+        self.connectCancel.setToolTip(_translate("tlBrokerConfig",
+                                                 "<html><head/><body><p>Test and save the connection settings</p></body></html>",
+                                                 None))
         self.connectCancel.setText(_translate("tlBrokerConfig", "Cancel", None))
-        self.connectPollLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Reconnect after how many seconds<br/></p></body></html>", None))
+        self.connectPollLabel.setToolTip(_translate("tlBrokerConfig",
+                                                    "<html><head/><body><p>Reconnect after how many seconds<br/></p></body></html>",
+                                                    None))
         self.connectPollLabel.setText(_translate("tlBrokerConfig", "Polling", None))
-        self.connectHelp.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Test and save the connection settings</p></body></html>", None))
+        self.connectHelp.setToolTip(_translate("tlBrokerConfig",
+                                               "<html><head/><body><p>Test and save the connection settings</p></body></html>",
+                                               None))
         self.connectHelp.setText(_translate("tlBrokerConfig", "Help", None))
-        self.connectPassword.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Password</p></body></html>", None))
-        self.connectHostLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Internet Host name or IP address of Farmsense Controller</p></body></html>", None))
+        self.connectPassword.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Password</p></body></html>", None))
+        self.connectHostLabel.setToolTip(_translate("tlBrokerConfig",
+                                                    "<html><head/><body><p>Internet Host name or IP address of Farmsense Controller</p></body></html>",
+                                                    None))
         self.connectHostLabel.setText(_translate("tlBrokerConfig", "Hostname", None))
-        self.connectHost.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Hostname of MQTT Broker</p></body></html>", None))
+        self.connectHost.setToolTip(
+            _translate("tlBrokerConfig", "<html><head/><body><p>Hostname of MQTT Broker</p></body></html>", None))
         self.connectHost.setText(_translate("tlBrokerConfig", "localhost", None))
-        self.connectTopicManagerLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Set the Topic Manager. This is the module that manages available topics.</p></body></html>", None))
+        self.connectTopicManagerLabel.setToolTip(_translate("tlBrokerConfig",
+                                                            "<html><head/><body><p>Set the Topic Manager. This is the module that manages available topics.</p></body></html>",
+                                                            None))
         self.connectTopicManagerLabel.setText(_translate("tlBrokerConfig", "Type", None))
-        self.connectTopicManager.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Set the Topic Manager. This is the module that manages available topics.</p></body></html>", None))
-        self.connectKeepAliveLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Reconnect after how many seconds<br/></p></body></html>", None))
+        self.connectTopicManager.setToolTip(_translate("tlBrokerConfig",
+                                                       "<html><head/><body><p>Set the Topic Manager. This is the module that manages available topics.</p></body></html>",
+                                                       None))
+        self.connectKeepAliveLabel.setToolTip(_translate("tlBrokerConfig",
+                                                         "<html><head/><body><p>Reconnect after how many seconds<br/></p></body></html>",
+                                                         None))
         self.connectKeepAliveLabel.setText(_translate("tlBrokerConfig", "Keep Alive", None))
-        self.connectKeepAlive.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Keep Alive values for MQTT Connection settings - default 60 seconds</p></body></html>", None))
+        self.connectKeepAlive.setToolTip(_translate("tlBrokerConfig",
+                                                    "<html><head/><body><p>Keep Alive values for MQTT Connection settings - default 60 seconds</p></body></html>",
+                                                    None))
         self.connectKeepAlive.setItemText(0, _translate("tlBrokerConfig", "0", None))
         self.connectKeepAlive.setItemText(1, _translate("tlBrokerConfig", "10", None))
         self.connectKeepAlive.setItemText(2, _translate("tlBrokerConfig", "30", None))
         self.connectKeepAlive.setItemText(3, _translate("tlBrokerConfig", "60", None))
-        self.connectHostAlt.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>If you have an alternative host you wish to use with this broker, enter it here.</p></body></html>", None))
+        self.connectHostAlt.setToolTip(_translate("tlBrokerConfig",
+                                                  "<html><head/><body><p>If you have an alternative host you wish to use with this broker, enter it here.</p></body></html>",
+                                                  None))
         self.connectHostAlt.setText(_translate("tlBrokerConfig", "localhost", None))
-        self.connectPortAlt.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>If you have an alternative port you wish to use with this broker, enter it here.</p></body></html>", None))
+        self.connectPortAlt.setToolTip(_translate("tlBrokerConfig",
+                                                  "<html><head/><body><p>If you have an alternative port you wish to use with this broker, enter it here.</p></body></html>",
+                                                  None))
         self.connectPortAlt.setText(_translate("tlBrokerConfig", "1883", None))
-        self.connectAltLabel.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>If you have an alternative host/port you wish to use with this broker, enter it here.<br/></p></body></html>", None))
+        self.connectAltLabel.setToolTip(_translate("tlBrokerConfig",
+                                                   "<html><head/><body><p>If you have an alternative host/port you wish to use with this broker, enter it here.<br/></p></body></html>",
+                                                   None))
         self.connectAltLabel.setText(_translate("tlBrokerConfig", "Alt.", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.tabConnect), _translate("tlBrokerConfig", "Broker", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.tabFeatures), _translate("tlBrokerConfig", "Features", None))

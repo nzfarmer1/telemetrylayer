@@ -1,4 +1,5 @@
-from qgis.utils import qgsfunction,QgsExpression
+from qgis.utils import qgsfunction, QgsExpression
+
 
 @qgsfunction(0, u"Telemetry Layer")
 def format_label(values, feature, parent):
@@ -8,7 +9,7 @@ def format_label(values, feature, parent):
         if visible == 0:
             result = ""
         else:
-            result =  str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+            result = str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
     except:
         pass
     finally:

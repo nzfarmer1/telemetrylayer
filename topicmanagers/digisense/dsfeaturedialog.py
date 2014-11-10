@@ -18,13 +18,13 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
 from ui_dsdatatabwidget import Ui_Form
-from dsdevicemapdialog  import DeviceMap, DeviceMaps, DeviceType, DeviceTypes, dsParameterTable as ParameterTable
+from dsdevicemapdialog import DeviceMap, DeviceMaps, DeviceType, DeviceTypes, dsParameterTable as ParameterTable
 
 from dsrpcproxy import dsRPCProxy as RPCProxy
 
 import matplotlib.pyplot as plt
-from matplotlib.dates import YearLocator, MonthLocator, DateFormatter,HourLocator,MinuteLocator,SecondLocator
-import os,zlib, datetime, json,numpy
+from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, HourLocator, MinuteLocator, SecondLocator
+import os, zlib, datetime, json, numpy
 
 
 try:
@@ -34,6 +34,7 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
@@ -42,20 +43,18 @@ except AttributeError:
 
 
 class dsDataTab(QDialog, Ui_Form):
-
     def __init__(self):
         Log.debug("Init form")
         try:
-            super(dsDataTab,self).__init__()
+            super(dsDataTab, self).__init__()
             self.setupUi(self)
         except Exception as e:
             Log.debug(e)
 
 
 class dsDataView(QObject):
-
-    def __init__(self,tLayer,feature):
-        super(dsDataView,self).__init__()
+    def __init__(self, tLayer, feature):
+        super(dsDataView, self).__init__()
         self._tlayer = tLayer
         self._feature = feature
         self._client = None
@@ -63,32 +62,35 @@ class dsDataView(QObject):
 
     @staticmethod
     def _intervals():
-        return [['Tick',[(1,3600,'1 Hour'),(1,7200,'2 Hours'),(1,10600,'3 Hours'),(1,14400,'4 Hours'),(1,18000,'5 Hours'),(1,21600,'6 Hours'),(1,43200,'12 Hours'),(1,86400,'24 Hours')]],
-                ['1 Minute',[(60,1440,'1 Day'),(60,2880,'2 Days'),(60,7200,'5 Days'),(60,14400,'10 Days')]],
-                ['15 Minutes',[(900,960,'10 Days')]]]
+        return [['Tick', [(1, 3600, '1 Hour'), (1, 7200, '2 Hours'), (1, 10600, '3 Hours'), (1, 14400, '4 Hours'),
+                          (1, 18000, '5 Hours'), (1, 21600, '6 Hours'), (1, 43200, '12 Hours'),
+                          (1, 86400, '24 Hours')]],
+                ['1 Minute', [(60, 1440, '1 Day'), (60, 2880, '2 Days'), (60, 7200, '5 Days'), (60, 14400, '10 Days')]],
+                ['15 Minutes', [(900, 960, '10 Days')]]]
 
-    def _request(self,interval,duration):
-        publish = "/digisense/request/data/" + str(interval*duration) + "/" + str(interval)
+    def _request(self, interval, duration):
+        publish = "/digisense/request/data/" + str(interval * duration) + "/" + str(interval)
         try:
             self._client = tlMqttSingleShot(self,
-                                        self._tlayer.host(),
-                                        self._tlayer.port(),
-                                        #"/digisense/request/data/10000/1",
-                                        publish,
-                                        ["/digisense/response/data" + self._feature['topic'] , "/digisense/response/data" + self._feature['topic'] + "/compressed"],
-                                        self._feature['topic'],
-                                        30)
+                                            self._tlayer.host(),
+                                            self._tlayer.port(),
+                                            # "/digisense/request/data/10000/1",
+                                            publish,
+                                            ["/digisense/response/data" + self._feature['topic'],
+                                             "/digisense/response/data" + self._feature['topic'] + "/compressed"],
+                                            self._feature['topic'],
+                                            30)
             QObject.connect(self._client, QtCore.SIGNAL("mqttOnCompletion"), self._update)
             QObject.connect(self._client, QtCore.SIGNAL("mqttConnectionError"), self._error)
-            QObject.connect(self._client, QtCore.SIGNAL("mqttOnTimeout"),  self._error)
+            QObject.connect(self._client, QtCore.SIGNAL("mqttOnTimeout"), self._error)
 
-            Log.progress("Requesting data for " + str( self._feature['topic'] ))    
+            Log.progress("Requesting data for " + str(self._feature['topic']))
             self._client.run()
         except Exception:
             Log.debug("Data Logger ")
             self._client.kill()
 
-    def _update(self,client,status,msg):
+    def _update(self, client, status, msg):
         if not status:
             Log.alert(msg)
             return
@@ -105,65 +107,64 @@ class dsDataView(QObject):
             Log.progress("Nothing returned")
             data = []
         else:
-            data    = response['data']
+            data = response['data']
 
         self.update(data)
-    
+
 
 class dsDataLoggerView(dsDataView):
-
-    def __init__(self,tabs,tLayer,feature):
-        super(dsDataLoggerView,self).__init__(tLayer,feature)
+    def __init__(self, tabs, tLayer, feature):
+        super(dsDataLoggerView, self).__init__(tLayer, feature)
         self._tabs = tabs
         self._dataTable = tabs.tableWidget
-        
-        for (name,durations) in self._intervals():
-            self._tabs.selectInterval.addItem(name,durations)
+
+        for (name, durations) in self._intervals():
+            self._tabs.selectInterval.addItem(name, durations)
             if name == 'Tick':
-                for (interval,duration,name) in durations:
-                    self._tabs.selectDuration.addItem(name,(interval,duration) )
-        
+                for (interval, duration, name) in durations:
+                    self._tabs.selectDuration.addItem(name, (interval, duration))
+
         self._tabs.btnRefresh.clicked.connect(self._refresh)
         self._tabs.btnExport.clicked.connect(self._export)
         self._tabs.selectInterval.currentIndexChanged.connect(self._intervalChanged)
-    
-    def _export(self):
-            fileName = QFileDialog.getSaveFileName(None, "Location for export (.csv) File",
-              "~/",
-              "*.csv")
-            if not fileName:
-                return
-            try:
-                qfile = QFile(fileName)
-                qfile.open(QIODevice.WriteOnly)
-                for row in self._dataTable.rowCount():
-                    x = self._dataTable.item(row,0).text()
-                    y = self._dataTable.item(row,1).text()
-                    QTextStream(qfile) << str(x) + "," + str(y) + "\n"
-                qfile.flush()
-                qfile.close()
-            except Exception as e:
-                Log.alert(str(e))
 
-           
-    def _intervalChanged(self,idx):
+    def _export(self):
+        fileName = QFileDialog.getSaveFileName(None, "Location for export (.csv) File",
+                                               "~/",
+                                               "*.csv")
+        if not fileName:
+            return
+        try:
+            qfile = QFile(fileName)
+            qfile.open(QIODevice.WriteOnly)
+            for row in self._dataTable.rowCount():
+                x = self._dataTable.item(row, 0).text()
+                y = self._dataTable.item(row, 1).text()
+                QTextStream(qfile) << str(x) + "," + str(y) + "\n"
+            qfile.flush()
+            qfile.close()
+        except Exception as e:
+            Log.alert(str(e))
+
+
+    def _intervalChanged(self, idx):
         durations = self._tabs.selectInterval.itemData(idx)
         self._tabs.selectDuration.clear()
-        for (interval,duration,name) in durations:
-            self._tabs.selectDuration.addItem(name,(interval,duration) )
+        for (interval, duration, name) in durations:
+            self._tabs.selectDuration.addItem(name, (interval, duration))
 
     def show(self):
         self._tabs.btnExport.setEnabled(False)
-        columns = ["Time","Value"]
+        columns = ["Time", "Value"]
         tbl = self._dataTable
         tbl.clear()
 
-        tbl.setStyleSheet("font: 10pt \"System\";") 
+        tbl.setStyleSheet("font: 10pt \"System\";")
         tbl.setRowCount(0)
         tbl.setColumnCount(len(columns))
-        tbl.setColumnWidth(30,30) #?
+        tbl.setColumnWidth(30, 30)  # ?
         tbl.setHorizontalHeaderLabels(columns)
-       # tbl.verticalHeader().setVisible(False)
+        # tbl.verticalHeader().setVisible(False)
         tbl.horizontalHeader().setVisible(True)
         tbl.setShowGrid(True)
         tbl.setSortingEnabled(True)
@@ -173,104 +174,102 @@ class dsDataLoggerView(dsDataView):
         pass
 
     def _refresh(self):
-        (interval,duration)  = self._tabs.selectDuration.itemData(self._tabs.selectDuration.currentIndex())
-        self._request(interval,duration)
+        (interval, duration) = self._tabs.selectDuration.itemData(self._tabs.selectDuration.currentIndex())
+        self._request(interval, duration)
         self._tabs.btnRefresh.setEnabled(False)
 
-    def _error(self,mqtt,msg = ""):
+    def _error(self, mqtt, msg=""):
         self._tabs.btnRefresh.setEnabled(True)
         Log.warn(msg)
-        
-    def update(self,data):
+
+    def update(self, data):
 
         tbl = self._dataTable
         try:
             tbl.setRowCount(0)
-    
-            row=0
-            for (x,y) in list(data):
+
+            row = 0
+            for (x, y) in list(data):
                 Log.debug(x)
-                d =  datetime.datetime.fromtimestamp(float(x))
-    
-                tbl.setRowCount(row+1)
+                d = datetime.datetime.fromtimestamp(float(x))
+
+                tbl.setRowCount(row + 1)
                 item = QtGui.QTableWidgetItem(0)
                 item.setText(d.strftime("%Y-%m-%d %H:%M:%S"))
                 item.setFlags(Qt.NoItemFlags)
-                tbl.setItem(row,0,item)
-    
+                tbl.setItem(row, 0, item)
+
                 item = QtGui.QTableWidgetItem(0)
-                #item.setText(d.strftime("%y-%m-%d-%H:%M:%S"))
+                # item.setText(d.strftime("%y-%m-%d-%H:%M:%S"))
                 item.setText(str(y))
                 item.setFlags(Qt.NoItemFlags)
-                tbl.setItem(row,1,item)
-    
-                row = row+1
+                tbl.setItem(row, 1, item)
+
+                row += 1
             tbl.resizeColumnsToContents()
             tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
         except Exception as e:
             Log.debug(e)
         finally:
             self._tabs.btnRefresh.setEnabled(True)
-            self._tabs.btnExport.setEnabled(tbl.rowCount() > 0 )
-
+            self._tabs.btnExport.setEnabled(tbl.rowCount() > 0)
 
 
 class dsChartView(dsDataView):
-    
     @staticmethod
-    def smoothListGaussian(dlist,degree=5):
-        window = degree*2-1
-        weight = numpy.array([1./numpy.exp( 16. *i*i/window/window) for i in numpy.arange(-degree+1,degree)])
-        extended = numpy.r_[ [dlist[0]]*(degree-1),dlist,[dlist[-1]]*degree]
-        smoothed = numpy.convolve(weight/weight.sum(),extended,mode='same')
-        return smoothed[degree-1:-degree]
-   
+    def smoothListGaussian(dlist, degree=5):
+        window = degree * 2 - 1
+        weight = numpy.array([1. / numpy.exp(16. * i * i / window / window) for i in numpy.arange(-degree + 1, degree)])
+        extended = numpy.r_[[dlist[0]] * (degree - 1), dlist, [dlist[-1]] * degree]
+        smoothed = numpy.convolve(weight / weight.sum(), extended, mode='same')
+        return smoothed[degree - 1:-degree]
 
-    def __init__(self,tabs,tLayer,feature):
-        super(dsChartView,self).__init__(tLayer,feature)
+
+    def __init__(self, tabs, tLayer, feature):
+        super(dsChartView, self).__init__(tLayer, feature)
         self._tabs = tabs
-#        self._tabs.btnRefreshc.setEnabled(True)
-        
-        for (name,durations) in self._intervals():
-            self._tabs.selectIntervalc.addItem(name,durations)
+        # self._tabs.btnRefreshc.setEnabled(True)
+
+        for (name, durations) in self._intervals():
+            self._tabs.selectIntervalc.addItem(name, durations)
             if name == 'Tick':
-                for (interval,duration,name) in durations:
-                    self._tabs.selectDurationc.addItem(name,(interval,duration) )
-        
+                for (interval, duration, name) in durations:
+                    self._tabs.selectDurationc.addItem(name, (interval, duration))
+
         self._tabs.btnRefreshc.clicked.connect(self._refresh)
         self._tabs.selectIntervalc.currentIndexChanged.connect(self._intervalChanged)
-    
-           
-    def _intervalChanged(self,idx):
+
+
+    def _intervalChanged(self, idx):
         durations = self._tabs.selectIntervalc.itemData(idx)
         self._tabs.selectDurationc.clear()
-        for (interval,duration,name) in durations:
-            self._tabs.selectDurationc.addItem(name,(interval,duration) )
+        for (interval, duration, name) in durations:
+            self._tabs.selectDurationc.addItem(name, (interval, duration))
 
     def show(self):
         pass
 
-    def update(self,data):
-        
+    def update(self, data):
+
         hours = HourLocator()  # every hour
-        minutes = MinuteLocator( byminute=filter(lambda x:x%20 ==0,range(60)))  # every minute
+        minutes = MinuteLocator(byminute=filter(lambda x: x % 20 == 0, range(60)))  # every minute
         seconds = SecondLocator()  # every second
         hoursFmt = DateFormatter('')
         data.reverse()
-        x = map(lambda (x,y): datetime.datetime.fromtimestamp(float(x)),list(data))
-        y = map(lambda (x,y): float(y), list(data))
-        if True: # smoothed
-            y = self.smoothListGaussian(y)   
-        print y        
+        x = map(lambda (x, y): datetime.datetime.fromtimestamp(float(x)), list(data))
+        y = map(lambda (x, y): float(y), list(data))
+        if True:  # smoothed
+            y = self.smoothListGaussian(y)
+        print y
         dpi = 72
-#        plt.xlabel('', fontsize=10, color='grey')
+        # plt.xlabel('', fontsize=10, color='grey')
 
 
-        fig,ax = plt.subplots(figsize=(400/dpi,200/dpi),dpi=dpi,)
+        fig, ax = plt.subplots(figsize=(400 / dpi, 200 / dpi), dpi=dpi, )
         ax.plot_date(x, y, '-')
 
-#        plt.setp(ax, 'color', 'r', 'linewidth',1.0)
-        
+        #        plt.setp(ax, 'color', 'r', 'linewidth',1.0)
+
         # format the ticks
         ax.xaxis.set_major_locator(hours)
         ax.xaxis.set_major_formatter(hoursFmt)
@@ -278,116 +277,112 @@ class dsChartView(dsDataView):
         ax.xaxis.set_minor_formatter(DateFormatter("%R"))
         ax.autoscale_view()
         ax.yaxis.tick_right()
-         
- 
+
+
         # format the coords message box
-        def adc(x): return '%d'%x
+        def adc(x):
+            return '%d' % x
+
         ax.fmt_xdata = DateFormatter('%H %i %s')
         ax.fmt_ydata = y
         ax.grid(True)
         fig.autofmt_xdate()
- 
+
         byteArray = QByteArray()
         buff = QBuffer(byteArray)
         buff.open(QIODevice.WriteOnly)
 
         plt.xticks(rotation=30)
 
-        plt.savefig(buff,format="png")
+        plt.savefig(buff, format="png")
         buff.close()
         pxmap = QPixmap()
-        if pxmap.loadFromData(byteArray,format ="png"):
+        if pxmap.loadFromData(byteArray, format="png"):
             scene = QGraphicsScene()
             scene.addPixmap(pxmap)
             self._tabs.graphicsView.setScene(scene)
 
         self._tabs.btnRefreshc.setEnabled(True)
-        
+
 
     def _refresh(self):
-        (interval,duration)  = self._tabs.selectDurationc.itemData(self._tabs.selectDurationc.currentIndex())
-        self._request(interval,duration)
+        (interval, duration) = self._tabs.selectDurationc.itemData(self._tabs.selectDurationc.currentIndex())
+        self._request(interval, duration)
         self._tabs.btnRefreshc.setEnabled(False)
 
-    def _error(self,mqtt,msg = ""):
+    def _error(self, mqtt, msg=""):
         self._tabs.btnRefreshc.setEnabled(True)
         Log.progress(msg)
-        
-
 
 
 class dsConfigView(QObject):
-
-    def __init__(self,tabs,tLayer,feature):
-        super(dsConfigView,self).__init__()
-        self._tabs  = tabs
+    def __init__(self, tabs, tLayer, feature):
+        super(dsConfigView, self).__init__()
+        self._tabs = tabs
         self.pTable = None
         self._topicManager = tLayer.topicManager()
-        self._deviceMap  = None
-        
+        self._deviceMap = None
 
         try:
             self._deviceMap = self._topicManager.getDeviceMap(str(feature['topic']))
-            _dType          =  self._topicManager.getDeviceType(self._deviceMap)
-            self.pTable     = ParameterTable(self._deviceMap,_dType,tabs.tblParams,Constants.Update)
+            _dType = self._topicManager.getDeviceType(self._deviceMap)
+            self.pTable = ParameterTable(self._deviceMap, _dType, tabs.tblParams, Constants.Update)
             self._tabs.btnApply.clicked.connect(self._apply)
         except Exception as e:
             Log.debug("Error loading Configuration tab " + str(e))
-            
+
     def _apply(self):
         if self._topicManager.isDemo():
             Log.progress("Demo mode - no changes can be applied")
             return
         params = self.pTable.params()
-        self._deviceMap.set('params',params)
+        self._deviceMap.set('params', params)
         self._topicManager.setDeviceMap(self._deviceMap)
-      
-        
+
+
     def show(self):
         pass
 
-    def update(self,data):
-        pass    
-        
+    def update(self, data):
+        pass
+
 
     def _refresh(self):
         pass
-    
-    def _error(self,mqtt,msg = ""):
+
+    def _error(self, mqtt, msg=""):
         Log.progress(msg)
-        
 
 
 class tlDsFeatureDialog(tlFeatureDialog):
-    
     """
     Implementation of tlFeatureDialog.
 
     """
-    
+
     @staticmethod
-    def _createTab(Tabs,widget):
-        idx =  Tabs.indexOf(widget)
-        return (Tabs.widget(idx),Tabs.tabText(idx),idx)
-    
-    def __init__(self,dialog,tLayer,feature):
+    def _createTab(Tabs, widget):
+        idx = Tabs.indexOf(widget)
+        return Tabs.widget(idx), Tabs.tabText(idx), idx
+
+    def __init__(self, dialog, tLayer, feature):
         dsTabs = dsDataTab()
         widgets = []
         Tabs = dsTabs.Tabs
-        
-        widgets.append(tlDsFeatureDialog._createTab(Tabs,dsTabs.dataTab))
-        widgets.append(tlDsFeatureDialog._createTab(Tabs,dsTabs.chartTab))
-        widgets.append(tlDsFeatureDialog._createTab(Tabs,dsTabs.configTab))
-        
-        super(tlDsFeatureDialog,self).__init__(dialog,tLayer,feature,widgets)
-        self._dataTab = dsDataLoggerView(dsTabs,tLayer,feature)
+
+        widgets.append(tlDsFeatureDialog._createTab(Tabs, dsTabs.dataTab))
+        widgets.append(tlDsFeatureDialog._createTab(Tabs, dsTabs.chartTab))
+        widgets.append(tlDsFeatureDialog._createTab(Tabs, dsTabs.configTab))
+
+        super(tlDsFeatureDialog, self).__init__(dialog, tLayer, feature, widgets)
+        self._dataTab = dsDataLoggerView(dsTabs, tLayer, feature)
         self._dataTab.show()
-        self._chartTab = dsChartView(dsTabs,tLayer,feature)
+        self._chartTab = dsChartView(dsTabs, tLayer, feature)
         self._chartTab.show()
-        self._configTab = dsConfigView(dsTabs,tLayer,feature)
+        self._configTab = dsConfigView(dsTabs, tLayer, feature)
         self._configTab.show()
-        
-        topic = self._find(QComboBox,'topic')
+
+        topic = self._find(QComboBox, 'topic')
         if topic:
             topic.setEnabled(False)
         

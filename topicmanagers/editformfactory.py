@@ -3,7 +3,7 @@ from PyQt4.QtGui import *
 
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 
-import traceback,sys
+import traceback, sys
 
 """
 /***************************************************************************
@@ -30,26 +30,24 @@ import traceback,sys
  
 """
 
-
 this = None
 
 
-
-def featureDialog(dialog,layer,feature):
+def featureDialog(dialog, layer, feature):
     """
     boot loader for the tlFeatureDialog object
     maps layer to tLayer via layer manager
     layer's topic manager available via tLayer
     """
-    
+
     try:
-#        layer.startEditing() # Doesn't work
+        # layer.startEditing() # Doesn't work
         tLayer = this.layerManager.getTLayer(layer.id())
-        myDialogHandler = tLayer.topicManager().featureDialog(dialog,tLayer,feature)
+        myDialogHandler = tLayer.topicManager().featureDialog(dialog, tLayer, feature)
         myDialogHandler.show()
     except Exception as e:
-      Log.debug("Problem loading custom feature dialog for " + layer.name())
-      exc_type, exc_value, exc_traceback = sys.exc_info()
-      Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                      exc_traceback)))
+        Log.debug("Problem loading custom feature dialog for " + layer.name())
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                  exc_traceback)))
 

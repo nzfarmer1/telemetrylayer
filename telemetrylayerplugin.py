@@ -19,17 +19,15 @@
  ***************************************************************************/
 """
 
-
 from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot,SIGNAL,SLOT
+from PyQt4.QtCore import pyqtSlot, SIGNAL, SLOT
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-
-import pdb 
+import pdb
 # Initialize Qt resources from file resources.py
-import os.path,sys, time, traceback
+import os.path, sys, time, traceback
 import webbrowser
 import resources_rc
 # Import the code for the dialog
@@ -41,8 +39,7 @@ from lib.tllogging import tlLogging as Log
 from telemetrylayer import TelemetryLayer
 from tltopicmanagerfactory import tlTopicManagerFactory as   TopicManagerFactory
 
-import sys,os
-
+import sys, os
 
 
 class TelemetryLayerPlugin(QObject):
@@ -61,33 +58,34 @@ class TelemetryLayerPlugin(QObject):
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        sys.path.append(os.path.join(self.plugin_dir,"topicmanagers"))
+        sys.path.append(os.path.join(self.plugin_dir, "topicmanagers"))
         import editformfactory
+
         editformfactory.this = self
-        
+
         self.layerManager = None
         self.installed = False
         self.configureDlg = None
         self.plugin_basename = str(os.path.basename(self.plugin_dir))
 
-            
+
         # Initialise Settings and Log handlers
         try:
             Settings(self)
             Log(self)
             TopicManagerFactory(iface)
             Log.debug("Topic Managers Loaded")
-            Brokers(os.path.join(self.plugin_dir,'data'))
+            Brokers(os.path.join(self.plugin_dir, 'data'))
             Log.debug("Brokers Loaded")
         except Exception as e:
             Log.critical("Error on Plugin initialization " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                              exc_traceback)))
-            
+                                                      exc_traceback)))
+
         # initialize locale
         self.translator = QTranslator()
-        
+
         if QSettings().value("locale/userLocale"):
             locale = QSettings().value("locale/userLocale")[0:2]
             localePath = os.path.join(self.plugin_dir, 'i18n', 'telemetrylayer_{}.qm'.format(locale))
@@ -96,23 +94,22 @@ class TelemetryLayerPlugin(QObject):
 
         if qVersion() > '4.3.3':
             QCoreApplication.installTranslator(self.translator)
-            
 
-        
+
     def initGui(self):
         # Tree Widget test
         Log.debug("initGUI")
-        
+
         # Create action that will start plugin configuration
         self.aboutA = QAction(
-            QIcon(":/plugins/"+ self.plugin_basename + "/icons/southweb.png"),
-            "About", self.iface.mainWindow()) # Replace or Add About
+            QIcon(":/plugins/" + self.plugin_basename + "/icons/southweb.png"),
+            "About", self.iface.mainWindow())  # Replace or Add About
         # connect the action to the run method
         self.aboutA.triggered.connect(self.about)
 
         self.configureA = QAction(
-            QIcon(":/plugins/"+ self.plugin_basename + "/icons/icon.png"),
-            "Configure", self.iface.mainWindow()) # Replace or Add About
+            QIcon(":/plugins/" + self.plugin_basename + "/icons/icon.png"),
+            "Configure", self.iface.mainWindow())  # Replace or Add About
         # connect the action to the run method
         self.configureA.triggered.connect(self.configure)
 
@@ -121,17 +118,16 @@ class TelemetryLayerPlugin(QObject):
         lMenuTitle = 'New Telemetry Layer...'
 
         self.newLayerA = QAction(
-            QIcon(":/plugins/"+ self.plugin_basename + "/icons/icon.png"),
+            QIcon(":/plugins/" + self.plugin_basename + "/icons/icon.png"),
             lMenuTitle, self.iface.mainWindow())
         QObject.connect(self.newLayerA, SIGNAL("triggered()"), self.createLayer)
         self.iface.newLayerMenu().addAction(self.newLayerA)  # API >= 1.9
         self.iface.registerMainWindowAction(self.newLayerA, "Ctrl+F")
 
-          
         try:
-            self.layerManager   = layerManager(self )
+            self.layerManager = layerManager(self)
             Log.debug("Layer Manager Loaded")
-            self.telemetryLayer = TelemetryLayer(self) 
+            self.telemetryLayer = TelemetryLayer(self)
             Log.debug("Telemetry Layer Loaded")
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
@@ -140,7 +136,7 @@ class TelemetryLayerPlugin(QObject):
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                              exc_traceback)))
+                                                      exc_traceback)))
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.aboutA)
@@ -150,7 +146,8 @@ class TelemetryLayerPlugin(QObject):
         self.installed = True
 
         mw = self.iface.mainWindow()
-#        lgd.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu);
+
+    # lgd.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu);
 
 
     def unload(self):
@@ -176,33 +173,32 @@ class TelemetryLayerPlugin(QObject):
             pass
         finally:
             Log.debug("Plugin unloaded")
-            
-        
-        
+
 
     def runTeardown(self):
         try:
             self.layerManager.tearDown()
             self.telemetryLayer.tearDown()
-            
+
         except Exception as e:
             Log.debug(e)
             pass
-    
+
     def about(self):
-        
-       webbrowser.open(Settings.getMeta("homepage"))
-#        for broker in Brokers.instance().list():
-#            Log.debug(broker.topicManager())
-#        return
-        
+
+        webbrowser.open(Settings.getMeta("homepage"))
+
+    #        for broker in Brokers.instance().list():
+    #            Log.debug(broker.topicManager())
+    #        return
+
 
     def configure(self):
         self.telemetryLayer.instance().show()
 
-    
+
     def createLayer(self):
-        if self.layerManager != None:
+        if self.layerManager is not None:
             self.layerManager.createEmptyLayer()
 
     def freshInstall(self):

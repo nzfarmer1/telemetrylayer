@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'ui_tlfiletopicmanager.ui'
 #
 # Created: Wed Sep 10 08:16:19 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_tlFileTopicManager(object):
     def setupUi(self, tlFileTopicManager):
@@ -60,7 +62,8 @@ class Ui_tlFileTopicManager(object):
 
     def retranslateUi(self, tlFileTopicManager):
         tlFileTopicManager.setWindowTitle(_translate("tlFileTopicManager", "Edit Feature", None))
-        tlFileTopicManager.setToolTip(_translate("tlFileTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
+        tlFileTopicManager.setToolTip(
+            _translate("tlFileTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         tlFileTopicManager.setProperty("text", _translate("tlFileTopicManager", "Edit Feature", None))
         self.selectFileButton.setText(_translate("tlFileTopicManager", "Select File", None))
         self.reloadFileButton.setText(_translate("tlFileTopicManager", "Reload", None))

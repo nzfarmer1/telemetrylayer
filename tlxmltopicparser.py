@@ -13,46 +13,45 @@ from lib.tllogging import tlLogging as Log
 
 
 class tlXMLTopicParser():
-  """
-  Class to parse a list topic definitions from an XML file.
-  
-  See data/systopcs.xml for an example format
-  """
+    """
+    Class to parse a list topic definitions from an XML file.
 
-  def __init__(self,xml):
+    See data/systopcs.xml for an example format
+    """
 
-    self._topics = []
-    self._root  = None
-    self._xml = xml
+    def __init__(self, xml):
 
-    try:
-      tree = ETree.parse(xml)
-      self._root = tree.getroot()
-      self._parse()
-    except Exception as e:
-      Log.debug("Unable to open/parse XML file: " + str(e))
+        self._topics = []
+        self._root = None
+        self._xml = xml
 
-
-  def _parse(self):
-    for topic in self._root.iter('Topic'):
-      self._topics.append({'topic': topic.get('value'), \
-              'name':self._field(topic,'Name',True), \
-              'desc':self._field(topic,'Description'), \
-              'payload':self._field(topic,'Default'), \
-              'units':self._field(topic,'Units'), \
-              'type':self._field(topic,'Type',False,'$SYS'), \
-              'qos':self._field(topic,'QoS',False,"1")})
+        try:
+            tree = ETree.parse(xml)
+            self._root = tree.getroot()
+            self._parse()
+        except Exception as e:
+            Log.debug("Unable to open/parse XML file: " + str(e))
 
 
+    def _parse(self):
+        for topic in self._root.iter('Topic'):
+            self._topics.append({'topic': topic.get('value'),
+                                 'name': self._field(topic, 'Name', True),
+                                 'desc': self._field(topic, 'Description'),
+                                 'payload': self._field(topic, 'Default'),
+                                 'units': self._field(topic, 'Units'),
+                                 'type': self._field(topic, 'Type', False, '$SYS'),
+                                 'qos': self._field(topic, 'QoS', False, "1")})
 
-  def _field(self,topic,field,required = False,default = ""):
-    try:
-      return topic.find(field).text
-    except:
-      if required:
-        Log.critical("Error parsing " + self._xml + " No topic found")
-      return default
+
+    def _field(self, topic, field, required=False, default=""):
+        try:
+            return topic.find(field).text
+        except:
+            if required:
+                Log.critical("Error parsing " + self._xml + " No topic found")
+            return default
 
 
-  def getTopics(self):
-    return self._topics
+    def getTopics(self):
+        return self._topics

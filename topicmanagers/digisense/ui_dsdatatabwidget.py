@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdatatabwidget.ui'
 #
 # Created: Tue Nov  4 15:58:16 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -98,19 +100,29 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
         self.Tabs.setAccessibleName(_translate("Form", "Chart", None))
-        self.selectInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
-        self.selectDuration.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
+        self.selectInterval.setToolTip(_translate("Form",
+                                                  "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>",
+                                                  None))
+        self.selectDuration.setToolTip(
+            _translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
         self.btnRefresh.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
         self.btnRefresh.setText(_translate("Form", "Refresh", None))
-        self.labelInterval.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
+        self.labelInterval.setToolTip(_translate("Form",
+                                                 "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>",
+                                                 None))
         self.labelInterval.setText(_translate("Form", "Interval", None))
-        self.labelDuration.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
+        self.labelDuration.setToolTip(
+            _translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
         self.labelDuration.setText(_translate("Form", "Duration", None))
-        self.btnExport.setToolTip(_translate("Form", "<html><head/><body><p>Export data (.csv)</p></body></html>", None))
+        self.btnExport.setToolTip(
+            _translate("Form", "<html><head/><body><p>Export data (.csv)</p></body></html>", None))
         self.btnExport.setText(_translate("Form", "Export", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.dataTab), _translate("Form", "Data", None))
-        self.selectDurationc.setToolTip(_translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
-        self.selectIntervalc.setToolTip(_translate("Form", "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>", None))
+        self.selectDurationc.setToolTip(
+            _translate("Form", "<html><head/><body><p>Time since first record</p></body></html>", None))
+        self.selectIntervalc.setToolTip(_translate("Form",
+                                                   "<html><head/><body><p>Set the interval between each update (or tick for every update)</p></body></html>",
+                                                   None))
         self.btnRefreshc.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
         self.btnRefreshc.setText(_translate("Form", "Draw", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.chartTab), _translate("Form", "Chart", None))

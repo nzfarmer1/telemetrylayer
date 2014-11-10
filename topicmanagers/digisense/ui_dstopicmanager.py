@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dstopicmanager.ui'
 #
 # Created: Sat Oct 11 21:26:51 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_dsTopicManager(object):
     def setupUi(self, dsTopicManager):
@@ -77,11 +79,15 @@ class Ui_dsTopicManager(object):
 
     def retranslateUi(self, dsTopicManager):
         dsTopicManager.setWindowTitle(_translate("dsTopicManager", "Edit Feature", None))
-        dsTopicManager.setToolTip(_translate("dsTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
+        dsTopicManager.setToolTip(
+            _translate("dsTopicManager", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         dsTopicManager.setProperty("text", _translate("dsTopicManager", "Edit Feature", None))
         self.devicesRefresh.setText(_translate("dsTopicManager", "Refresh", None))
-        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabPhysical), _translate("dsTopicManager", "Physical", None))
-        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabLogical), _translate("dsTopicManager", "Logical", None))
-        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabDeviceTypes), _translate("dsTopicManager", "Catalog", None))
+        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabPhysical),
+                                   _translate("dsTopicManager", "Physical", None))
+        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabLogical),
+                                   _translate("dsTopicManager", "Logical", None))
+        self.deviceTabs.setTabText(self.deviceTabs.indexOf(self.tabDeviceTypes),
+                                   _translate("dsTopicManager", "Catalog", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.tabDevices), _translate("dsTopicManager", "Topics", None))
 

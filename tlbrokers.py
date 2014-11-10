@@ -7,31 +7,31 @@ Store, retrieve, list and find Brokers. Broker get and set params
 
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
-from PyQt4.QtCore import QFile,QIODevice, QObject, pyqtSignal
+from PyQt4.QtCore import QFile, QIODevice, QObject, pyqtSignal
 from PyQt4.QtGui import QFileDialog
-import json,os.path,sys
+import json, os.path, sys
 
 
 class BrokerNotFound(Exception):
-   pass
+    pass
+
 
 class BrokerNotSynced(Exception):
-   pass
+    pass
+
 
 class BrokersNotDefined(Exception):
-   pass
-
+    pass
 
 
 class tlBrokers(QObject):
-
     """
     Class to manage array of Brokers including storage
     
     """
 
     _this = None
-    brokersLoaded  = pyqtSignal(object)
+    brokersLoaded = pyqtSignal(object)
 
     kDefaultFile = "brokers.json.default"
 
@@ -39,17 +39,17 @@ class tlBrokers(QObject):
     def instance():
         return tlBrokers._this
 
-    def __init__(self,pluginDir):
-        super(tlBrokers,self).__init__()
-        self._jsonfile  = None
-        self._loaded    = False
-        self._dirty             = False
-        self._brokers   = []
+    def __init__(self, pluginDir):
+        super(tlBrokers, self).__init__()
+        self._jsonfile = None
+        self._loaded = False
+        self._dirty = False
+        self._brokers = []
         self._oldBrokers = None
-        self._dirty =   False
+        self._dirty = False
         self._dirtyList = []
-        self._defaultFile = os.path.join(pluginDir,self.kDefaultFile)
-        self._jsonfile = Settings.get("brokerFile",self._defaultFile)
+        self._defaultFile = os.path.join(pluginDir, self.kDefaultFile)
+        self._jsonfile = Settings.get("brokerFile", self._defaultFile)
         tlBrokers._this = self
         self.load()
 
@@ -64,7 +64,7 @@ class tlBrokers(QObject):
                 self._validate()
                 self.brokersLoaded.emit(self._dirtyList)
                 self._dirtyList[:] = []
-                self._dirty  = False
+                self._dirty = False
             else:
                 Log.critical("Broker file " + self._jsonfile + " not found!")
         except Exception as e:
@@ -75,18 +75,18 @@ class tlBrokers(QObject):
 
     def _file(self):
         if self._jsonfile == self._defaultFile:
-            fileName = QFileDialog.getSaveFileName(None, "Location for Brokers File", # translate
-              "~/",
-              "*.json")
+            fileName = QFileDialog.getSaveFileName(None, "Location for Brokers File",  # translate
+                                                   "~/",
+                                                   "*.json")
             if fileName:
-              Settings.set('brokerFile',fileName)
-              self._jsonfile = fileName
+                Settings.set('brokerFile', fileName)
+                self._jsonfile = fileName
             else:
-              Log.critical("Broker data being saved to plugin directory and will be lost on upgrade!")
+                Log.critical("Broker data being saved to plugin directory and will be lost on upgrade!")
 
         return self._jsonfile
 
-    def sync(self,load = True):
+    def sync(self, load=True):
         if not self._dirty:
             return
         try:
@@ -97,16 +97,16 @@ class tlBrokers(QObject):
             qfile.close()
             self._dirty = False
             if load:
-              self.load()
+                self.load()
         except Exception as e:
             Log.critical(e)
 
     def uniq(self):
-        if len(self._brokers) ==0:
+        if len(self._brokers) == 0:
             return 1
-        return int(max(self._brokers.keys(), key=int)) +1
+        return int(max(self._brokers.keys(), key=int)) + 1
 
-    def uniqName(self,bid,name):
+    def uniqName(self, bid, name):
         uniq = True
         for broker in self.list():
             if bid != broker.id() and broker.name() == name:
@@ -115,23 +115,23 @@ class tlBrokers(QObject):
         return uniq
 
 
-    def list(self,reverse = False):
-        brokers=[]
-        if len(self._brokers) ==0:
+    def list(self, reverse=False):
+        brokers = []
+        if len(self._brokers) == 0:
             return []
-        for bid,brokerprops in self._brokers.iteritems():
-            brokers.append(tlBroker(bid,brokerprops))
+        for bid, brokerprops in self._brokers.iteritems():
+            brokers.append(tlBroker(bid, brokerprops))
         if reverse:
             brokers.reverse()
         return brokers
 
-    def find(self,bid):
+    def find(self, bid):
         try:
-            return tlBroker(bid,self._brokers[bid])
+            return tlBroker(bid, self._brokers[bid])
         except:
             return None
 
-    def findByName(self,name):
+    def findByName(self, name):
         broker = None
         try:
             for _broker in self.list():
@@ -141,9 +141,9 @@ class tlBrokers(QObject):
         except:
             return None
 
-    def create(self,name= None,host="localhost",port=1883):
+    def create(self, name=None, host="localhost", port=1883):
         broker = tlBroker(self.uniq())
-        if name == None:
+        if name is None:
             broker.setName("Broker" + str(broker.id()))
         broker.setHost(host)
         broker.setPort(port)
@@ -153,13 +153,13 @@ class tlBrokers(QObject):
         self._dirty = True
         return broker
 
-    def update(self,broker):
+    def update(self, broker):
         self._brokers[broker.id()] = broker.properties()
         self._dirty = True
         self._dirtyList.append(broker.id())
         pass
 
-    def delete(self,broker):
+    def delete(self, broker):
         del self._brokers[broker.id()]
         self._dirty = True
         pass
@@ -171,17 +171,17 @@ class tlBrokers(QObject):
     def dirty(self):
         return self._dirty
 
-class tlBroker(QObject):
 
+class tlBroker(QObject):
     """
     Class to represent a single Broker
     
     """
 
-    def __init__(self,brokerId,properties = {}):
+    def __init__(self, brokerId, properties={}):
         self._properties = properties
-        self.setId( brokerId )
-        super(tlBroker,self).__init__()
+        self.setId(brokerId)
+        super(tlBroker, self).__init__()
         pass
 
     def properties(self):
@@ -191,55 +191,55 @@ class tlBroker(QObject):
     def id(self):
         return self.get("id")
 
-    def set(self,key,value):
+    def set(self, key, value):
         self._properties[key] = value
 
-    def get(self,key,default = None):
+    def get(self, key, default=None):
         if key in self._properties:
             return self._properties[key]
         return default
 
-    def setId(self,id):
-        self.set('id',id)
+    def setId(self, id):
+        self.set('id', id)
 
-    def setName(self,name):
-        self.set('name',name)
+    def setName(self, name):
+        self.set('name', name)
 
-    def setHost(self,host):
-        self.set('host',host)
+    def setHost(self, host):
+        self.set('host', host)
 
-    def setKeepAlive(self,keepalive):
-        self.set('keepalive',keepalive)
+    def setKeepAlive(self, keepalive):
+        self.set('keepalive', keepalive)
 
-    def setPort(self,port):
-        self.set('port',port)
+    def setPort(self, port):
+        self.set('port', port)
 
-    def setPoll(self,poll):
-        self.set('poll',poll)
+    def setPoll(self, poll):
+        self.set('poll', poll)
 
-    def setTopics(self,topics):
-        self.set('topics',topics)
+    def setTopics(self, topics):
+        self.set('topics', topics)
         Log.debug("tlBroker set Topics")
 
-    def setTopicManager(self,topicManager):
-        self.set('topicManager',topicManager)
+    def setTopicManager(self, topicManager):
+        self.set('topicManager', topicManager)
 
     # return individual topic
-    def topic(self,topic):
-        topics = self.topics(None,topic)
-        if len(topics) >0:
+    def topic(self, topic):
+        topics = self.topics(None, topic)
+        if len(topics) > 0:
             return topics[0]
         else:
             return None
 
-    def topics(self,type_ = None,topic_ =None):
+    def topics(self, type_=None, topic_=None):
         topics = self.get('topics')
-        if type_ == None and topic_== None:
+        if type_ is None and topic_ is None:
             return topics
         _topics = []
         for topic in topics:
-            if type_ == None or topic['type'] == type_:
-                if  topic_ == None or topic_ == topic['topic']:
+            if type_ is None or topic['type'] == type_:
+                if topic_ is None or topic_ == topic['topic']:
                     _topics.append(topic)
 
         return _topics
@@ -253,8 +253,8 @@ class tlBroker(QObject):
     def host(self):
         return self.get('host')
 
-    def poll(self,poll = 0):
-        if self.get('poll') == None:
+    def poll(self, poll=0):
+        if self.get('poll') is None:
             return poll
         return self.get('poll')
 

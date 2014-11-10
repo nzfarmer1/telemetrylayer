@@ -20,6 +20,7 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
@@ -31,28 +32,29 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
     """
     Dialog to manage Add Features
     """
-    def __init__(self,broker,topicType):
-       super(tlAddFeature, self).__init__()
-       self._broker = broker
-       self._topicType = topicType
-       
-       self.setupUi()
-       pass
+
+    def __init__(self, broker, topicType):
+        super(tlAddFeature, self).__init__()
+        self._broker = broker
+        self._topicType = topicType
+
+        self.setupUi()
+        pass
 
     def setupUi(self):
-       self.timer = QTimer()
-       self.timer.setSingleShot(True)
-       self.timer.timeout.connect( self._buildCombo )
-        
-       super(tlAddFeature,self).setupUi(self)
-       topic = None
-       self.selectTopic.setEnabled(False)
-       self.selectTopic.addItem("Select a topic ...")
-       self.timer.start(0)
-       self.buttonAdd.clicked.connect(self._validateApply)
-       self.buttonAdd.setEnabled(False)
-       self.selectTopic.currentIndexChanged.connect(self._topicChanged)
-    
+        self.timer = QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self._buildCombo)
+
+        super(tlAddFeature, self).setupUi(self)
+        topic = None
+        self.selectTopic.setEnabled(False)
+        self.selectTopic.addItem("Select a topic ...")
+        self.timer.start(0)
+        self.buttonAdd.clicked.connect(self._validateApply)
+        self.buttonAdd.setEnabled(False)
+        self.selectTopic.currentIndexChanged.connect(self._topicChanged)
+
     def getVisible(self):
         if self.chkBoxVisible.checkState() == Qt.Checked:
             return 1
@@ -66,11 +68,11 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
 
     def _buildCombo(self):
         for topic in self._broker.topics(self._topicType):
-            self.selectTopic.addItem(topic['name'],topic)
+            self.selectTopic.addItem(topic['name'], topic)
         self.selectTopic.setEnabled(True)
         self.selectTopic.setFocus()
 
-    def _topicChanged(self,idx):
+    def _topicChanged(self, idx):
         self.buttonAdd.setEnabled(idx > 0)
 
     def _validateApply(self):

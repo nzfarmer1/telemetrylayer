@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'ui_tlayerconfig.ui'
 #
 # Created: Fri Sep 19 19:09:30 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_tLayerConfig(object):
     def setupUi(self, tLayerConfig):
@@ -64,11 +66,15 @@ class Ui_tLayerConfig(object):
 
     def retranslateUi(self, tLayerConfig):
         tLayerConfig.setWindowTitle(_translate("tLayerConfig", "Create Layer", None))
-        self.selectBroker.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select MQTT Broker from list (configure new if required)</p></body></html>", None))
-        self.selectBrokerLabel.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select broker from list</p></body></html>", None))
+        self.selectBroker.setToolTip(_translate("tLayerConfig",
+                                                "<html><head/><body><p>Select MQTT Broker from list (configure new if required)</p></body></html>",
+                                                None))
+        self.selectBrokerLabel.setToolTip(
+            _translate("tLayerConfig", "<html><head/><body><p>Select broker from list</p></body></html>", None))
         self.selectBrokerLabel.setText(_translate("tLayerConfig", "Select Broker", None))
         self.selectTopicTypeLabel.setText(_translate("tLayerConfig", "Select Topic Type", None))
-        self.selectTopicType.setToolTip(_translate("tLayerConfig", "Select the Topic Types able to be shown on this layer", None))
+        self.selectTopicType.setToolTip(
+            _translate("tLayerConfig", "Select the Topic Types able to be shown on this layer", None))
         self.title.setText(_translate("tLayerConfig", "Create new Telemetry Layer", None))
         self.buttonCreate.setText(_translate("tLayerConfig", "Create", None))
         self.buttonCancel.setText(_translate("tLayerConfig", "Cancel", None))

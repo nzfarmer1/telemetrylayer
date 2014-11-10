@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 """
 /***************************************************************************
  Telemetry Layer
@@ -23,10 +24,13 @@ import os
  This script initializes the plugin, making it known to QGIS.
 """
 
+
 def path():
     return os.path.dirname(__file__)
+
 
 def classFactory(iface):
     # load FarmSense class from file FarmSense
     from telemetrylayerplugin import TelemetryLayerPlugin
+
     return TelemetryLayerPlugin(iface)

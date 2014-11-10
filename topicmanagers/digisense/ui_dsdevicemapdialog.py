@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'topicmanagers/digisense/ui_dsdevicemapdialog.ui'
 #
 # Created: Mon Oct 20 17:50:56 2014
-#      by: PyQt4 UI code generator 4.10.4
+# by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_dsDeviceMapDialog(object):
     def setupUi(self, dsDeviceMapDialog):
@@ -57,7 +59,8 @@ class Ui_dsDeviceMapDialog(object):
         self.applyButton.setObjectName(_fromUtf8("applyButton"))
         self.topic = QtGui.QLineEdit(dsDeviceMapDialog)
         self.topic.setGeometry(QtCore.QRect(70, 100, 201, 22))
-        self.topic.setInputMethodHints(QtCore.Qt.ImhDialableCharactersOnly|QtCore.Qt.ImhEmailCharactersOnly|QtCore.Qt.ImhLowercaseOnly|QtCore.Qt.ImhNoPredictiveText|QtCore.Qt.ImhUppercaseOnly|QtCore.Qt.ImhUrlCharactersOnly)
+        self.topic.setInputMethodHints(
+            QtCore.Qt.ImhDialableCharactersOnly | QtCore.Qt.ImhEmailCharactersOnly | QtCore.Qt.ImhLowercaseOnly | QtCore.Qt.ImhNoPredictiveText | QtCore.Qt.ImhUppercaseOnly | QtCore.Qt.ImhUrlCharactersOnly)
         self.topic.setObjectName(_fromUtf8("topic"))
         self.settingsLabel = QtGui.QLabel(dsDeviceMapDialog)
         self.settingsLabel.setGeometry(QtCore.QRect(30, 166, 51, 20))
@@ -100,18 +103,32 @@ class Ui_dsDeviceMapDialog(object):
 
     def retranslateUi(self, dsDeviceMapDialog):
         dsDeviceMapDialog.setWindowTitle(_translate("dsDeviceMapDialog", "Device Mapping", None))
-        self.deviceTypeLabel.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>Set the device type from the list of available devices</p></body></html>", None))
+        self.deviceTypeLabel.setToolTip(_translate("dsDeviceMapDialog",
+                                                   "<html><head/><body><p>Set the device type from the list of available devices</p></body></html>",
+                                                   None))
         self.deviceTypeLabel.setText(_translate("dsDeviceMapDialog", "Device Type", None))
-        self.name.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>Provide a Name for this device - i.e. if it\'s a Tank level sensor in the top paddock, it could ne named Top Tank Level</p></body></html>", None))
-        self.nameLabel.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>", None))
+        self.name.setToolTip(_translate("dsDeviceMapDialog",
+                                        "<html><head/><body><p>Provide a Name for this device - i.e. if it\'s a Tank level sensor in the top paddock, it could ne named Top Tank Level</p></body></html>",
+                                        None))
+        self.nameLabel.setToolTip(_translate("dsDeviceMapDialog",
+                                             "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>",
+                                             None))
         self.nameLabel.setText(_translate("dsDeviceMapDialog", "Name", None))
         self.applyButton.setText(_translate("dsDeviceMapDialog", "Apply", None))
-        self.topic.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>MQTT Topic name. This can be subscribed to and displayed in the Layer</p></body></html>", None))
-        self.settingsLabel.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>Configure the device settings</p></body></html>", None))
+        self.topic.setToolTip(_translate("dsDeviceMapDialog",
+                                         "<html><head/><body><p>MQTT Topic name. This can be subscribed to and displayed in the Layer</p></body></html>",
+                                         None))
+        self.settingsLabel.setToolTip(
+            _translate("dsDeviceMapDialog", "<html><head/><body><p>Configure the device settings</p></body></html>",
+                       None))
         self.settingsLabel.setText(_translate("dsDeviceMapDialog", "Settings", None))
-        self.topicLabel.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>MQTT Topic name. This can be subscribed to and displayed in the Layer</p></body></html>", None))
+        self.topicLabel.setToolTip(_translate("dsDeviceMapDialog",
+                                              "<html><head/><body><p>MQTT Topic name. This can be subscribed to and displayed in the Layer</p></body></html>",
+                                              None))
         self.topicLabel.setText(_translate("dsDeviceMapDialog", "Topic", None))
-        self.helpText.setToolTip(_translate("dsDeviceMapDialog", "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p><br/></p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p><br/></p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>", None))
+        self.helpText.setToolTip(_translate("dsDeviceMapDialog",
+                                            "<html><head/><body><p>Devices require a custom name and must be assigned a type</p><p><br/></p><p>The name will form the basis of the MQTT Topic that gets piublished.</p><p><br/></p><p>For example Water Tank 1 will be converteed to the Topic name /digisense/water/tank/1</p></body></html>",
+                                            None))
         self.helpText.setText(_translate("dsDeviceMapDialog", "Give this device a readable name", None))
         self.deleteButton.setText(_translate("dsDeviceMapDialog", "Delete Mapping", None))
 
