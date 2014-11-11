@@ -257,7 +257,7 @@ class tLayer(MQTTClient):
 
 
     def commitChanges(self):
-        # Log.debug("Committing")
+        #Log.debug("Committing"  + str( QgsApplication.activeWindow()))
 
         if not self._dirty:
             return
@@ -268,12 +268,13 @@ class tLayer(MQTTClient):
 
             #                Log.debug(QgsApplication.activeWindow().centralWidget().windowTitle())
 
-            if QgsApplication.activeWindow() is None \
-                    or (
-                                not 'QMainWindow' in str(QgsApplication.activeWindow())
-                            and not QgsApplication.activeWindow().windowTitle() == 'Feature Attributes'
-                                # Paramaterise?
-                    ):
+            if QgsApplication.activeWindow() is None:
+            #is None \
+            #        or (
+            #                    not 'QMainWindow' in str(QgsApplication.activeWindow())
+            #                and not QgsApplication.activeWindow().windowTitle() == 'Feature Attributes'
+            #                    # Paramaterise?
+            #        ):
                 return
 
             #  Todo: Check for valid Layer!!!!

@@ -102,13 +102,13 @@ class tlFeatureDialog(QObject):
         try:
             if hasattr(self.updated, "setText"):
                 updated = self._feature['updated']
-                self.updated.setText(self._since(int(updated)))
+                self.updated.setText(str(self._since(int(updated))))
             if hasattr(self.changed, "setText"):
                 changed = self._feature['changed']
-                self.changed.setText(self._since(int(changed)))
+                self.changed.setText(str(self._since(int(changed))))
             if hasattr(self.payload, "setText"):
                 payload = self.topicManager.formatPayload(self.topicType, self._feature['payload'])
-                self.payload.setText(payload)
+                self.payload.setText(str(payload))
         except Exception as e:
             Log.debug(str(e))
             pass

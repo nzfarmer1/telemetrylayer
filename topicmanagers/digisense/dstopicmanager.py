@@ -121,7 +121,10 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def featureDialog(self, dialog, tLayer, featureId):
         # Check tLayer.topicType type
-        return dsFeatureDialog(dialog, tLayer, featureId)
+        if tLayer.topicType() == 'Tank':
+            return dsFeatureDialog(dialog, tLayer, featureId)
+        else:
+            return super(dsTopicManager, self).featureDialog(dialog, tLayer, featureId) 
 
 
     def isDemo(self):
