@@ -258,7 +258,6 @@ class tLayer(MQTTClient):
 
     def commitChanges(self):
         #Log.debug("Committing"  + str( QgsApplication.activeWindow()))
-        return
 
         if not self._dirty:
             return
