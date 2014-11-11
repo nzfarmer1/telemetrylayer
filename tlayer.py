@@ -151,28 +151,36 @@ class tLayer(MQTTClient):
         feat = QgsFeature()
         iter = self._layer.getFeatures()
         while iter.nextFeature(feat):
-            topic = str(feat.attribute("topic"))
-            qos = int(feat.attribute("qos"))
-            if not qos in range(3):
-                Log.warn("Topic QoS must be beween 0 and 2")
+            if feat.id() < 0:
                 continue
-
-            # If the topic has changed, we need to update the name
-            # (and perhaps additional properties for the layer)
-            # This code is a little redundant as we're not
-            # checking for topic change - however, it is not
-            # called often and uses our own self.changeAttributeValue
-            # method so the overhead is very small
-
-            _topic = self._broker.topic(topic)
-            if _topic is not None:
-                self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
-            else:
-                Log.critical("Updated topic " + topic + " not found!")
-
-            if topic is not None:
-                Log.debug("Subscribing " + topic + " " + str(qos))
-                self.subscribe(topic, qos)
+            try:
+                topic = str(feat.attribute("topic"))
+                qos = int(feat.attribute("qos"))
+            
+                if not qos in range(3):
+                    Log.warn("Topic QoS must be beween 0 and 2")
+                    continue
+    
+                # If the topic has changed, we need to update the name
+                # (and perhaps additional properties for the layer)
+                # This code is a little redundant as we're not
+                # checking for topic change - however, it is not
+                # called often and uses our own self.changeAttributeValue
+                # method so the overhead is very small
+    
+                _topic = self._broker.topic(topic)
+                if _topic is not None:
+                    self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
+                else:
+                    Log.critical("Updated topic " + topic + " not found!")
+    
+                if topic is not None:
+                    Log.debug("Subscribing " + topic + " " + str(qos))
+                    self.subscribe(topic, qos)
+            except TypeError:
+                Log.debug("Type Error")
+                pass
+                
         self._layer.triggerRepaint()
 
 
@@ -393,6 +401,7 @@ class tLayer(MQTTClient):
         return attributes
 
     def beforeRollBack(self):
+        self._layer.destroyEditCommand() # Add this?
         pass
 
         # Log.debug("before rollback")
@@ -505,7 +514,8 @@ class tLayer(MQTTClient):
             self.kill()
 
     def refresh(self, state):
-        self.commitChanges()
+        if self._canRun():
+            self.commitChanges()
         if state:
             self.resume()
         else:
@@ -524,7 +534,7 @@ class tLayer(MQTTClient):
         return self._topicType
 
     def _canRun(self):
-        return self._hasFeatures() and not (self.isEditing or self._layer.isReadOnly())
+        return  self._hasFeatures() and not (self.isEditing or self._layer.isReadOnly())
 
     def _hasFeatures(self):
         feat = QgsFeature()

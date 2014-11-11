@@ -196,8 +196,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         try:
             self._iface.openFeatureForm(layer, feat, True)
         except Exception as e:
-            Log.debug(e)
-        pass
+#            Log.debug(e)
+#            exc_type, exc_value, exc_traceback = sys.exc_info()
+#            print(repr(traceback.format_exception(exc_type, exc_value,
+#                                             exc_traceback)))
+            pass
 
     def _closedFeatureDialog(self, tLayer):
         tLayer.layer().commitChanges()

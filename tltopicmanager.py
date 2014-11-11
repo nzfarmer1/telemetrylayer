@@ -65,7 +65,7 @@ class tlFeatureDialog(QObject):
         buttonBox = self._find(QDialogButtonBox, "buttonBox")
         buttonBox.accepted.connect(lambda: tlFeatureDialog._validate(self))
 
-        buttonBox.clicked.connect(lambda: tlFeatureDialog._clicked(self))
+        buttonBox.rejected.connect(lambda: tlFeatureDialog._clicked(self))
 
         self._tLayer.featureUpdated.connect(self._update)
         self.update()
@@ -76,7 +76,7 @@ class tlFeatureDialog(QObject):
             self.update()
 
     @staticmethod
-    def _clicked(self, btn=None):
+    def _clicked(self):
         self.clicked()
         pass
 
@@ -160,8 +160,8 @@ class tlFeatureDialog(QObject):
 
 
     def accept(self):
-        Log.debug("Accept")
-        self._dialog.accept()
+        Log.debug("xAccept")
+        #self._dialog.accept()
         
 
 
