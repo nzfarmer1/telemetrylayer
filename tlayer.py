@@ -258,6 +258,7 @@ class tLayer(MQTTClient):
 
     def commitChanges(self):
         #Log.debug("Committing"  + str( QgsApplication.activeWindow()))
+        return
 
         if not self._dirty:
             return
@@ -402,7 +403,7 @@ class tLayer(MQTTClient):
     #        self._layer.destroyEditCommand()
 
     def addFeature(self, fid):
-        if 0 > fid != self._fid:
+        if 0 > fid and not self._fid:
             self._fid = fid
         elif fid > 0 or fid == self._fid:
             # handle roll back

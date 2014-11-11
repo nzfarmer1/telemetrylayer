@@ -77,7 +77,6 @@ class tlFeatureDialog(QObject):
 
     @staticmethod
     def _clicked(self, btn=None):
-        Log.debug(btn)
         self.clicked()
         pass
 
@@ -162,7 +161,8 @@ class tlFeatureDialog(QObject):
 
     def accept(self):
         Log.debug("Accept")
-        self._dialog.save()
+        self._dialog.accept()
+        
 
 
     def __del__(self):

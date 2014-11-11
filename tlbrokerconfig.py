@@ -193,7 +193,10 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
         if not layer.isEditable() and not layer.isReadOnly():
             layer.startEditing()
-        self._iface.openFeatureForm(layer, feat, True)
+        try:
+            self._iface.openFeatureForm(layer, feat, True)
+        except Exception as e:
+            Log.debug(e)
         pass
 
     def _closedFeatureDialog(self, tLayer):
