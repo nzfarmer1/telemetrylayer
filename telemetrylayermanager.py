@@ -16,7 +16,7 @@ from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, Bro
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
-import os.path, traceback
+import os.path
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -170,7 +170,6 @@ class layerManager(QObject):
         return nodeLayer
 
     def readProject(self):
-        Log.debug("Read Project")
         for lid, tLayer in self.getTLayers().iteritems():
             Log.debug("Adding V2 Format data to loaded layers")
             tLayer._setFormatters()  # Memory Layer Saver doesn't save some V2 format data
@@ -398,7 +397,7 @@ class layerManager(QObject):
                             lambda: self.resumeLayer(layer.id()))
             self.actions['pause' + layer.id()].setEnabled(False)
 
-        layer.beforeRollBack.connect(self.beforeRollBack) #implement
+        # layer.beforeRollBack.connect(self.beforeRollBack) #implement
         layer.featureAdded.connect(self.featureAdded)  # implement
         layer.featureDeleted.connect(self.featureDeleted)  # implement
 
@@ -511,31 +510,13 @@ class layerManager(QObject):
         tLayer.beforeRollBack()
 
     def featureAdded(self, fid):
-        
         layer = self._iface.activeLayer()
         if layer is None:
             return
-
-
-
         tLayer = self.getTLayer(layer.id())
         if tLayer is None:
             Log.debug("Error Loading tLayer")
             return
-
-
-        request = QgsFeatureRequest(fid)
-        feat = next(layer.getFeatures(request), None)
-        try:
-            # Hack to avoid new feature dialog!
-            if feat['topic']:
-                #Log.debug("None empty topic!")
-                #Log.debug(feat.attributes())
-                return
-        except:
-            pass
-
-
         result = tLayer.addFeature(fid)
         Log.debug("Adding Feature")
         if result is not None:

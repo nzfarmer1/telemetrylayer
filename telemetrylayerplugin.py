@@ -73,6 +73,7 @@ class TelemetryLayerPlugin(QObject):
         try:
             Settings(self)
             Log(self)
+            Log.debug("Loading topic managers")
             TopicManagerFactory(iface)
             Log.debug("Topic Managers Loaded")
             Brokers(os.path.join(self.plugin_dir, 'data'))
@@ -125,6 +126,7 @@ class TelemetryLayerPlugin(QObject):
         self.iface.registerMainWindowAction(self.newLayerA, "Ctrl+F")
 
         try:
+            Log.debug("Loading Layer Manager")
             self.layerManager = layerManager(self)
             Log.debug("Layer Manager Loaded")
             self.telemetryLayer = TelemetryLayer(self)

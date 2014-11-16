@@ -34,6 +34,8 @@ class tlBrokers(QObject):
     brokersLoaded = pyqtSignal(object)
 
     kDefaultFile = "brokers.json.default"
+    kBrokerFile = 'brokerFile'
+    kBrokerList = "brokers/list"
 
     @staticmethod
     def instance():
@@ -44,7 +46,7 @@ class tlBrokers(QObject):
         self._jsonfile = None
         self._loaded = False
         self._dirty = False
-        self._brokers = []
+        self._brokers = {}
         self._oldBrokers = None
         self._dirty = False
         self._dirtyList = []
@@ -53,25 +55,40 @@ class tlBrokers(QObject):
         tlBrokers._this = self
         self.load()
 
-    def load(self):
+    def importFile(self,filename = None):
         try:
-            if os.path.exists(self._jsonfile):
-                qfile = QFile(self._jsonfile)
+            if not filename:
+                filename = self._jsonfile
+            if os.path.exists(filename):
+                qfile = QFile(filename)
                 qfile.open(QIODevice.ReadOnly)
                 jsonstr = qfile.readData(qfile.size())
                 qfile.close()
-                self._brokers = json.loads(jsonstr)
-                self._validate()
-                self.brokersLoaded.emit(self._dirtyList)
-                self._dirtyList[:] = []
-                self._dirty = False
+                return json.loads(jsonstr)
             else:
-                Log.critical("Broker file " + self._jsonfile + " not found!")
+                Log.critical("Broker file " + filename + " not found!")
         except Exception as e:
             Log.critical(e)
 
         self._dirty = False
+        return ""
         pass
+
+
+    def load(self):
+        try:
+            jsonstr = Settings.get(self.kBrokerList)
+            if not jsonstr:
+               Log.debug("Load from file") 
+               self._brokers = self.importFile() # backward compatible
+            else:
+               self._brokers = json.loads( jsonstr )
+            
+            self._validate()
+            self.brokersLoaded.emit(self._dirtyList)
+            self._dirtyList[:] = []
+        finally:
+            self._dirty = False
 
     def _file(self):
         if self._jsonfile == self._defaultFile:
@@ -79,7 +96,7 @@ class tlBrokers(QObject):
                                                    "~/",
                                                    "*.json")
             if fileName:
-                Settings.set('brokerFile', fileName)
+                Settings.set(self.kBrokerFile, fileName)
                 self._jsonfile = fileName
             else:
                 Log.critical("Broker data being saved to plugin directory and will be lost on upgrade!")
@@ -87,6 +104,16 @@ class tlBrokers(QObject):
         return self._jsonfile
 
     def sync(self, load=True):
+        if not self._dirty:
+            return
+        try:
+            Settings.set(self.kBrokerList,json.dumps(self._brokers))
+        except Exception as e:
+            Log.critical(e)
+        if load:
+            self.load()
+
+    def exportFile(self):
         if not self._dirty:
             return
         try:
@@ -100,6 +127,8 @@ class tlBrokers(QObject):
                 self.load()
         except Exception as e:
             Log.critical(e)
+
+
 
     def uniq(self):
         if len(self._brokers) == 0:
@@ -154,13 +183,20 @@ class tlBrokers(QObject):
         return broker
 
     def update(self, broker):
-        self._brokers[broker.id()] = broker.properties()
-        self._dirty = True
-        self._dirtyList.append(broker.id())
+        try:
+            self._brokers[broker.id()] = broker.properties()
+            self._dirty = True
+            self._dirtyList.append(broker.id())
+        except IndexError:
+            Log.cricital("Broker not found  " + str(broker.id()))
+            
         pass
 
     def delete(self, broker):
-        del self._brokers[broker.id()]
+        try:
+            del self._brokers[broker.id()]
+        except IndexError:
+            pass
         self._dirty = True
         pass
 

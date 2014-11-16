@@ -82,13 +82,14 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         self._broker = broker
         self._demo = False
 
-        try:
-            s = RPCProxy(self._broker.host(), 8000).connect()
-            self._demo = s.isDemo()
-        except socket.error as err:
-            Log.progress("Error making connection to server " + str(err))
-        except Exception as e:
-            Log.debug(e)
+        #try:
+        #    Log.debug("Connecting RPC")
+        #    s = RPCProxy(self._broker.host(), 8000).connect()
+        #    self._demo = s.isDemo()
+        #except socket.error as err:
+        #    Log.progress("Error making connection to server " + str(err))
+        #except Exception as e:
+        #    Log.debug(e)
 
 
     def setupUi(self):
@@ -182,6 +183,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         if self._deviceMaps and not refresh:
             return self._deviceMaps
         try:
+            Log.debug("Refreshing Device Maps")
             s = RPCProxy(self._broker.host(), 8000).connect()
             self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
         except Exception as e:

@@ -514,6 +514,7 @@ class tLayer(MQTTClient):
             self.kill()
 
     def refresh(self, state):
+        Log.debug("Refresh")
         if self._canRun():
             self.commitChanges()
         if state:

@@ -94,7 +94,7 @@ class tlTopicManagerFactory():
         tlTopicManagerFactory.topicManagers = topicmanagers.register()
 
         for _id in tlTopicManagerFactory.getTopicManagerIds():
-            tlTopicManagerFactory.registerTopicManager(_id)
+           tlTopicManagerFactory.registerTopicManager(_id)
 
     @staticmethod
     def unregisterAll():
@@ -122,6 +122,7 @@ class tlTopicManagerFactory():
 
     @staticmethod
     def getTopicManager(broker, create=False):
+        Log.debug("Get topic manager "+ str(broker))
         try:
             if not create and broker.id() in tlTopicManagerFactory.classObjects:
                 return tlTopicManagerFactory.classObjects[broker.id()]

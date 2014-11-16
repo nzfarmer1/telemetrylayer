@@ -220,6 +220,7 @@ class MQTTClient(QtCore.QObject):
 
         if not self.isConnected():
             if not self._killing:
+                Log.debug("Connecting " +str(self))
                 self._connect()
             return
 
