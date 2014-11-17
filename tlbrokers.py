@@ -80,9 +80,9 @@ class tlBrokers(QObject):
             jsonstr = Settings.get(self.kBrokerList)
             if not jsonstr:
                Log.debug("Load from file") 
-               self._brokers = self.importFile() # backward compatible
+               self._brokers = dict(self.importFile()) # backward compatible
             else:
-               self._brokers = json.loads( jsonstr )
+               self._brokers = dict(json.loads( jsonstr ))
             
             self._validate()
             self.brokersLoaded.emit(self._dirtyList)
