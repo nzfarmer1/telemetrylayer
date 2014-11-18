@@ -2,6 +2,7 @@ import httplib
 import xmlrpclib
 import socket
 import errno
+import sys
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 
 from PyQt4.QtCore import QObject
@@ -22,18 +23,36 @@ class TimeoutHTTP(httplib.HTTP):
         self._conn.timeout = timeout
 
 
+
 class TimeoutTransport(xmlrpclib.Transport):
-    def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, *args, **kwargs):
-        xmlrpclib.Transport.__init__(self, *args, **kwargs)
-        self.timeout = timeout
+
+
+    def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, use_datetime=0):
+        xmlrpclib.Transport.__init__(self, use_datetime)
+        self._timeout = timeout
 
     def make_connection(self, host):
-        if self._connection and host == self._connection[0]:
-            return self._connection[1]
+        # If using python 2.6, since that implementation normally returns the 
+        # HTTP compatibility class, which doesn't have a timeout feature.
+        if sys.version_info <= (2,6):
+            host, extra_headers, x509 = self.get_host_info(host)
+            return httplib.HTTPConnection(host, timeout=self._timeout)
+        else:
+            conn = xmlrpclib.Transport.make_connection(self, host)
+            conn.timeout = self._timeout
+            return conn
 
-        chost, self._extra_headers, x509 = self.get_host_info(host)
-        self._connection = host, httplib.HTTPConnection(chost)
-        return self._connection[1]
+    #def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, *args, **kwargs):
+    #    xmlrpclib.Transport.__init__(self, *args, **kwargs)
+    #    self.timeout = timeout
+    #
+    #def make_connection(self, host):
+    #    if self._connection and host == self._connection[0]:
+    #        return self._connection[1]
+    #
+    #    chost, self._extra_headers, x509 = self.get_host_info(host)
+    #    self._connection = host, httplib.HTTPConnection(chost)
+    #    return self._connection[1]
 
     def _close(self):
         Log.debug("Closing connection")

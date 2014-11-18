@@ -196,6 +196,8 @@ class tlSysFeatureDialog(tlFeatureDialog):
         super(tlSysFeatureDialog, self).accept()
 
 
+
+
 class tlTopicManager(QDialog, QObject):
     """
     Super class for all custom topic managers.
@@ -220,7 +222,7 @@ class tlTopicManager(QDialog, QObject):
 
         self._systopics = XMLTopicParser(systopicxml).getTopics()
 
-
+    
     def featureDialog(self, dialog, tLayer, featureId):  # Check SYS type?
         return tlSysFeatureDialog(dialog, tLayer, featureId)
 
@@ -267,6 +269,10 @@ class tlTopicManager(QDialog, QObject):
             layer.setEditForm(_form)
             layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+
+
+    def beforeCommit(self,topicType,values):
+        pass
 
     def formatPayload(self, topicType, payload):
         return str(payload)

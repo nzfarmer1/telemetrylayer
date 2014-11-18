@@ -292,7 +292,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         super(dsDeviceMapDialog, self).setupUi(self)
         try:
             self._deviceTypes = self._creator.getDeviceTypes()
-            self._devicesMaps = self._creator.getDeviceMaps()
+            self._devicesMaps = self._creator.getDeviceMapsRPC()
             Log.debug("Device Key = " + self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setText(self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setToolTip(self._deviceMap.getDeviceKey())

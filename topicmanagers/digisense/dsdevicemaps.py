@@ -202,7 +202,7 @@ class dsDeviceMaps:
     def dumps(self):
         return json.dumps(self.data)
 
-    def getDeviceMaps(self):
+    def getDeviceMapsRPC(self):
         return self.data
 
     def list(self):

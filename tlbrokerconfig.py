@@ -307,7 +307,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.Tabs.setTabEnabled(self.kTopicManagerTabId, True)
             self.connectApply.setEnabled(True)
         else:
-            Log.debug(obj)
+            Log.progress(obj)
 
 
     def getTopicManager(self):

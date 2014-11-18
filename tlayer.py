@@ -269,11 +269,11 @@ class tLayer(MQTTClient):
 
         if not self._dirty:
             return
-
+        
         try:
             if self._layer is None:
                 return
-
+            
             #                Log.debug(QgsApplication.activeWindow().centralWidget().windowTitle())
 
             if QgsApplication.activeWindow() is None:
@@ -292,10 +292,14 @@ class tLayer(MQTTClient):
             fids = []
 
             with QMutexLocker(self._mutex):
+
                 if len(self._values) == 0:
                     return
+                
 
                 self._layer.startEditing()
+                self._topicManager.beforeCommit(self.topicType,self._values)
+
                 for key, val in self._values.iteritems():
                     fid, fieldId = key
                     self._layer.changeAttributeValue(fid, fieldId, val)

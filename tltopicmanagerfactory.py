@@ -135,7 +135,7 @@ class tlTopicManagerFactory():
             tlTopicManagerFactory.classObjects[broker.id()] = _class(broker, create)
             return tlTopicManagerFactory.classObjects[broker.id()]
         except Exception as e:
-            Log.debug("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
+            Log.progress("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
                                                       exc_traceback)))

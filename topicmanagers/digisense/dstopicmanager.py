@@ -107,7 +107,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._demo = s.isDemo()
         except socket.error as err:
             QObject.emit(self, QtCore.SIGNAL('topicManagerError'), False,
-                         "Unable to load Topic Manager Digisense:" + str(err))
+                         "Unable to load Topic Manager Digisense: " + str(err))
             return
         except Exception as e:
             Log.debug("setupUI " + str(e))
@@ -179,13 +179,13 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._deviceTypes = self._loadDeviceTypesRPC()
         return self._deviceTypes
 
-    def getDeviceMaps(self, refresh=False):
+    def getDeviceMapsRPC(self, refresh=False):
         if self._deviceMaps and not refresh:
             return self._deviceMaps
         try:
             Log.debug("Refreshing Device Maps")
             s = RPCProxy(self._broker.host(), 8000).connect()
-            self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
+            self._deviceMaps = DeviceMaps().decode(s.getDeviceMapsRPC())
         except Exception as e:
             Log.progress("Error loading device maps from server")
         finally:
@@ -195,7 +195,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def getDeviceMap(self, topic):
         d = None
-        for deviceKey, device in self.getDeviceMaps():
+        for deviceKey, device in self.getDeviceMapsRPC():
             d = DeviceMap.loads(device)
             if d.getTopic() == topic:
                 dMap = d
@@ -232,7 +232,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildLogicalDevicesTable(self):
         Log.debug('building logical devices')
-        devicemaps = self.getDeviceMaps()
+        devicemaps = self.getDeviceMapsRPC()
         tbl = self.tableLogical
 
         columns = ["Type", "Name", "Topic"]
@@ -291,7 +291,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.clear()
         tbl.setRowCount(0)
         tbl.setStyleSheet("font: 10pt \"System\";")
-        tbl.setRowCount(len(self.getDeviceMaps()))
+        tbl.setRowCount(len(self.getDeviceMapsRPC()))
         tbl.setColumnCount(len(columns))
         tbl.setColumnWidth(30, 30)  # ?
         tbl.setHorizontalHeaderLabels(columns)
@@ -299,7 +299,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.horizontalHeader().setVisible(True)
         tbl.setShowGrid(True)
         row = 0
-        for deviceKey, device in self.getDeviceMaps():
+        for deviceKey, device in self.getDeviceMapsRPC():
 
             devicemap = DeviceMap.loads(device)
 
@@ -408,7 +408,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _deviceMapsRefreshRPC(self):
         try:
-            deviceMaps = self.getDeviceMaps(True)
+            deviceMaps = self.getDeviceMapsRPC(True)
 
             self.setDeviceMaps(DeviceMaps.decode(deviceMaps))
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId, True)
