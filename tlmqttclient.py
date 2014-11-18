@@ -34,8 +34,9 @@ class MQTTClient(QtCore.QObject):
     
     """
 
-    kMaxAttempts = 3
-    kMinKeepAlive = 5
+    kMaxAttempts    = 3
+    kMinKeepAlive   = 5
+    kResetTimer     = 60
 
     mqttOnConnect = SIGNAL('mqttOnConnect(QObject,QObject,QObject)')
     mqttOnDisConnect = SIGNAL('mqttOnDisconnect(QObject,QObject,QObject)')
@@ -220,7 +221,6 @@ class MQTTClient(QtCore.QObject):
 
         if not self.isConnected():
             if not self._killing:
-                Log.debug("Connecting " +str(self))
                 self._connect()
             return
 
@@ -248,9 +248,9 @@ class MQTTClient(QtCore.QObject):
 
     def _kill(self):
         self._loopTimer.stop()  # Stopped in self.stop but lets preempt this to avoid self.loop being called by running thread
-        self._resetTimer.stop()
         self._killTimer.stop()
         self._killing = False
+        self._reset() # reset timer
         self.stop()
         Log.debug("killed")
 
@@ -268,9 +268,10 @@ class MQTTClient(QtCore.QObject):
         try:
             if not self._connected:
                 if not self._attempts < self.kMaxAttempts:
-                    Log.warn("Max connection attempts reached.")
-                    self._resetTimer.start(5000)  # 1 minute parameterise
-                    self.stop()
+                    if not self._resetTimer.isActive():
+                        Log.warn("Max connection attempts reached - waiting " + str(self.kResetTimer) + " seconds" )
+                        self._resetTimer.start(self.kResetTimer*1000)  # 1 minute parameterise
+                    #self.stop()
                     return
                 Log.debug("Trying to connect")
                 result = self.mqttc.connect(self._host, self._port, self._keepAlive, 1)
@@ -292,9 +293,10 @@ class MQTTClient(QtCore.QObject):
             Log.warn('MQTT Disconnection Error' + str(e))
 
     def _reset(self):
+        Log.warn("Timer reset ")
         self._attempts = 0
-        self.run()
-        Log.warn("Attempting to connect")
+        self._resetTimer.stop() # not required
+        #self.run()
 
 
 # Single shot client to get a single topic -> payload. Optionally perform a publish first

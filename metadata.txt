@@ -23,7 +23,7 @@ email=andrew@southweb.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Improved handling of Digisense RPC. Added beforeCommit method to topicManager"
+changelog="Improved handling of network outages.  Added beforeCommit method to topicManager"
 
 
 # tags are comma separated with spaces allowed

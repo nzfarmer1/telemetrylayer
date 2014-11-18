@@ -274,8 +274,8 @@ class tlBroker(QObject):
             return topics
         _topics = []
         for topic in topics:
-            if type_ is None or topic['type'] == type_:
-                if topic_ is None or topic_ == topic['topic']:
+            if type_ is None or str(topic['type']) == str(type_):
+                if topic_ is None or str(topic_) == str(topic['topic']):
                     _topics.append(topic)
 
         return _topics

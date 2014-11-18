@@ -172,7 +172,7 @@ class tLayer(MQTTClient):
                 if _topic is not None:
                     self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
                 else:
-                    Log.critical("Updated topic " + topic + " not found!")
+                    Log.critical("Updated topic " + topic + " not found! Please refresh your topic manager")
     
                 if topic is not None:
                     Log.debug("Subscribing " + topic + " " + str(qos))

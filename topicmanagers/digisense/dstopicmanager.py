@@ -185,7 +185,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         try:
             Log.debug("Refreshing Device Maps")
             s = RPCProxy(self._broker.host(), 8000).connect()
-            self._deviceMaps = DeviceMaps().decode(s.getDeviceMapsRPC())
+            self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
         except Exception as e:
             Log.progress("Error loading device maps from server")
         finally:
