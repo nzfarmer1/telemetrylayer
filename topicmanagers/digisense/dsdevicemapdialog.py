@@ -383,7 +383,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         try:
             s = RPCProxy(self._broker.host(), 8000).connect()
             Log.debug(self._deviceMap.dumps())
-            if s.setMap(str(self._deviceMap.getTopic())):
+            if s.delMap(str(self._deviceMap.getTopic())):
                 Log.progress("Device map deleted")
                 self.dirty = True
                 self.accept()
@@ -405,8 +405,8 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self.accept()
             return
 
-        if len(self.name.text()) < 8:
-            Log.alert("Please ensure the name is at least 8 characters long")
+        if len(self.name.text()) < 4:
+            Log.alert("Please ensure the name is at least 4 characters long")
             return
 
         try:

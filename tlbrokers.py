@@ -83,7 +83,8 @@ class tlBrokers(QObject):
                self._brokers = dict(self.importFile()) # backward compatible
             else:
                self._brokers = dict(json.loads( jsonstr ))
-            
+               
+
             self._validate()
             self.brokersLoaded.emit(self._dirtyList)
             self._dirtyList[:] = []
@@ -104,8 +105,6 @@ class tlBrokers(QObject):
         return self._jsonfile
 
     def sync(self, load=True):
-        if not self._dirty:
-            return
         try:
             Settings.set(self.kBrokerList,json.dumps(self._brokers))
         except Exception as e:
@@ -153,8 +152,9 @@ class tlBrokers(QObject):
         if reverse:
             brokers.reverse()
         return brokers
-
+    
     def find(self, bid):
+  
         try:
             return tlBroker(bid, self._brokers[bid])
         except:
@@ -176,17 +176,20 @@ class tlBrokers(QObject):
             broker.setName("Broker" + str(broker.id()))
         broker.setHost(host)
         broker.setPort(port)
+        broker.setPortAlt(port)
         broker.setPoll(0)
         broker.setKeepAlive(0)
+        broker.setUseAltConnect(False)
+        broker.setDirty(True)
         self._brokers[broker.id()] = broker.properties()
-        self._dirty = True
         return broker
 
     def update(self, broker):
         try:
             self._brokers[broker.id()] = broker.properties()
-            self._dirty = True
-            self._dirtyList.append(broker.id())
+            if broker.dirty():
+                self._dirty = True
+                self._dirtyList.append(broker.id())
         except IndexError:
             Log.cricital("Broker not found  " + str(broker.id()))
             
@@ -200,7 +203,7 @@ class tlBrokers(QObject):
         self._dirty = True
         pass
 
-
+    
     def _validate(self):
         pass
 
@@ -214,9 +217,10 @@ class tlBroker(QObject):
     
     """
 
-    def __init__(self, brokerId, properties={}):
+    def __init__(self, brokerId, properties={},dirty = False):
         self._properties = properties
         self.setId(brokerId)
+        self._dirty = dirty
         super(tlBroker, self).__init__()
         pass
 
@@ -244,18 +248,27 @@ class tlBroker(QObject):
     def setHost(self, host):
         self.set('host', host)
 
-    def setKeepAlive(self, keepalive):
-        self.set('keepalive', keepalive)
+    def setHostAlt(self, host):
+        self.set('hostAlt', host)
+
+    def setUseAltConnect(self,state):
+        self.set('useAltConnect',state)
 
     def setPort(self, port):
         self.set('port', port)
 
+    def setPortAlt(self, port):
+        self.set('portAlt', port)
+
     def setPoll(self, poll):
         self.set('poll', poll)
 
+    def setKeepAlive(self, keepalive):
+        self.set('keepalive', keepalive)
+
     def setTopics(self, topics):
         self.set('topics', topics)
-        Log.debug("tlBroker set Topics")
+#        Log.debug("tlBroker set Topics " + str(topics))
 
     def setTopicManager(self, topicManager):
         self.set('topicManager', topicManager)
@@ -282,20 +295,40 @@ class tlBroker(QObject):
 
     def topicManager(self):
         return self.get('topicManager')
+    
+    def useAltConnect(self):
+        if self.get('useAltConnect',False):
+            return True
+        return False
+
+
 
     def name(self):
         return self.get('name')
 
     def host(self):
-        return self.get('host')
+        if not self.useAltConnect():
+            return self.get('host')
+        else:
+            return self.get('hostAlt')
+
+    def port(self):
+        if not self.useAltConnect():
+            return self.get('port')
+        else:
+            return self.get('portAlt')
+
+    def hostAlt(self):
+        return self.get('hostAlt')
+
+    def portAlt(self):
+        return self.get('portAlt')
 
     def poll(self, poll=0):
         if self.get('poll') is None:
             return poll
         return self.get('poll')
 
-    def port(self):
-        return self.get('port')
 
     def keepAlive(self):
         return self.get('keepalive')
@@ -304,5 +337,12 @@ class tlBroker(QObject):
         types = []
         for topic in self.topics():
             if not topic['type'] in types:
+                Log.debug("Found " + topic['type'])
                 types.append(topic['type'])
         return types
+    
+    def setDirty(self,state = True):
+        self._dirty = state
+    
+    def dirty(self):
+        return self._dirty

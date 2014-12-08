@@ -7,6 +7,7 @@ import os
 import sys
 import glob
 import imp
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 import TelemetryLayer.topicmanagers
 
@@ -80,7 +81,7 @@ def register():
         try:
             if sys.modules[package]:
                 module = __import__(package)
-                meta = module.classFactory()
+                meta = module.classFactory(Settings.getIface())
                 meta['class'] = reload_class(meta['class'])
         except AttributeError:
             pass
@@ -90,7 +91,7 @@ def register():
         finally:
             if module is None:
                 module = __import__(package)
-                meta = module.classFactory()
+                meta = module.classFactory(Settings.getIface())
 
         meta['id'] = package
         topicManagers.append(meta)

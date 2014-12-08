@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'ui_telemetrylayer.ui'
 #
-# Created: Thu Oct 23 21:44:35 2014
-# by: PyQt4 UI code generator 4.10.4
+# Created: Tue Dec  2 21:56:05 2014
+#      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,13 +17,11 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
-
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
-
 
 class Ui_TelemetryLayer(object):
     def setupUi(self, TelemetryLayer):
@@ -92,13 +90,12 @@ class Ui_TelemetryLayer(object):
         self.dockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(TelemetryLayer)
-        self.brokerManagerWidget.setCurrentIndex(0)
+        self.brokerManagerWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(TelemetryLayer)
 
     def retranslateUi(self, TelemetryLayer):
         TelemetryLayer.setWindowTitle(_translate("TelemetryLayer", "Edit Feature", None))
-        TelemetryLayer.setToolTip(
-            _translate("TelemetryLayer", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
+        TelemetryLayer.setToolTip(_translate("TelemetryLayer", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         TelemetryLayer.setProperty("text", _translate("TelemetryLayer", "Edit Feature", None))
         self.groupBox.setTitle(_translate("TelemetryLayer", "Loggers", None))
         self.logInfo.setText(_translate("TelemetryLayer", "Info", None))
@@ -106,17 +103,12 @@ class Ui_TelemetryLayer(object):
         self.logDebug.setText(_translate("TelemetryLayer", "Debug", None))
         self.logCritical.setText(_translate("TelemetryLayer", "Critical", None))
         self.ckShowLog.setText(_translate("TelemetryLayer", "Show Log", None))
-        self.logStatus.setToolTip(_translate("TelemetryLayer",
-                                             "<html><head/><body><p>Show updates in the main window\'s status bar</p></body></html>",
-                                             None))
+        self.logStatus.setToolTip(_translate("TelemetryLayer", "<html><head/><body><p>Show updates in the main window\'s status bar</p></body></html>", None))
         self.logStatus.setText(_translate("TelemetryLayer", "Status", None))
         self.btnApply.setText(_translate("TelemetryLayer", "Apply", None))
-        self.brokerManagerWidget.setTabText(self.brokerManagerWidget.indexOf(self.globalSettings),
-                                            _translate("TelemetryLayer", "Settings", None))
-        self.btnAdd.setToolTip(
-            _translate("TelemetryLayer", "<html><head/><body><p>Add a new broker</p></body></html>", None))
+        self.brokerManagerWidget.setTabText(self.brokerManagerWidget.indexOf(self.globalSettings), _translate("TelemetryLayer", "Settings", None))
+        self.btnAdd.setToolTip(_translate("TelemetryLayer", "<html><head/><body><p>Add a new broker</p></body></html>", None))
         self.btnAdd.setText(_translate("TelemetryLayer", "Add", None))
         self.label.setText(_translate("TelemetryLayer", "Manage MQTT Broker List", None))
-        self.brokerManagerWidget.setTabText(self.brokerManagerWidget.indexOf(self.brokerList),
-                                            _translate("TelemetryLayer", "Message Brokers", None))
+        self.brokerManagerWidget.setTabText(self.brokerManagerWidget.indexOf(self.brokerList), _translate("TelemetryLayer", "Message Brokers", None))
 

@@ -14,7 +14,8 @@ import webbrowser
 
 from ui_tlbrokerconfig import Ui_tlBrokerConfig
 from tlbrokers import tlBrokers as Brokers
-from lib.tlsettings import tlSettings as Settings, tlConstants as Constants
+from lib.tlsettings import tlSettings as Settings
+from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
@@ -69,27 +70,34 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._topicManager = None
         self._tested = False
 
-        self.setupUi()
-
-    def setupUi(self):
-        super(tlBrokerConfig, self).setupUi(self)
-
         if self._create:
             self._mode = Constants.Create
         else:
             self._mode = Constants.Update
+
+        self.setupUi()
+
+
+    def setupUi(self):
+        super(tlBrokerConfig, self).setupUi(self)
 
         self.connectHelp.clicked.connect(self._help)
         self.connectTest.clicked.connect(self._test)
 
         self.connectName.setValidator(QRegExpValidator(QRegExp("^[a-zA-Z0-9\s]+"), self))
         self.connectHost.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\.]+"), self))
+        self.connectHostAlt.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\.]+"), self))
 
+        
         self.Tabs.setCurrentIndex(self.kBrokerConfigTabId)  # First index
         # if Modal create mode
         self.setName(self._broker.name())
         self.setHost(self._broker.host())
         self.setPort(str(self._broker.port()))
+
+        self.setHostAlt(self._broker.hostAlt())
+        self.setPortAlt(str(self._broker.portAlt()))
+
         self.setPoll(str(self._broker.poll()))
         self.setKeepAlive(str(self._broker.keepAlive()))
         self._topicManager = None
@@ -99,6 +107,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._refreshFeature.setSingleShot(True)
         self._refreshFeature.timeout.connect(self._updateFeatureList)
         self.Tabs.currentChanged.connect(lambda: self._refreshFeature.start(3))
+        self.Tabs.currentChanged.connect(lambda: self.setDirty(True))
 
         self.connectApply.setEnabled(False)
         self.connectTopicManager.addItem("Please select ...", None)
@@ -116,6 +125,13 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             #self.Tabs.setEnabled(False)
             #   self.connectFarmSenseServer.setEnabled(False)
         elif self._mode == Constants.Update:
+            
+            if self._broker.useAltConnect():
+                self.connectDefault.setChecked(False)
+                self.connectAlt.setChecked(True)
+            else:
+                self.connectDefault.setChecked(True)
+                self.connectAlt.setChecked(False)
 
             self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
             self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure ", None) + self.getName())
@@ -133,6 +149,15 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                     self.tableFeatureList.clicked.connect(self._zoomToFeature)
             else:
                 self.Tabs.setEnabled(False)
+
+        self.connectName.textChanged.connect(lambda: self.setDirty(True))
+        self.connectHost.textChanged.connect(lambda: self.setDirty(True))
+        self.connectPort.textChanged.connect(lambda: self.setDirty(True))
+        self.connectPortAlt.textChanged.connect(lambda: self.setDirty(True))
+        self.connectUsername.textChanged.connect(lambda: self.setDirty(True))
+        self.connectPassword.textChanged.connect(lambda: self.setDirty(True))
+        self.connectPoll.currentIndexChanged.connect(lambda: self.setDirty(True))
+        self.connectKeepAlive.currentIndexChanged.connect(lambda: self.setDirty(True))
 
     def mode(self):
         return self._mode
@@ -289,13 +314,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 self._broker.setHost(self.getHost())
                 self._broker.setPort(self.getPort())
                 self._broker.setTopicManager(topicManagerId)
+            Log.debug("_loadTopicManager")
             self._topicManager = topicManagerFactory.getTopicManager(self._broker, self._create)
             QObject.connect(self._topicManager, SIGNAL("topicManagerReady"), self._topicManagerLoaded)
             QObject.connect(self._topicManager, SIGNAL("topicManagerError"), self._topicManagerLoaded)
             self.Tabs.setTabEnabled(self.kTopicManagerTabId, False)
             widget = self._topicManager.getWidget()
-            self.Tabs.addTab(widget, "Topics")
             self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
+            self.Tabs.addTab(widget, "Topics")
             return True
 
         except Exception as e:
@@ -305,10 +331,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _topicManagerLoaded(self, state, obj):
         if state:
             self.Tabs.setTabEnabled(self.kTopicManagerTabId, True)
-            self.connectApply.setEnabled(True)
+            self.connectApply.setEnabled(self.dirty())
         else:
             Log.progress(obj)
-
 
     def getTopicManager(self):
         return self.connectTopicManager.itemData(self.connectTopicManager.currentIndex())
@@ -320,20 +345,26 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         else:
             self.connectTopicManager.setCurrentIndex(0)
 
+    def setDirty(self,state):
+        self._broker.setDirty(state)
+        self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
 
     def dirty(self):
         if not self.dockWidget.isVisible():
-            return False
+            return self._broker.dirty()
 
         dirty = False
         dirty = dirty or self._broker.name() != self.getName()
         dirty = dirty or self._broker.host() != self.getHost()
         dirty = dirty or self._broker.port() != self.getPort()
+        dirty = dirty or self._broker.hostAlt() != self.getHostAlt()
+        dirty = dirty or self._broker.portAlt() != self.getPortAlt()
+        dirty = dirty or self._broker.useAltConnect() != self.getUseAltConnect()
         dirty = dirty or self._broker.poll() != self.getPoll()
         dirty = dirty or self._broker.keepAlive() != self.getKeepAlive()
         dirty = dirty or self._broker.topics() != self.getTopics()
 
-        return dirty
+        return dirty or self._broker.dirty()
 
     def getTopics(self):
         if self._topicManager is None:
@@ -342,10 +373,12 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
 
     def getBroker(self):
-
         self._broker.setName(self.getName())
         self._broker.setHost(self.getHost())
         self._broker.setPort(self.getPort())
+        self._broker.setHostAlt(self.getHostAlt())
+        self._broker.setPortAlt(self.getPortAlt())
+        self._broker.setUseAltConnect(self.getUseAltConnect())
         self._broker.setPoll(self.getPoll())
         self._broker.setKeepAlive(self.getKeepAlive())
         self._broker.setTopics(self.getTopics())
@@ -358,19 +391,39 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def setName(self, name):
         self.connectName.setText(name)
 
+    def setHost(self, host):
+        self.connectHost.setText(host)
+
+    def setHostAlt(self, host):
+        self.connectHostAlt.setText(host)
+
     def getHost(self):
         return self.connectHost.text()
 
-    def setHost(self, host):
-        self.connectHost.setText(host)
+    def getHostAlt(self):
+        return self.connectHostAlt.text()
 
     def getPort(self):
         if len(self.connectPort.text()) > 0:
             return int(self.connectPort.text())
         return None
 
-    def setPort(self, port):
+    def getPortAlt(self):
+        if len(self.connectPortAlt.text()) > 0:
+            return int(self.connectPortAlt.text())
+        return None
+
+    def setPort(self, port =1883):
         self.connectPort.setText(str(port))
+
+    def setPortAlt(self, port = 1883):
+        if port.isdigit():
+            self.connectPortAlt.setText(str(port))
+        else:
+            self.connectPortAlt.setText(str(1883))
+
+    def getUseAltConnect(self):
+        return self.connectAlt.isChecked()
 
     def getKeepAlive(self, default="0"):
         val = self.connectKeepAlive.itemText(self.connectKeepAlive.currentIndex())
@@ -464,6 +517,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         Log.progress("Connection successful!")
         mqtt.kill()
         self.setTested(True)
+        if self._mode == Constants.Update:
+            self.connectApply.setEnabled(self.dirty())
+
 
     def _help(self):
         webbrowser.open(Settings.getMeta('helpURL'))
@@ -477,7 +533,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
 
     def accept(self):
-        print("accept")
         self.connectHelp.clicked.disconnect(self._help)
         self.connectTest.clicked.disconnect(self._test)
         super(tlBrokerConfig, self).accept()

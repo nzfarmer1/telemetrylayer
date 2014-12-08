@@ -10,6 +10,13 @@ Todo:
 Save device type parameters as attributes
 Use these to create traffic lights on icon or set alerts
 
+- In dsTopicManager Update alert attribute to True of ! Appended
+- Use MQTT Logo as default symbol
+- Increment in lambda to scale x as [1..1024] for percentage functions
+- Add iterators for DeviceTypes and DeviceMaps
+- Remove call back on load
+- Enabled topicManager to work in r/o mode
+
 """
 
 from PyQt4 import QtCore, QtGui
@@ -18,7 +25,9 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
-from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings
+from TelemetryLayer.lib.tlsettings import tlSettings as Settings
+from TelemetryLayer.lib.tlsettings import tlConstants as Constants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
@@ -55,6 +64,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
     kDeviceLogicalTabId = 1
     kDeviceTypesTabId = 2
 
+    kAlertIdx = 10
 
     @staticmethod
     def showLoadingMessage(tbl, msg=_translate("dsTopicManager", "Loading data ...", None)):
@@ -96,28 +106,26 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         super(dsTopicManager, self).setupUi()
 
         if self._create:
-            self._mode = tlConstants.Create
+            self._mode = Constants.Create
             self.deviceTabs.setCurrentIndex(dsTopicManager.kDeviceMapsTabId)  # First index
         else:
-            self._mode = tlConstants.Update
+            self._mode = Constants.Update
             self.deviceTabs.setCurrentIndex(dsTopicManager.kDeviceLogicalTabId)  # First index
 
         try:
             s = RPCProxy(self._broker.host(), 8000).connect()
             self._demo = s.isDemo()
         except socket.error as err:
-            QObject.emit(self, QtCore.SIGNAL('topicManagerError'), False,
-                         "Unable to load Topic Manager Digisense: " + str(err))
+            Log.debug("Unable to load Topic Manager Digisense: " + str(err))
             return
         except Exception as e:
-            Log.debug("setupUI " + str(e))
-            QObject.emit(self, QtCore.SIGNAL('topicManagerError'), False,
-                         "Unable to load Topic Manager Digisense:" + str(e))
+            Log.debug("Unable to load Topic Manager Digisense: " + str(err))
             return
 
         self._buildDevicesTables()
         self.devicesRefresh.clicked.connect(self._deviceMapsRefreshRPC)
         self.tableLogical.doubleClicked.connect(self._editTopicRow)
+        self.deviceTabs.removeTab(dsTopicManager.kDeviceTypesTabId)
 
 
     def featureDialog(self, dialog, tLayer, featureId):
@@ -129,7 +137,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
 
     def isDemo(self):
-        return self._demo
+        return False;# self._demo
 
     def _updateFeatures(self):
         # Iterate through a list of tlLayers and if they are using
@@ -145,7 +153,6 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         return self.Tabs.widget(0)
 
     def getTopics(self):
-        Log.debug("GET TOPICS")
         topics = []
         if self._deviceMaps is None:
             return []
@@ -185,7 +192,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         try:
             Log.debug("Refreshing Device Maps")
             s = RPCProxy(self._broker.host(), 8000).connect()
-            self._deviceMaps = DeviceMaps().decode(s.getDeviceMaps())
+            self._deviceMaps = DeviceMaps().decode(s.getDeviceMapsRPC())
         except Exception as e:
             Log.progress("Error loading device maps from server")
         finally:
@@ -195,17 +202,35 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def getDeviceMap(self, topic):
         d = None
-        for deviceKey, device in self.getDeviceMapsRPC():
+        for deviceKey, device in self.getDeviceMaps():
             d = DeviceMap.loads(device)
             if d.getTopic() == topic:
                 dMap = d
                 break
-        Log.debug(d)
         return d
 
     def getBroker(self):
         return self._broker
 
+    # Add Alert flag
+
+    def beforeCommit(self,tLayer,topicType,values):
+        """
+        values is a dict of values to be committed
+        the key is a tuple of feature Id and attribute Index
+        We implement alerts by checking if the payload value
+        contains a '!'. Crude but simple - no additional messages.
+        
+        """
+        for (fid,fieldIdx), val in values.copy().iteritems():
+            if fieldIdx == Constants.payloadIdx:
+                # check topic type?
+                if '!' in val:
+                    values[(fid,self.kAlertIdx)] = True
+                    values[(fid,fieldIdx)] = values[(lid,fieldIdx)].replace('!','')
+                else:
+                    values[(fid,self.kAlertIdx)] = False
+        pass
 
     def setDeviceTypes(self, deviceTypes):
         self._deviceTypes = deviceTypes
@@ -286,7 +311,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildPhysicalDevicesTable(self):
         Log.debug('building physical devices')
-        columns = ["Address (Hi)", "Type", "Pin", "Map"]
+        columns = ["Address (Lo)", "Type", "Pin", "Map"]
         tbl = self.tablePhysical
         tbl.clear()
         tbl.setRowCount(0)
@@ -298,12 +323,14 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.verticalHeader().setVisible(True)
         tbl.horizontalHeader().setVisible(True)
         tbl.setShowGrid(True)
+        tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
+        tbl.setSelectionMode(QAbstractItemView.SingleSelection)
         row = 0
-        for deviceKey, device in self.getDeviceMapsRPC():
+        for deviceKey, device in self.getDeviceMaps():
 
             devicemap = DeviceMap.loads(device)
 
-            addrHigh = devicemap.getAddrHigh()
+            addrHigh = devicemap.getAddrLow()
             # addrHigh = addrHigh.replace(' ','-')
 
             item = QtGui.QTableWidgetItem(0)
@@ -407,13 +434,16 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         QObject.emit(self, QtCore.SIGNAL('topicManagerReady'), True, self)
 
     def _deviceMapsRefreshRPC(self):
+        Log.debug("_deviceMapsRefreshRPC")
+
         try:
-            deviceMaps = self.getDeviceMapsRPC(True)
+            deviceMaps = self.getDeviceMaps(True)
 
             self.setDeviceMaps(DeviceMaps.decode(deviceMaps))
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceMapsTabId, True)
             self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceLogicalTabId, True)
-            self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId, True)
+            self.deviceTabs.setTabEnabled(dsTopicManager.kDeviceTypesTabId, False)
+
             self._buildDevicesTables()
 
             QObject.emit(self, QtCore.SIGNAL("deviceMapsRefreshed"))
@@ -433,7 +463,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             return None
 
 
-    def getAttributes(self, layer, topicType):
+    def getAttributes(self, topicType):
         attributes = []
         if topicType == 'Tank':  # Consider adding an <Alerts><Alert .. tag(s) each with their own lamda functions
             attributes = [QgsField("alert", QVariant.Int, "Alert", 0, 0, "Low water alert level")]

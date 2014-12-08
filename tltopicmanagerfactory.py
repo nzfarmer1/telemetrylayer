@@ -122,7 +122,6 @@ class tlTopicManagerFactory():
 
     @staticmethod
     def getTopicManager(broker, create=False):
-        Log.debug("Get topic manager "+ str(broker))
         try:
             if not create and broker.id() in tlTopicManagerFactory.classObjects:
                 return tlTopicManagerFactory.classObjects[broker.id()]

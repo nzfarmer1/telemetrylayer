@@ -54,7 +54,7 @@ class layerManager(QObject):
 
     @staticmethod
     def refresh():
-        for layer in tl.getLayers():
+        for layer in layerManager.getLayers():
             layer.triggerRepaint()
 
     @staticmethod
@@ -470,7 +470,8 @@ class layerManager(QObject):
     def layerLoaded(self, i, n):
         if i == n:  # Last layer
             for layer in self.getLayers():
-                self.initLayer(layer)
+                if self.getTLayer(layer.id(),False) is None:
+                    self.initLayer(layer)
 
     def getIface(self):
         return self._iface
@@ -527,6 +528,8 @@ class layerManager(QObject):
         if fid < 0:
             return
         layer = self._iface.activeLayer()
+        if layer is None:
+            return
         tLayer = self.getTLayer(layer.id())
         Log.debug("Feature Deleted " + str(fid))
         tLayer.restart()

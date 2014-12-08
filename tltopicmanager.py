@@ -242,7 +242,7 @@ class tlTopicManager(QDialog, QObject):
     def getWidget(self):
         pass
 
-    def getAttributes(self, layer, topicType):
+    def getAttributes(self, topicType):
         return []
 
     # Todo
@@ -271,7 +271,7 @@ class tlTopicManager(QDialog, QObject):
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
 
-    def beforeCommit(self,topicType,values):
+    def beforeCommit(self,tLayer,topicType,values):
         pass
 
     def formatPayload(self, topicType, payload):

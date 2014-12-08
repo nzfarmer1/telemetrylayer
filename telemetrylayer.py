@@ -56,6 +56,9 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
     """
 
     _this = None
+    
+    kBrokerSettingsTabId = 0
+    kBrokerListTabId = 1
 
     @staticmethod
     def _getQtBoxStateValue(state):
@@ -123,7 +126,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.logWarn.setCheckState(self._getQtBoxStateValue(logStates & Log.WARN))
         self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG))
         self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS))
-
+        self.brokerManagerWidget.setCurrentIndex(self.kBrokerListTabId)
         self._buildBrokerTable()
 
     def checkBrokerConfig(self):
@@ -208,21 +211,24 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         return None
 
     def _updateBroker(self, broker, groupClicked=False):
+        
         if self._brokerDlg is not None:
             self._brokerDlg.dockWidget.setVisible(False)
             self._brokerDlg = None
+        Log.debug("Update broker")
         self._brokerDlg = BrokerConfig(self, broker, False)
+        Log.debug("ok")
         self._brokerDlg.connectApply.clicked.connect(self._updateBrokerApply)
-        self._brokerDlg.connectCancel.clicked.connect(self._addBrokerCancel)
+        self._brokerDlg.connectClose.clicked.connect(self._updateBrokerClose)
         self.dockWidget.setFixedHeight(25)  # paramterise
         # self.dockWidget.setMaximumHeight(25) # paramterise
         if groupClicked:
-            self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kFeatureListTabId)
+            self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kBrokerConfigTabId) # was .kFeatureListTabId
         self.dockWidget.repaint()
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget)
 
     def dirty(self):
-        return self._brokerDlg is not None and self._brokerDlg.dirty()
+        return self._brokerDlg is not None and self._brokerDlg.isVisible() and self._brokerDlg.dirty()
 
     def apply(self):
         self._apply()
@@ -235,17 +241,29 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
 
     def _updateBrokerApply(self):
+        Log.debug("_updateBrokerApply")
         if not self._brokerDlg.validate():
             return
-        self._brokerDlg.dockWidget.setVisible(False)
-        self.dockWidget.setFixedHeight(self.height())  # paramterise
         broker = self._brokerDlg.getBroker()
+        #for key, val in broker.properties().iteritems():
+        #    Log.debug(key + " " + str(val))
         self._brokers.update(broker)
         self._brokers.sync(True)
-        self._buildBrokerTable()
+        broker.setDirty(False)
+        self._brokerDlg.connectApply.setEnabled(False)
+        Log.progress("Broker updated")
+       
+        #self._brokerDlg.dockWidget.setVisible(False)
+        #self.dockWidget.setFixedHeight(self.height())  # paramterise
+        #broker = self._brokerDlg.getBroker()
+        #self._brokers.update(broker)
+        #self._brokers.sync(True)
+        #self._buildBrokerTable()
 
 
     def _delBroker(self, broker):
+        if not Log.confirm("Are you sure you want to delete the broker " + broker.name() + " (Note: all related layers will be removed) " + broker.name() + "?" ):
+            return
         self._brokers.delete(broker)
         self._brokers.sync()
         self._buildBrokerTable()
@@ -257,7 +275,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         broker = self._brokers.create()
         self._brokerDlg = BrokerConfig(self, broker, True)
         self._brokerDlg.connectApply.clicked.connect(self._addBrokerApply)
-        self._brokerDlg.connectCancel.clicked.connect(self._addBrokerCancel)
+        self._brokerDlg.connectClose.clicked.connect(self._updateBrokerClose)
         self.dockWidget.setFixedHeight(25)  # paramterise
         # self.dockWidget.setMaximumHeight(25) # paramterise
         self.dockWidget.repaint()
@@ -274,12 +292,20 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self._brokers.update(broker)
         self._brokers.sync(True)
         self._buildBrokerTable()
+        self._brokerDlg.connectApply.setEnabled(False)
+        self.brokerManagerWidget.setCurrentIndex(self.kBrokerListTabId)
+          
         # update Table List
 
-    def _addBrokerCancel(self):
+    def _updateBrokerClose(self):
+        broker = self._brokerDlg.getBroker()
+        if broker.dirty():
+            if not Log.confirm("You have unsaved changes. Close anyway?"):
+                return
         self._brokerDlg.dockWidget.setVisible(False)
         self.dockWidget.setFixedHeight(self.height())  # paramterise
         self._brokers.load()
+        self.brokerManagerWidget.setCurrentIndex(self.kBrokerListTabId)
 
     def _visibilityChanged(self, state):
         if not state:

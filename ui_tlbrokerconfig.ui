@@ -88,7 +88,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep Alive values for MQTT Connection settings - default 60 seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Keep Alive values for MQTT Connection settings - default 60 seconds</string>
        </property>
        <item>
         <property name="text">
@@ -184,25 +184,6 @@
         <string>Seconds</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="connectPort">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>83</y>
-         <width>51</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port of MQTT Broker&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>1883</string>
-       </property>
-       <property name="maxLength">
-        <number>4</number>
-       </property>
-      </widget>
       <widget class="QPushButton" name="connectApply">
        <property name="geometry">
         <rect>
@@ -270,19 +251,6 @@
         <string>Password</string>
        </property>
       </widget>
-      <widget class="QLabel" name="connectPortLabel">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>67</y>
-         <width>31</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Port</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="connectUsernameLabel">
        <property name="geometry">
         <rect>
@@ -299,7 +267,7 @@
         <string>Username</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="connectCancel">
+      <widget class="QPushButton" name="connectClose">
        <property name="geometry">
         <rect>
          <x>68</x>
@@ -309,10 +277,10 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test and save the connection settings&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Close</string>
        </property>
        <property name="text">
-        <string>Cancel</string>
+        <string>Close</string>
        </property>
       </widget>
       <widget class="QLabel" name="connectPollLabel">
@@ -325,7 +293,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reconnect after how many seconds&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Reconnect after how many seconds</string>
        </property>
        <property name="text">
         <string>Polling</string>
@@ -341,7 +309,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test and save the connection settings&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Test and edit the connection settings</string>
        </property>
        <property name="text">
         <string>Help</string>
@@ -357,7 +325,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MQTT Broker Password&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>MQTT Broker Password</string>
        </property>
        <property name="inputMethodHints">
         <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
@@ -375,44 +343,6 @@
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
-      <widget class="QLabel" name="connectHostLabel">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>67</y>
-         <width>121</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Internet Host name or IP address of Farmsense Controller&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>Hostname</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="connectHost">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>83</y>
-         <width>131</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hostname of MQTT Broker&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="accessibleDescription">
-        <string/>
-       </property>
-       <property name="text">
-        <string>localhost</string>
-       </property>
-       <property name="maxLength">
-        <number>64</number>
-       </property>
-      </widget>
       <widget class="QLabel" name="connectTopicManagerLabel">
        <property name="geometry">
         <rect>
@@ -423,7 +353,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the Topic Manager. This is the module that manages available topics.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Set the Topic Manager. This is the module that manages available topics</string>
        </property>
        <property name="text">
         <string>Type</string>
@@ -439,7 +369,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the Topic Manager. This is the module that manages available topics.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Set the Topic Manager. This is the module that manages available topics</string>
        </property>
       </widget>
       <widget class="QLabel" name="connectKeepAliveLabel">
@@ -452,7 +382,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reconnect after how many seconds&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Reconnect after how many seconds</string>
        </property>
        <property name="text">
         <string>Keep Alive</string>
@@ -468,7 +398,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep Alive values for MQTT Connection settings - default 60 seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Keep Alive values for MQTT Connection settings - default 60 seconds</string>
        </property>
        <item>
         <property name="text">
@@ -491,62 +421,158 @@
         </property>
        </item>
       </widget>
-      <widget class="QLineEdit" name="connectHostAlt">
+      <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>110</y>
-         <width>131</width>
-         <height>21</height>
+         <x>20</x>
+         <y>63</y>
+         <width>231</width>
+         <height>82</height>
         </rect>
        </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you have an alternative host you wish to use with this broker, enter it here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="accessibleDescription">
+       <property name="title">
         <string/>
        </property>
-       <property name="text">
-        <string>localhost</string>
-       </property>
-       <property name="maxLength">
-        <number>64</number>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="connectPortAlt">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>110</y>
-         <width>51</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you have an alternative port you wish to use with this broker, enter it here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>1883</string>
-       </property>
-       <property name="maxLength">
-        <number>4</number>
-       </property>
-      </widget>
-      <widget class="QLabel" name="connectAltLabel">
-       <property name="geometry">
-        <rect>
-         <x>228</x>
-         <y>114</y>
-         <width>31</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you have an alternative host/port you wish to use with this broker, enter it here.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>Alt.</string>
-       </property>
+       <widget class="QRadioButton" name="connectDefault">
+        <property name="geometry">
+         <rect>
+          <x>5</x>
+          <y>19</y>
+          <width>21</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="connectAlt">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>45</y>
+          <width>21</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="connectPort">
+        <property name="geometry">
+         <rect>
+          <x>168</x>
+          <y>21</y>
+          <width>51</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port of MQTT Broker&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>1883</string>
+        </property>
+        <property name="maxLength">
+         <number>4</number>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="connectPortAlt">
+        <property name="geometry">
+         <rect>
+          <x>168</x>
+          <y>48</y>
+          <width>51</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>If you have an alternative port you wish to use with this broker, enter it here.</string>
+        </property>
+        <property name="text">
+         <string>1883</string>
+        </property>
+        <property name="maxLength">
+         <number>4</number>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="connectHostAlt">
+        <property name="geometry">
+         <rect>
+          <x>28</x>
+          <y>48</y>
+          <width>131</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>If you have an alternative host you wish to use with this broker, enter it here.</string>
+        </property>
+        <property name="accessibleDescription">
+         <string/>
+        </property>
+        <property name="text">
+         <string>localhost</string>
+        </property>
+        <property name="maxLength">
+         <number>64</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="connectHostLabel">
+        <property name="geometry">
+         <rect>
+          <x>28</x>
+          <y>5</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Internet Host name or IP address of MQTT Broker</string>
+        </property>
+        <property name="text">
+         <string>Hostname</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="connectPortLabel">
+        <property name="geometry">
+         <rect>
+          <x>168</x>
+          <y>5</y>
+          <width>31</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Port</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="connectHost">
+        <property name="geometry">
+         <rect>
+          <x>28</x>
+          <y>21</y>
+          <width>131</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Hostname of MQTT Broker</string>
+        </property>
+        <property name="accessibleDescription">
+         <string/>
+        </property>
+        <property name="text">
+         <string>localhost</string>
+        </property>
+        <property name="maxLength">
+         <number>64</number>
+        </property>
+       </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="tabFeatures">
@@ -570,15 +596,13 @@
  </widget>
  <tabstops>
   <tabstop>connectName</tabstop>
-  <tabstop>connectHost</tabstop>
-  <tabstop>connectPort</tabstop>
   <tabstop>connectUsername</tabstop>
   <tabstop>connectPassword</tabstop>
   <tabstop>connectPoll</tabstop>
   <tabstop>connectTest</tabstop>
   <tabstop>connectApply</tabstop>
   <tabstop>Tabs</tabstop>
-  <tabstop>connectCancel</tabstop>
+  <tabstop>connectClose</tabstop>
   <tabstop>connectHelp</tabstop>
  </tabstops>
  <resources/>

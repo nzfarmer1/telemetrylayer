@@ -100,6 +100,7 @@ class tLayer(MQTTClient):
 
             self.setBroker(_broker)
             self._topicType = self.get(self.kTopicType)
+
             #self._setFormatters()
 
         super(tLayer, self).__init__(self,
@@ -168,15 +169,18 @@ class tLayer(MQTTClient):
                 # called often and uses our own self.changeAttributeValue
                 # method so the overhead is very small
     
-                _topic = self._broker.topic(topic)
-                if _topic is not None:
-                    self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
-                else:
-                    Log.critical("Updated topic " + topic + " not found! Please refresh your topic manager")
-    
                 if topic is not None:
-                    Log.debug("Subscribing " + topic + " " + str(qos))
-                    self.subscribe(topic, qos)
+                    _topic = self._broker.topic(topic)
+                    if _topic is not None:
+                        self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
+                        Log.debug("Subscribing " + topic + " " + str(qos))
+                        self.subscribe(topic, qos)
+                    else:
+                        Log.critical("Updated topic " + topic + " not found! Please refresh your topic manager then re add the feature")
+                        #self._layer.startEditing()
+                        #self._layer.deleteFeature(feat.id())
+                        #self._layer.commitChanges()
+                   
             except TypeError:
                 Log.debug("Type Error")
                 pass
@@ -298,7 +302,7 @@ class tLayer(MQTTClient):
                 
 
                 self._layer.startEditing()
-                self._topicManager.beforeCommit(self.topicType,self._values)
+                self._topicManager.beforeCommit(self,self.topicType,self._values)
 
                 for key, val in self._values.iteritems():
                     fid, fieldId = key
@@ -343,7 +347,7 @@ class tLayer(MQTTClient):
         self.set(self.kTopicType, topicType)
         Log.debug("Getting topic manager" + str(broker.topicManager()))
         attributes = self.getAttributes() + \
-                     self._topicManager.getAttributes(self.layer(), topicType)
+                     self._topicManager.getAttributes(topicType)
 
         # Add Params
 
@@ -358,7 +362,7 @@ class tLayer(MQTTClient):
         # Configure Attributes
         self._layer.startEditing()
 
-        for i in range(9):
+        for i in range(Constants.reservedIdx):
             self._layer.setEditorWidgetV2(i, 'Hidden')
 
         self._layer.setEditorWidgetV2(Constants.qosIdx, 'ValueMap')
@@ -378,7 +382,7 @@ class tLayer(MQTTClient):
     def getAttributes(self):
 
         """
-        function getAttributes(self,layer dataProvider) => void
+        function getAttributes(self) => array of attributes
         Default handler for adding attributes
 
         # Todo
@@ -400,7 +404,9 @@ class tLayer(MQTTClient):
                                "Native value stored as POSIX (UTC) Time"),
                       QgsField("connected", QVariant.Int, "Broker is connected", 1, 0, "Valid only for visible layers"),
                       QgsField("visible", QVariant.Int, "Visible", 1, 0,
-                               "Feature is visible and can be rendered. Invisible layers available via Features Tab under Broker")]
+                               "Feature is visible and can be rendered. Invisible layers available via Features Tab under Broker"),
+                      QgsField("reserved", QVariant.Int, "Reserved", 1, 0,
+                               "Reserved for future use")]
 
         return attributes
 
@@ -472,7 +478,6 @@ class tLayer(MQTTClient):
         return feat
 
     def setBroker(self, broker, updateFeatures=True):
-        Log.debug("Updating broker object ")
         self._broker = broker  # update broker object
         self.setPoll(broker.poll())
         self.setHost(broker.host())
@@ -506,9 +511,8 @@ class tLayer(MQTTClient):
         return self._paused
 
     def resume(self):
-
-        if not self.isRunning():
-            Log.progress("Starting client")
+        if self._canRun() and not self.isRunning():
+            Log.progress("Starting MQTT client for " + self._broker.name() + " -> " + self.layer().name())
             self.run()
 
 
@@ -518,7 +522,6 @@ class tLayer(MQTTClient):
             self.kill()
 
     def refresh(self, state):
-        Log.debug("Refresh")
         if self._canRun():
             self.commitChanges()
         if state:

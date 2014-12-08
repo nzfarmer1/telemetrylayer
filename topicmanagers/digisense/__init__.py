@@ -2,7 +2,7 @@
 import os
 
 
-def classFactory():
+def classFactory(iface):
     from dstopicmanager import dsTopicManager
 
     return {"name": "DigiSense", "class": dsTopicManager}

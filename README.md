@@ -52,7 +52,7 @@ TODO:
 
 This is my top list. There's lots more of course!
 
-- add support for roll back/undo when adding/deleting/updating features
+- add support for roll back/undo when adding/deleting/updating features (Deleting done)
 - extend rules based renderer for layers with better examples
 - icons for symbols and application - including sensor state symbology
 - support to add / edit parameters as additional feature attributes (Done via Feature tab - server side changes only)
@@ -61,6 +61,10 @@ This is my top list. There's lots more of course!
 
 - set default broker config tab to be list of brokers
 - add details of broker port/host etc when selecting from list
+
+
+    
+        
 
 If you want to help with any of this, please get in touch!!!
 

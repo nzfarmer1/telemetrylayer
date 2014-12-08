@@ -133,6 +133,6 @@ class tlLogging(QObject):
             return
         QgsMessageLog.logMessage(str(msg),tlLogging.HEADER,QgsMessageLog.CRITICAL)
         if tlLogging._iface != None:
-                widget  = QtGui.QLabel(msg)
+                widget  = QtGui.QLabel(str(msg))
                 widget.setStyleSheet("QLabel {padding-left:40px;background-image:url(':/plugins/telemetrylayer/icons/icon.png');background-repeat:no-repeat; background-origin:left}")         
                 return tlLogging._iface.messageBar().pushWidget(widget,QgsMessageBar.CRITICAL,duration)

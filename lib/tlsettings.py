@@ -8,6 +8,8 @@
 from PyQt4.QtCore import QSettings, QObject
 import os.path
 from ConfigParser import ConfigParser
+from qgis.core import QgsProject
+
 
 from HTMLParser import HTMLParser
 
@@ -19,6 +21,7 @@ class tlConstants:
     Create =0
     Update =1
     Deleted =2
+    kPluginName = "TelemetryLayer"
 
     # AttributeIDs
     

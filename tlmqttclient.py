@@ -89,6 +89,10 @@ class MQTTClient(QtCore.QObject):
         self._thread = QThread(self)
         self._thread.started.connect(lambda: self._loopTimer.start(self._poll))
         self._thread.finished.connect(self._loopTimer.stop)
+
+        self._thread.started.connect(lambda:Log.debug("Thread started"))
+        self._thread.finished.connect(lambda:Log.debug("Thread stopped"))
+        self._thread.terminated.connect(lambda:Log.debug("Thread terminated"))
         self._restarting = False
         self.mqttc = mosquitto.Mosquitto(self._clientId, self._cleanSession)
         #        self.mqttc = paho.Client( self._clientId, self._cleanSession)
@@ -101,7 +105,7 @@ class MQTTClient(QtCore.QObject):
         self.mqttc.on_log = self.onLog
 
     def run(self):
-        Log.debug("MQTTClient Run")
+        Log.debug("MQTT Client Run")
 
         if self.isRunning() or self._killing:
             self.restart()
@@ -114,16 +118,14 @@ class MQTTClient(QtCore.QObject):
         self._thread.start(QThread.LowestPriority)
 
     def stop(self):
-        #  self._loopTimer.stop()
         self._thread.quit()  # emits finished
-        Log.debug("Thread stopped" + str(self.isRunning()))
+        Log.debug("Thread quit")
 
     def isRunning(self):
         return self._thread.isRunning()
 
     def _loop(self):
         self.loop()
-
 
     def setHost(self, host):
         self._host = host
@@ -152,6 +154,7 @@ class MQTTClient(QtCore.QObject):
         self.onConnect(mosq, obj, rc)
 
     def restart(self):
+        Log.debug("Restarting")
         if self.isRunning():
             self._restarting = True
             self._thread.finished.connect(self.run)
@@ -200,7 +203,7 @@ class MQTTClient(QtCore.QObject):
         return self.mqttc.socket() is not None and self._connected
 
     def publish(self, topic, msg, qos=0, retain=True):
-        self.mqttc.publish(str(topic), msg, int(qos), retain)
+        self.mqttc.publish(str(topic), msg, int(qos), retain)   
 
     def subscribe(self, topic, qos):
         if self.isConnected():
@@ -223,7 +226,6 @@ class MQTTClient(QtCore.QObject):
             if not self._killing:
                 self._connect()
             return
-
         try:
             connResult = self.mqttc.loop(timeout)
             if connResult != mosquitto.MOSQ_ERR_SUCCESS:
@@ -279,7 +281,7 @@ class MQTTClient(QtCore.QObject):
                 if not self._connected:
                     self._attempts += 1
         except Exception as e:
-            msg = 'MQTT Connection Error: ' + str(e)
+            msg = 'MQTT Connection Error: ' + str(e) + ' ' + self._host + ":" + str(self._port)
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, msg)
             Log.warn(msg)
             self._attempts += 1
