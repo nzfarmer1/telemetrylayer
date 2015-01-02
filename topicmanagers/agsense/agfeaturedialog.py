@@ -16,7 +16,9 @@ from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings, tlConstants as Constants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
+from TelemetryLayer.tlbrokers import tlBrokers as Brokers
 
+from agdevice import agDeviceList, agDevice, agParams, agParam
 from ui_agdatatabwidget import Ui_Form
 import os, zlib, datetime, json, numpy
 
@@ -254,15 +256,18 @@ class agParameterTable(QObject):
                 if param['widget'] == 'spinbox':
                     self._params.append(tlTableParamSpinBox(tblParam, tblParam.rowCount(), param, default))
         except KeyError as e:
-            Log.warn(e)
+            Log.warn("Error parsing configuration parameters " + str(e))
 
     def params(self):
         params = {}
         for param in self._params:
-            # Log.debug("Setting " + param.getName() + " to " + str(param.getValue()))
+            Log.debug("Setting " + param.getName() + " to " + str(param.getValue()))
             params[param.getName()] = param.getValue()
 
         return params
+    
+    def __iter__(self):
+        return self.params().iteritems()
 
 
 
@@ -336,35 +341,57 @@ class agConfigView(QObject):
     def __init__(self, tabs, tLayer, feature,params): # change to broker?
         super(agConfigView, self).__init__()
         self._tabs = tabs
-        self.pTable = None
+        self._feature = feature
+        self._broker = tLayer.getBroker()
         self._topicManager = tLayer.topicManager()
         self._params = params
+        self._pTable = None
+
         try:
-            self.pTable = agParameterTable(tabs.tblParams, params)
+            self._pTable = agParameterTable(tabs.tblParams, params)
             self._tabs.btnApply.clicked.connect(self._apply)
         except Exception as e:
             Log.debug("Error loading Configuration tab " + str(e))
 
-    def _applied(self):
-        pass
+    def _updateBroker(self,mqtt, status = True, msg = None):
+            if not status:
+                Log.warn(msg)
+                return
+            self._topicManager.setDevices(agDeviceList(msg.payload))
+            self._broker.setTopics(self._topicManager.getTopics())
+            Brokers.instance().update(self._broker)
+            Brokers.instance().sync(True)
+            self._broker.setDirty(False)
 
+    def _applied(self, mqtt, status = True, msg = None):
+        if status == False:
+            Log.critical("Unable to update configuration")
+        else:
+            Log.progress("Configuration updated")
+            Log.debug("Updating Devices")
+            self._topicManager._requestDevices(self._updateBroker)
+        pass
+    
     def _apply(self):
-        params = self.pTable.params()
-        payload = json.dumps({topic,})
-        request = "agsense/request/get"
         _client  = None
         try:
+            params = {"topic":self._feature['topic']}
+            for key,val in self._pTable:
+                params[key] = val
+            payload = json.dumps(params)
+            request = "agsense/request/set"
+            Log.progress("Updating configuration")
+        
             _client = tlMqttSingleShot(self,
-                                    self.tLayer.getBroker().host(),
-                                    self.getBroker().port(),
+                                    self._broker.host(),
+                                    self._broker.port(),
                                     request,
                                     ["agsense/response/set"],
                                     payload,
-                                    30)
-            QObject.connect(_client, QtCore.SIGNAL("mqttOnCompletion"), self._applied)
-            QObject.connect(_client, QtCore.SIGNAL("mqttConnectionError"), self._applied)
-            QObject.connect(_client, QtCore.SIGNAL("mqttOnTimeout"), self._applied)
-      
+                                    30,
+                                    0,
+                                    self._applied)
+            
             _client.run()
         except Exception as e:
             Log.debug("Error requesting list of devices " + str(e))

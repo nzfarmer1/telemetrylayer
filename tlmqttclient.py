@@ -314,7 +314,9 @@ class tlMqttSingleShot(MQTTClient):
                  subTopics=[],
                  pubData="",
                  keepalive=30,  # seconds
-                 qos=0):
+                 qos=0,
+                 callback = None,
+                 callbackonerr  =None):
 
         self._creator = creator
         self._pubTopic = pubTopic
@@ -325,6 +327,8 @@ class tlMqttSingleShot(MQTTClient):
         self._timer = QTimer()
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._connectError)
+        self._callback =callback
+        self._callbackonerr =callbackonerr
 
         super(tlMqttSingleShot, self).__init__(self,
                                                str(self),
@@ -338,6 +342,10 @@ class tlMqttSingleShot(MQTTClient):
     def _connectError(self, errormsg="Timeout waiting for the broker"):
         Log.debug('Connection Timeout')
         QObject.emit(self, SIGNAL('mqttOnCompletion'), self, False, errormsg)
+        if not self._callbackonerr is None:
+            self._callbackonerr(self,False,msg)
+        elif not self._callback is None:
+            self._callback(self,False,msg)
         self.kill()
 
     def run(self):
@@ -373,6 +381,8 @@ class tlMqttSingleShot(MQTTClient):
         self._timer.stop()
         mq.disconnect()
         QObject.emit(self, SIGNAL('mqttOnCompletion'), self, True, msg)
+        if not self._callback is None:
+            self._callback(self,True,msg)
 
 
 # Simple class for testing connections

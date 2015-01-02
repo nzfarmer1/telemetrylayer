@@ -52,6 +52,7 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class agTopicManager(tlTopicManager, Ui_agTopicManager):
     """
     Implementation of tlTopicManager
@@ -91,13 +92,24 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     def setupUi(self):
         super(agTopicManager, self).setupUi()
         self._buildDevicesTable("Loading Devices")
-        self._requestDevices()
+        self._requestDevices(self._updateDevices)
         self.devicesRefresh.clicked.connect(self._requestDevices)
 
-#        self._buildDevicesTables()
-#        self.devicesRefresh.clicked.connect(self._deviceMapsRefreshRPC)
-#        self.tableLogical.doubleClicked.connect(self._editTopicRow)
-#        self.deviceTabs.removeTab(agTopicManager.kDeviceTypesTabId)
+
+    def instance(self,topicType = None):
+        """
+        Return a possible subclassed instance of this topic manager
+        Works as a dynamic factory and supports backward compatability
+        For existing topic managers
+        
+        """
+        
+        if topicType is not None and topicType =='Tank':
+            return agTankTopicManager(self._broker)
+        return self
+
+    def setDevices(self,devices):
+        self._devices = devices
 
     def getDevices(self):
         return self._devices
@@ -109,18 +121,17 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         else:
             return super(agTopicManager, self).featureDialog(dialog, tLayer, featureId) 
 
-    def _error(self, mqtt, msg=""):
-        Log.warn(msg)
 
     def _updateDevices(self, mqtt, status = True, msg = None):
         if not status:
+            Log.warn(msg)
             return
         Log.debug("Updating Devices")
         Log.debug(msg.payload)
         self._devices = agDeviceList(msg.payload)
         self._buildDevicesTable()
 
-    def _requestDevices(self):
+    def _requestDevices(self,callback):
         request = "agsense/request/list"
         _client  = None
         try:
@@ -131,10 +142,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
                                     request,
                                     ["agsense/response/list"],
                                     "",
-                                    30)
-            QObject.connect(_client, QtCore.SIGNAL("mqttOnCompletion"), self._updateDevices)
-            QObject.connect(_client, QtCore.SIGNAL("mqttConnectionError"), self._error)
-            QObject.connect(_client, QtCore.SIGNAL("mqttOnTimeout"), self._error)
+                                    30,
+                                    0,
+                                    callback)
 
             Log.progress("Requesting devices list")
             _client.run()
@@ -189,6 +199,8 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
     def validate(self):
         return True
+
+        
 
 
     def _buildDevicesTable(self,msg  = ""):
@@ -269,7 +281,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             palyr.placement = QgsPalLayerSettings.OverPoint
             palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
             palyr.yOffset = 0.01
-            palyr.fieldName = '$agsense_format_label'
+            palyr.fieldName = '$format_label'
             palyr.writeToLayer(layer)
         except Exception as e:
             Log.debug("Error setting Format " + str(e))
@@ -301,3 +313,21 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
 
     
+class agTankTopicManager(agTopicManager, Ui_agTopicManager):
+    def __init__(self, broker):
+        super(agTopicManager, self).__init__(broker, False)
+        self._broker = broker
+        pass
+
+    def setLabelFormatter(self, layer, topicType):
+        try:
+            palyr = QgsPalLayerSettings()
+            palyr.readFromLayer(layer)
+            palyr.enabled = True
+            palyr.placement = QgsPalLayerSettings.OverPoint
+            palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
+            palyr.yOffset = 0.01
+            palyr.fieldName = '$agsense_format_label'
+            palyr.writeToLayer(layer)
+        except Exception as e:
+            Log.debug("Error setting Format " + str(e))

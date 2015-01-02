@@ -373,10 +373,9 @@ class tLayer(MQTTClient):
 
         self._layer.setEditorWidgetV2(Constants.topicIdx, 'ValueMap')
         self.brokerUpdated()
-
-        self._topicManager.setLabelFormatter(self._layer, self._topicType)
-        self._topicManager.setLayerStyle(self._layer, self._topicType)
-        self._topicManager.setFeatureForm(self._layer, self._topicType)
+        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer, self._topicType)
+        self._topicManager.instance(self.topicType()).setLayerStyle(self._layer, self._topicType)
+        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer, self._topicType)
         self._layer.commitChanges()
 
     def getAttributes(self):

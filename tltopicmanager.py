@@ -69,6 +69,9 @@ class tlFeatureDialog(QObject):
 
         self._tLayer.featureUpdated.connect(self._update)
         self.update()
+    
+    def instance(self,topicType =None):
+        return self
 
     def _update(self, tLayer, feature):
         if feature.id() == self._feature.id():
