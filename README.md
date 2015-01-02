@@ -60,7 +60,9 @@ This is my top list. There's lots more of course!
 - replace mosquitto client with paho.Client
 
 - set default broker config tab to be list of brokers
-- add details of broker port/host etc when selecting from list
+- add details of broker port/host etc when creating new layer
+- ensure topics can only be added as a feature once?
+- linux testing of custom feature form
 
 
     

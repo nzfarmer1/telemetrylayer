@@ -6,7 +6,7 @@ def format_label(values, feature, parent):
     result = "No data"
     try:
         visible = int(feature.attribute('visible'))
-        if visible == 0:
+        if visible == 0:    
             result = ""
         else:
             result = str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'

@@ -330,7 +330,7 @@ class tlMqttSingleShot(MQTTClient):
                                                str(self),
                                                host,
                                                port,
-                                               0,  # qos
+                                               qos,  # qos
                                                1,  # poll
                                                self._keepalive)  # keep alive
 

@@ -292,7 +292,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
         super(dsDeviceMapDialog, self).setupUi(self)
         try:
             self._deviceTypes = self._creator.getDeviceTypes()
-            self._devicesMaps = self._creator.getDeviceMapsRPC()
+            self._devicesMaps = self._creator.getDeviceMaps()
             Log.debug("Device Key = " + self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setText(self._deviceMap.getDeviceKey())
             self.deviceKeyLabel.setToolTip(self._deviceMap.getDeviceKey())
@@ -320,11 +320,10 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
 
             if self.mode == tlConstants.Create:
                 self.name.textEdited.connect(self.nameChanged)
-                self.deleteButton.hide()
             elif self.mode == tlConstants.Update:
                 self.topic.setDisabled(True)
                 self.deviceType.setDisabled(True)
-                self.deleteButton.clicked.connect(self.validateDeleteRPC)
+                self.closeButton.clicked.connect(self.accept)
 
 
         except Exception as e:
@@ -367,35 +366,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             self.paramTable = dsParameterTable(self._deviceMap, self._curDeviceIdx, self.parameterTable, self.mode)
 
 
-        # Validate deletion of a Device Map
-
-    def validateDeleteRPC(self, status):
-        if self._creator.isDemo():
-            Log.progress("Demo mode - no changes can be applied")
-            self.dirty = False
-            self.accept()
-            return
-
-        msg = "Are you sure you want to delete this mapping?  Please note you will need to edit/delete any features that use this Topic"
-        if not Log.confirm(msg):
-            return
-
-        try:
-            s = RPCProxy(self._broker.host(), 8000).connect()
-            Log.debug(self._deviceMap.dumps())
-            if s.delMap(str(self._deviceMap.getTopic())):
-                Log.progress("Device map deleted")
-                self.dirty = True
-                self.accept()
-            else:
-                Log.critical("There was an error deleting this device map")
-            self.mode = tlConstants.Deleted
-        except:
-            Log.debug("Error deleting map: " + str(e))
-
     # Apply changes to individual map
-
-
 
     def validateApplyRPC(self, status):
         Log.debug("Apply RPC")
@@ -424,7 +395,7 @@ class dsDeviceMapDialog(QtGui.QDialog, Ui_dsDeviceMapDialog):
             if s.setMap(self._deviceMap.dumps()):
                 Log.progress("Device map updated")
                 self.dirty = True
-                self.accept()
+               # self.accept()
             else:
                 Log.critical("There was an error updating this device map")
 

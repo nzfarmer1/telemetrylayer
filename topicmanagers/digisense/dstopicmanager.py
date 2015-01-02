@@ -146,7 +146,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _editTopicRow(self, modelIdx):
         item = self.tableLogical.item(modelIdx.row(), 0)
-        self.handleButton(item.data(0))
+        self._handleUpdateButton(item.data(0))
 
     def getWidget(self):
         self.setupUi()
@@ -156,8 +156,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         topics = []
         if self._deviceMaps is None:
             return []
-        for deviceKey, device in self._deviceMaps:
-            devicemap = DeviceMap.loads(device)
+        for devicemap in self._deviceMaps:
             if not devicemap.isMapped():
                 continue
             dtype = self.getDeviceType(devicemap)
@@ -186,13 +185,13 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._deviceTypes = self._loadDeviceTypesRPC()
         return self._deviceTypes
 
-    def getDeviceMapsRPC(self, refresh=False):
+    def getDeviceMaps(self, refresh=False):
         if self._deviceMaps and not refresh:
             return self._deviceMaps
         try:
             Log.debug("Refreshing Device Maps")
             s = RPCProxy(self._broker.host(), 8000).connect()
-            self._deviceMaps = DeviceMaps().decode(s.getDeviceMapsRPC())
+            self._deviceMaps = DeviceMaps().loads(s.getDeviceMapsRPC())
         except Exception as e:
             Log.progress("Error loading device maps from server")
         finally:
@@ -202,8 +201,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def getDeviceMap(self, topic):
         d = None
-        for deviceKey, device in self.getDeviceMaps():
-            d = DeviceMap.loads(device)
+        for d in self.getDeviceMaps():
             if d.getTopic() == topic:
                 dMap = d
                 break
@@ -257,7 +255,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildLogicalDevicesTable(self):
         Log.debug('building logical devices')
-        devicemaps = self.getDeviceMapsRPC()
+        devicemaps = self.getDeviceMaps()
         tbl = self.tableLogical
 
         columns = ["Type", "Name", "Topic"]
@@ -274,9 +272,7 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
         row = 0
 
-        for deviceKey, device in devicemaps:
-
-            devicemap = DeviceMap.loads(device)
+        for devicemap in devicemaps:
             if not devicemap.isMapped():
                 continue
 
@@ -311,12 +307,12 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
 
     def _buildPhysicalDevicesTable(self):
         Log.debug('building physical devices')
-        columns = ["Address (Lo)", "Type", "Pin", "Map"]
+        columns = ["Address (Lo)", "Type", "Pin", "Map",""]
         tbl = self.tablePhysical
         tbl.clear()
         tbl.setRowCount(0)
         tbl.setStyleSheet("font: 10pt \"System\";")
-        tbl.setRowCount(len(self.getDeviceMapsRPC()))
+        tbl.setRowCount(len(self.getDeviceMaps()))
         tbl.setColumnCount(len(columns))
         tbl.setColumnWidth(30, 30)  # ?
         tbl.setHorizontalHeaderLabels(columns)
@@ -326,10 +322,8 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
         tbl.setSelectionMode(QAbstractItemView.SingleSelection)
         row = 0
-        for deviceKey, device in self.getDeviceMaps():
-
-            devicemap = DeviceMap.loads(device)
-
+        for devicemap in self.getDeviceMaps():
+        
             addrHigh = devicemap.getAddrLow()
             # addrHigh = addrHigh.replace(' ','-')
 
@@ -353,31 +347,47 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             #item.setFlags(Qt.ItemIsSelectable)
             #tbl.setItem(row,3,item)
 
-            button = QtGui.QPushButton('Test', self)
+            button1 = QtGui.QPushButton('Test', self)
+            button2 = QtGui.QPushButton('Test', self) 
 
-            button.clicked.connect(self._callback(devicemap), 3)
+            button1.clicked.connect(self._callback(devicemap,Constants.Update), 3)
             if devicemap.getDeviceTypeId() is not None:
-                button.setText('Edit')
-                button.setToolTip("Configure paramaters")
+                button1.setText('Edit')
+                button1.setToolTip("Configure paramaters")
             else:
-                button.setText('Map')
-                button.setToolTip("Map device to a Topic and configure")
+                button1.setText('Map')
+                button1.setToolTip("Map device to a Topic and configure")
 
-            tbl.setCellWidget(row, 3, button)
+            tbl.setCellWidget(row, 3, button1)
+
+            button2.clicked.connect(self._callback(devicemap,Constants.Deleted), 3)
+            if devicemap.getDeviceTypeId() is not None:
+                button2.setText('Del.')
+                button2.setToolTip("Delete Mapping")
+            else:
+                button2.setText('Del.')
+                button2.setEnabled(False)
+                button2.setToolTip("Delete Mapping")
+
+            tbl.setCellWidget(row, 4, button2)
 
             row += 1
 
         tbl.setColumnWidth(0, 80)
         tbl.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
         tbl.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-        tbl.setColumnWidth(4, 55)
+        tbl.setColumnWidth(3, 50)
+        tbl.setColumnWidth(4, 50)
         self.devicesRefresh.setEnabled(True)
 
     # trick to setup multiple callbacks in a control loop
-    def _callback(self, param):
-        return lambda: self.handleButton(param)
+    def _callback(self, param,f):
+        if f == Constants.Update:
+            return lambda: self._handleUpdateButton(param)
+        if f == Constants.Deleted:
+            return lambda: self._handleDeleteButton(param)
 
-    def handleButton(self, devicemap):
+    def _handleUpdateButton(self, devicemap):
         deviceMapDialog = DeviceMapDialog(self, devicemap)
         result = deviceMapDialog.exec_()
         if result == 1 and deviceMapDialog.dirty:
@@ -385,6 +395,20 @@ class dsTopicManager(tlTopicManager, Ui_dsTopicManager):
             self._deviceMapsRefreshRPC()
         pass
 
+    def _handleDeleteButton(self, devicemap):
+        msg = "Are you sure you want to delete this mapping?  Please note you will need to edit/delete any features that use this Topic"
+        if not Log.confirm(msg):
+            return
+
+        try: #wrap all proxy calls in a method with improved error handling
+            s = RPCProxy(self._broker.host(), 8000).connect()
+            s.delMap(str(devicemap.getTopic()))
+            Log.progress("Device map deleted")
+            self._deviceMapsRefreshRPC()
+        except Exception as e:
+            Log.debug("Error deleting map: " + str(e))
+        
+        pass
 
     def _buildDeviceTypesTable(self):
         devicetypes = self.getDeviceTypes()

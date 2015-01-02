@@ -66,14 +66,12 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
 
     @staticmethod
     def register():
-        Log.debug("Generoic Register")
+        Log.debug("Generic Register")
 
         path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
         imp.load_source('qgsfuncs', path)
 
         # from qgsfuncs import format_label
-        print "oxkx" + path
-        Log.debug("OK")
         pass
 
 

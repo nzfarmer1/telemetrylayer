@@ -105,6 +105,19 @@
     <string>Apply</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="closeButton">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>310</y>
+     <width>101</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </widget>
   <widget class="QLineEdit" name="topic">
    <property name="geometry">
     <rect>
@@ -199,19 +212,6 @@
    <attribute name="verticalHeaderHighlightSections">
     <bool>false</bool>
    </attribute>
-  </widget>
-  <widget class="QPushButton" name="deleteButton">
-   <property name="geometry">
-    <rect>
-     <x>49</x>
-     <y>310</y>
-     <width>121</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Delete Mapping</string>
-   </property>
   </widget>
   <widget class="QTextEdit" name="deviceKeyLabel">
    <property name="geometry">
