@@ -93,7 +93,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         super(agTopicManager, self).setupUi()
         self._buildDevicesTable("Loading Devices")
         self._requestDevices(self._updateDevices)
-        self.devicesRefresh.clicked.connect(self._requestDevices)
+        self.devicesRefresh.clicked.connect(lambda: self._requestDevices(self._updateDevices))
 
 
     def instance(self,topicType = None):

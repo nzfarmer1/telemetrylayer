@@ -327,9 +327,15 @@ class tlMqttSingleShot(MQTTClient):
         self._timer = QTimer()
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._connectError)
-        self._callback =callback
-        self._callbackonerr =callbackonerr
+        self._callback = None
+        self._callbackonerr = None
 
+        if 'method' in str(type(callback)):
+            self._callback = callback
+            
+        if 'method' in str(type(callbackonerr)):
+            self._callbackonerr = callbackonerr
+        
         super(tlMqttSingleShot, self).__init__(self,
                                                str(self),
                                                host,
