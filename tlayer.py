@@ -347,7 +347,7 @@ class tLayer(MQTTClient):
         self.set(self.kTopicType, topicType)
         Log.debug("Getting topic manager" + str(broker.topicManager()))
         attributes = self.getAttributes() + \
-                     self._topicManager.getAttributes(topicType)
+                     self._topicManager.instance(topicType).getAttributes()
 
         # Add Params
 
@@ -373,9 +373,17 @@ class tLayer(MQTTClient):
 
         self._layer.setEditorWidgetV2(Constants.topicIdx, 'ValueMap')
         self.brokerUpdated()
-        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer, self._topicType)
-        self._topicManager.instance(self.topicType()).setLayerStyle(self._layer, self._topicType)
-        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer, self._topicType)
+
+        self._layer.commitChanges()
+
+        self._layer.startEditing()
+        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
+        self._layer.commitChanges()
+        self._layer.startEditing()
+        self._topicManager.instance(self.topicType()).setLayerStyle(self._layer)
+        self._layer.commitChanges()
+        self._layer.startEditing()
+        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
         self._layer.commitChanges()
 
     def getAttributes(self):

@@ -43,6 +43,7 @@ class tlFeatureDialog(QObject):
         self._feature = feature
         self._editable = dialog.editable()
         self._widgets = {}
+        self._open =True
 
         super(tlFeatureDialog, self).__init__()
 
@@ -70,7 +71,7 @@ class tlFeatureDialog(QObject):
         self._tLayer.featureUpdated.connect(self._update)
         self.update()
     
-    def instance(self,topicType =None):
+    def instance(self,topicType):
         return self
 
     def _update(self, tLayer, feature):
@@ -101,6 +102,8 @@ class tlFeatureDialog(QObject):
 
 
     def update(self):  # check if current tab!
+        if not self._open:
+            return
         try:
             if hasattr(self.updated, "setText"):
                 updated = self._feature['updated']
@@ -117,9 +120,11 @@ class tlFeatureDialog(QObject):
 
 
     def validate(self):
+        self._open =False
         self.accept()
 
     def clicked(self):
+        self._open =False
         self.accept()
 
 
@@ -163,8 +168,7 @@ class tlFeatureDialog(QObject):
 
 
     def accept(self):
-        Log.debug("xAccept")
-        #self._dialog.accept()
+        self._open = False
         
 
 
@@ -245,14 +249,14 @@ class tlTopicManager(QDialog, QObject):
     def getWidget(self):
         pass
 
-    def getAttributes(self, topicType):
+    def getAttributes(self, topicType =None):
         return []
 
     # Todo
     # Label not showing in Windows initially
     # Add symbols (rules based)
 
-    def setLabelFormatter(self, layer, topicType):
+    def setLabelFormatter(self, layer):
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
         palyr.enabled = True
@@ -265,7 +269,7 @@ class tlTopicManager(QDialog, QObject):
         layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
-    def setFeatureForm(self, layer, topicType):
+    def setFeatureForm(self, layer):
         _form = os.path.join(TelemetryLayer.path(), "topicmanagers", "ui_tleditfeature.ui")
         if os.path.isfile(_form):
             Log.debug("setEditForm = " + _form)

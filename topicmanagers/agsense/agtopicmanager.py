@@ -38,6 +38,8 @@ from agdevice import agDeviceList, agDevice, agParams, agParam
     
 import os, zlib, datetime, json,imp
 
+import tank
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -103,10 +105,16 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         For existing topic managers
         
         """
-        
-        if topicType is not None and topicType =='Tank':
-            return agTankTopicManager(self._broker)
-        return self
+        if topicType is not None:
+            try:
+                module = __import__(topicType.lower())
+                return module.getClass(self._broker)
+            except ImportError:
+                return self
+            except Exception as e:
+                Log.debug(e)
+        else:
+            return self
 
     def setDevices(self,devices):
         self._devices = devices
@@ -116,9 +124,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
     def featureDialog(self, dialog, tLayer, featureId):
         # Check tLayer.topicType type
-        if tLayer.topicType() == 'Tank':
-            return FeatureDialog(dialog, tLayer, featureId)
-        else:
             return super(agTopicManager, self).featureDialog(dialog, tLayer, featureId) 
 
 
@@ -127,7 +132,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             Log.warn(msg)
             return
         Log.debug("Updating Devices")
-        Log.debug(msg.payload)
         self._devices = agDeviceList(msg.payload)
         self._buildDevicesTable()
 
@@ -266,14 +270,8 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         tbl.horizontalHeader().setStretchLastSection(True)
 
 
-    def getAttributes(self, topicType):
-        attributes = []
-        if topicType == 'Tank':  # Consider adding an <Alerts><Alert .. tag(s) each with their own lamda functions
-            attributes = [QgsField("alert", QVariant.Int, "Alert", 0, 0, "Low water alert level")]
 
-        return attributes
-
-    def setLabelFormatter(self, layer, topicType):
+    def setLabelFormatter(self, layer):
         try:
             palyr = QgsPalLayerSettings()
             palyr.readFromLayer(layer)
@@ -286,7 +284,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         except Exception as e:
             Log.debug("Error setting Format " + str(e))
 
-    def setLayerStyle(self, layer, topicType):
+    def setLayerStyle(self, layer):
         if not self.path() in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
@@ -311,23 +309,3 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     def __del__(self):
         QObject.disconnect(self, SIGNAL("deviceMapsRefreshed"), self._buildDevicesTables)
 
-
-    
-class agTankTopicManager(agTopicManager, Ui_agTopicManager):
-    def __init__(self, broker):
-        super(agTopicManager, self).__init__(broker, False)
-        self._broker = broker
-        pass
-
-    def setLabelFormatter(self, layer, topicType):
-        try:
-            palyr = QgsPalLayerSettings()
-            palyr.readFromLayer(layer)
-            palyr.enabled = True
-            palyr.placement = QgsPalLayerSettings.OverPoint
-            palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
-            palyr.yOffset = 0.01
-            palyr.fieldName = '$agsense_format_label'
-            palyr.writeToLayer(layer)
-        except Exception as e:
-            Log.debug("Error setting Format " + str(e))

@@ -176,8 +176,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                     #Log.debug(tLayer)
                     #Log.debug(tLayer.topicType())
                     #Log.debug(feature)
-                    text = QVariant(_topicManager.formatPayload(tLayer.topicType(), feature['payload']))
-                    item.setText(text)
+                    #text = QVariant(_topicManager.formatPayload(tLayer.topicType(), feature['payload']))
+                    #item.setText(text)
+                    pass
 
 
     def _updateFeatureList(self, fid=None):
@@ -501,9 +502,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
         QObject.disconnect(mqtt, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)
         QObject.disconnect(mqtt, QtCore.SIGNAL("mqttConnectionError"), self._connectError)
-        Log.progressPop("Testing Connection")
-        Log.progress(msg)
-        Log.debug(msg)
+ #       Log.progressPop("Testing Connection")
+#        Log.progress(msg)
+#        Log.debug(msg)
         mqtt.kill()
         if self.getTested():
             self.setTested(False)

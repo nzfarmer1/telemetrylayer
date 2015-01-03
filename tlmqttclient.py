@@ -313,7 +313,7 @@ class tlMqttSingleShot(MQTTClient):
                  pubTopic,
                  subTopics=[],
                  pubData="",
-                 keepalive=30,  # seconds
+                 keepalive=10,  # seconds
                  qos=0,
                  callback = None,
                  callbackonerr  =None):

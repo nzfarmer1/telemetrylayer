@@ -63,7 +63,7 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
         return super(tlFileTopicManager, self).getTopics(self._topics)  # Merge System topics
 
 
-    def setLabelFormatter(self, layer, topicType):
+    def setLabelFormatter(self, layer):
         Log.debug("setFormatter")
         palyr = QgsPalLayerSettings()
         palyr.readFromLayer(layer)
@@ -74,7 +74,7 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
         palyr.fieldName = '$format_label'
         palyr.writeToLayer(layer)
 
-    def setLayerStyle(self, layer, topicType):
+    def setLayerStyle(self, layer):
         if not self.path() in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))

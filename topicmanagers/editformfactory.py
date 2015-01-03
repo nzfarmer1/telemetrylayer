@@ -43,7 +43,7 @@ def featureDialog(dialog, layer, feature):
     try:
         # layer.startEditing() # Doesn't work
         tLayer = this.layerManager.getTLayer(layer.id())
-        myDialogHandler = tLayer.topicManager().featureDialog(dialog, tLayer, feature)
+        myDialogHandler = tLayer.topicManager().instance(tLayer.topicType()).featureDialog(dialog, tLayer, feature)
         myDialogHandler.show()
     except Exception as e:
         Log.debug("Problem loading custom feature dialog for " + layer.name())
