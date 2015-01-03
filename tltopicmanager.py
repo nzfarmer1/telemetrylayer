@@ -111,7 +111,7 @@ class tlFeatureDialog(QObject):
                 changed = self._feature['changed']
                 self.changed.setText(str(self._since(int(changed))))
             if hasattr(self.payload, "setText"):
-                payload = self.topicManager.formatPayload(self.topicType, self._feature['payload'])
+                payload = self.topicManager.instance(self._tLayer.topicType()).formatPayload(self._feature['payload'])
                 self.payload.setText(str(payload))
         except Exception as e:
             Log.debug(str(e))
@@ -280,7 +280,7 @@ class tlTopicManager(QDialog, QObject):
     def beforeCommit(self,tLayer,topicType,values):
         pass
 
-    def formatPayload(self, topicType, payload):
+    def formatPayload(self, payload):
         return str(payload)
 
     def path(self, _class=None):

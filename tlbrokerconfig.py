@@ -278,7 +278,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kFeatureNameCol, item)
 
-                item = QtGui.QLabel(_topicManager.formatPayload(tLayer.topicType(), feature['payload']))
+                item = QtGui.QLabel(_topicManager.instance(tLayer.topicType()).formatPayload(feature['payload']))
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kPayloadCol, item)

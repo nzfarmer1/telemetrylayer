@@ -99,7 +99,7 @@ class tlLogging(QObject):
             del tlLogging._pstack[msg] 
 
     @staticmethod
-    def progress(msg,duration = 5,level = QgsMessageBar.INFO):
+    def progress(msg,duration = 3,level = QgsMessageBar.INFO):
         if tlLogging._iface != None:
                 widget  = QtGui.QLabel(str(msg))
                 widget.setStyleSheet("QLabel {padding-left:40px;padding-top:50px;padding-bottom:50px;background-image:url(':/plugins/telemetrylayer/icons/southweb.png');background-repeat:no-repeat; background-origin:left}")         

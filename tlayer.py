@@ -231,6 +231,9 @@ class tLayer(MQTTClient):
 
         except Exception as e:
             Log.critical("MQTT Client - Error updating features! " + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                      exc_traceback)))
 
     def updateFeature(self, feat, topic, payload):
         self._dirty = True
@@ -238,7 +241,7 @@ class tLayer(MQTTClient):
         if zlib.crc32(_payload) == zlib.crc32(payload):  # no change
             self.changeAttributeValue(feat.id(), Constants.updatedIdx, int(time.time()), False)
         else:
-            fmt = self._topicManager.formatPayload(self._topicType, payload)
+            fmt = self._topicManager.instance(self.topicType()).formatPayload(payload)
             Log.status("Telemetry Layer " + self._broker.name() + ":" + self._layer.name() + ":" + feat.attribute(
                 "name") + ": now " + fmt)
             self.changeAttributeValue(feat.id(), Constants.payloadIdx, payload, False)

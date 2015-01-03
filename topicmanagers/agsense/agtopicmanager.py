@@ -203,9 +203,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     def validate(self):
         return True
 
-        
-
-
     def _buildDevicesTable(self,msg  = ""):
         devices = self.getDevices()
         tbl = self.tableDevices
@@ -268,8 +265,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         tbl.resizeColumnsToContents()
         tbl.horizontalHeader().setStretchLastSection(True)
 
-
-
     def setLabelFormatter(self, layer):
         try:
             palyr = QgsPalLayerSettings()
@@ -288,6 +283,8 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
 
+    def formatPayload(self, payload):
+        return str(payload)
 
     @staticmethod
     def register():
@@ -298,12 +295,14 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
         # from qgsfuncs import format_label
         pass
+    
+    
 
 
     @staticmethod
     def unregister():
-        if QgsExpression.isFunctionName("$format_label"):
-            QgsExpression.unregisterFunction("$format_label")
+        if QgsExpression.isFunctionName("$agsense_format_label"):
+            QgsExpression.unregisterFunction("$agsense_format_label")
 
     def __del__(self):
         QObject.disconnect(self, SIGNAL("deviceMapsRefreshed"), self._buildDevicesTables)

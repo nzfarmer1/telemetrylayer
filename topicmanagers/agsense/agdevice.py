@@ -244,7 +244,7 @@ class agDeviceList:
     
     def __len__(self):
         return len(self.devices)
-        
+            
 
 if __name__ == '__main__':
     print "Testing " + sys.argv[0] + " with " +  sys.argv[1]
