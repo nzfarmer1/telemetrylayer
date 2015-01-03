@@ -162,24 +162,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def mode(self):
         return self._mode
 
-    def _updateFeatureListItem(self, tLayer, feature):
-        if self.dockWidget.isVisible() and self.Tabs.currentIndex() == self.kFeatureListTabId:
-            _topicManager = topicManagerFactory.getTopicManager(tLayer.getBroker())
-            key = (tLayer.layer().id(), feature.id())
-            if not key in self._featureListItems:
-                self._loadFeatureList()
-            if key in self._featureListItems:
-                row = self._featureListItems[key]
-                item = self.tableFeatureList.cellWidget(row, kPayloadCol)  # Add a constant!
-                if item and _topicManager:
-                    # Log.debug(_topicManager)
-                    #Log.debug(tLayer)
-                    #Log.debug(tLayer.topicType())
-                    #Log.debug(feature)
-                    #text = QVariant(_topicManager.formatPayload(tLayer.topicType(), feature['payload']))
-                    #item.setText(text)
-                    pass
-
 
     def _updateFeatureList(self, fid=None):
         if self.dockWidget.isVisible() and self.Tabs.currentIndex() == self.kFeatureListTabId:

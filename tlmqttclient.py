@@ -105,7 +105,7 @@ class MQTTClient(QtCore.QObject):
         self.mqttc.on_log = self.onLog
 
     def run(self):
-        Log.debug("MQTT Client Run")
+        Log.debug("MQTT client run")
 
         if self.isRunning() or self._killing:
             self.restart()

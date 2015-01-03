@@ -283,7 +283,7 @@ class layerManager(QObject):
 
     def brokersLoaded(self, changed=[]):
         remove = []
-        Log.debug("Brokers Loaded")
+        Log.debug("Brokers loaded")
         for lid, tLayer in self.getTLayers().iteritems():
             old_broker = tLayer.getBroker()
             broker = Brokers.instance().find(old_broker.id())

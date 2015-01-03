@@ -95,7 +95,6 @@ class tlFeatureDialog(QObject):
 
     def _addTab(self, widget, title, idx):
         tabWidget = self._find(QTabWidget, 'tabWidget')  # Remove History Tab!
-        Log.debug(str(self) + " add Tab " + str(widget) + str(tabWidget.count()))
         if tabWidget.count() < idx + 1:
             tabWidget.addTab(widget, title)
         pass

@@ -183,7 +183,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
                            'units':device.units(),
                            'type' :device.op(),
                            'params':device.params().dump()})
-        Log.debug(json.dumps(topics))    
         return super(agTopicManager, self).getTopics(topics)  # Merge System topics
 
     def getBroker(self):
