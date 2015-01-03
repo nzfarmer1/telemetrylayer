@@ -148,10 +148,10 @@ class MQTTClient(QtCore.QObject):
     def getClientId(self):
         return self._clientId
 
-    def on_connect(self, mosq, obj,flags, rc):
+    def on_connect(self, mqtt, obj,flags, rc):
         self._connected = True
         self._attempts = 0
-        self.onConnect(mosq, obj, rc)
+        self.onConnect(mqtt, obj, rc)
 
     def restart(self):
         Log.debug("Restarting")
@@ -164,38 +164,38 @@ class MQTTClient(QtCore.QObject):
             self.run()
 
 
-    def on_disconnect(self, mosq, obj, rc):
+    def on_disconnect(self, mqtt, obj, rc):
         Log.debug("disconnecting rc: " + str(rc) + " " + str(self._connected))
         #        self._connected = False
         if self._killing:
             Log.debug("killing")
             self._kill()
-        self.onDisConnect(mosq, obj, rc)
+        self.onDisConnect(mqtt, obj, rc)
         self._attempts = 0
         self._connected = False
 
-    def onConnect(self, mosq, obj, rc):
+    def onConnect(self, mqtt, obj, rc):
         QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
         pass
 
-    def onDisConnect(self, mosq, obj, rc):
+    def onDisConnect(self, mqtt, obj, rc):
         QObject.emit(self, SIGNAL('mqttOnDisConnect'), self, obj, rc)
         pass
 
 
-    def onMessage(self, mosq, obj, msg):
+    def onMessage(self, mqtt, obj, msg):
         QObject.emit(self, SIGNAL('mqttOnMessage'), self, obj, msg)
         # Log.debug('super ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
-    def onPublish(self, mosq, obj, mid):
+    def onPublish(self, mqtt, obj, mid):
         QObject.emit(self._creator, SIGNAL('mqttOnPublish'), self, obj, mid)
         Log.debug("mid: " + str(mid))
 
-    def onSubscribe(self, mosq, obj, mid, granted_qos):
+    def onSubscribe(self, mqtt, obj, mid, granted_qos):
         QObject.emit(self, SIGNAL('mqttOnSubscribe'), self, obj, mid, granted_qos)
         Log.info("Subscribed: " + str(mid) + " " + str(granted_qos))
 
-    def onLog(self, mosq, obj, level, string):
+    def onLog(self, mqtt, obj, level, string):
         QObject.emit(self, SIGNAL('mqttOnLog'), string, level)
         #Log.debug(string,level)
 
@@ -363,8 +363,8 @@ class tlMqttSingleShot(MQTTClient):
         QObject.connect(self, SIGNAL("mqttOnTimeout"), self._connectError)
         super(tlMqttSingleShot, self).run()
 
-    def onDisConnect(self, mosq, obj, rc):
-        super(tlMqttSingleShot, self).onDisConnect(mosq, obj, rc)
+    def onDisConnect(self, mqtt, obj, rc):
+        super(tlMqttSingleShot, self).onDisConnect(mqtt, obj, rc)
         self.kill()
         pass
 
@@ -377,7 +377,7 @@ class tlMqttSingleShot(MQTTClient):
         super(tlMqttSingleShot, self).kill()
 
 
-    def onConnect(self, mosq, obj, rc):
+    def onConnect(self, mqtt, obj, rc):
         if len(self._subTopics) == 0:
             self._connectError(False, "No Subcription Topic defined")
         for topic in self._subTopics:
