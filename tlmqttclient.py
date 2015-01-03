@@ -20,6 +20,7 @@ import socket
 from socket import error as socket_error
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
+from tlbrokers import tlBroker as Broker
 
 # TODO
 # Add eExceptions for 32 Broke Pipe and 54 Connection Reset by Peer
@@ -55,10 +56,7 @@ class MQTTClient(QtCore.QObject):
     def __init__(self,
                  creator,
                  clientId,
-                 host='Mosquitto',
-                 port=1883,
-                 poll=2000,
-                 keepAlive=65534,
+                 broker,
                  cleanSession=True):
 
         super(MQTTClient, self).__init__()
@@ -80,10 +78,10 @@ class MQTTClient(QtCore.QObject):
         self._loopTimer.setSingleShot(False)
         self._loopTimer.timeout.connect(self._loop)
         self._clientId = clientId
-        self._host = host
-        self._port = int(port)
-        self._poll = int(poll)
-        self.setKeepAlive(keepAlive)
+        self._host = broker.host()
+        self._port = int(broker.port())
+        self._poll = int(broker.poll())
+        self.setKeepAlive(broker.keepAlive())
         self._attempts = 0
         self._connected = False
         self._thread = QThread(self)
@@ -312,12 +310,10 @@ class tlMqttSingleShot(MQTTClient):
 
     def __init__(self,
                  creator,
-                 host,
-                 port,
+                 broker,
                  pubTopic,
                  subTopics=[],
                  pubData="",
-                 keepalive=10,  # seconds
                  qos=0,
                  callback = None,
                  callbackonerr  =None):
@@ -326,7 +322,7 @@ class tlMqttSingleShot(MQTTClient):
         self._pubTopic = pubTopic
         self._subTopics = subTopics
         self._pubData = pubData
-        self._keepalive = keepalive
+        self._broker = broker
         self._qos = int(qos)
         self._timer = QTimer()
         self._timer.setSingleShot(True)
@@ -342,11 +338,7 @@ class tlMqttSingleShot(MQTTClient):
         
         super(tlMqttSingleShot, self).__init__(self,
                                                str(self),
-                                               host,
-                                               port,
-                                               qos,  # qos
-                                               1,  # poll
-                                               self._keepalive)  # keep alive
+                                               broker)  # keep alive
 
 
     def _connectError(self, errormsg="Timeout waiting for the broker"):
@@ -359,7 +351,7 @@ class tlMqttSingleShot(MQTTClient):
         self.kill()
 
     def run(self):
-        self._timer.start(int(self._keepalive) * 1000)
+        self._timer.start(int(self._broker.keepAlive()) * 1000)
         QObject.connect(self, SIGNAL("mqttOnTimeout"), self._connectError)
         super(tlMqttSingleShot, self).run()
 

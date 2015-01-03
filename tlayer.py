@@ -105,10 +105,7 @@ class tLayer(MQTTClient):
 
         super(tLayer, self).__init__(self,
                                      self._layer.id(),  # Add randown
-                                     self._broker.host(),
-                                     self._broker.port(),
-                                     self._broker.poll(),
-                                     self._broker.keepAlive(),
+                                     self._broker,
                                      True)
 
         self.updateConnected(False)
@@ -305,7 +302,7 @@ class tLayer(MQTTClient):
                 
 
                 self._layer.startEditing()
-                self._topicManager.beforeCommit(self,self.topicType,self._values)
+                self._topicManager.instance(self.topicType()).beforeCommit(self,self._values)
 
                 for key, val in self._values.iteritems():
                     fid, fieldId = key

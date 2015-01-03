@@ -139,14 +139,14 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         request = "agsense/request/list"
         _client  = None
         try:
+            _broker = self._broker.clone()
+            _broker.setPoll(1)
+            _broker.setKeepAlive(10)
             _client = tlMqttSingleShot(self,
-                                    self._broker.host(),
-                                    self._broker.port(),
-                                    # "/digisense/request/data/10000/1",
+                                    _broker,
                                     request,
                                     ["agsense/response/list"],
                                     "",
-                                    30,
                                     0,
                                     callback)
 
@@ -190,7 +190,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
     # Add Alert flag
     
-    def beforeCommit(self,tLayer,topicType,values):
+    def beforeCommit(self,tLayer,values):
         """
         values is a dict of values to be committed
         the key is a tuple of feature Id and attribute Index

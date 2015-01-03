@@ -9,7 +9,7 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from PyQt4.QtCore import QFile, QIODevice, QObject, pyqtSignal
 from PyQt4.QtGui import QFileDialog
-import json, os.path, sys
+import json, os.path, sys,copy
 
 
 class BrokerNotFound(Exception):
@@ -346,3 +346,6 @@ class tlBroker(QObject):
     
     def dirty(self):
         return self._dirty
+
+    def clone(self):
+        return copy.copy(self) 
