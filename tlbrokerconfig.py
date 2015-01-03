@@ -467,7 +467,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _test(self):
         if not self.validate():
             return
-        testClient = tlMqttTest(self)
+        testClient = tlMqttTest(self._broker) # replace with MQTT SingleShot $SYS/#
         self.connectTest.setEnabled(False)
 
         QObject.connect(testClient, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)
