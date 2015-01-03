@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2014 Roger Light <roger@atchoo.org>
+# Copyright (c) 2012-2014   Roger Light <roger@atchoo.org>
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -716,7 +716,7 @@ class Client(object):
         self._messages_reconnect_reset()
 
         try:
-            if (sys.version_info[0] == 2 and sys.version_info[1] < 7) or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
+            if (sys.version_info[0] == 2 and sys.version_info[1] <= 7) or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
                 self._sock = socket.create_connection((self._host, self._port))
             else:
                 self._sock = socket.create_connection((self._host, self._port), source_address=(self._bind_address, 0))

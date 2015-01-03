@@ -12,8 +12,8 @@ import sys
 from PyQt4 import QtCore
 from PyQt4.QtCore import QTimer, QThread, QObject, SIGNAL
 
-from lib import mosquitto
-# import paho.mqtt.client as paho
+#from lib import mosquitto
+from lib import client as mqtt
 import sys
 import traceback
 import socket
@@ -94,7 +94,7 @@ class MQTTClient(QtCore.QObject):
         self._thread.finished.connect(lambda:Log.debug("Thread stopped"))
         self._thread.terminated.connect(lambda:Log.debug("Thread terminated"))
         self._restarting = False
-        self.mqttc = mosquitto.Mosquitto(self._clientId, self._cleanSession)
+        self.mqttc = mqtt.Client(self._clientId, self._cleanSession)
         #        self.mqttc = paho.Client( self._clientId, self._cleanSession)
 
         self.mqttc.on_connect = self.on_connect
@@ -148,7 +148,7 @@ class MQTTClient(QtCore.QObject):
     def getClientId(self):
         return self._clientId
 
-    def on_connect(self, mosq, obj, rc):
+    def on_connect(self, mosq, obj,flags, rc):
         self._connected = True
         self._attempts = 0
         self.onConnect(mosq, obj, rc)
@@ -228,7 +228,7 @@ class MQTTClient(QtCore.QObject):
             return
         try:
             connResult = self.mqttc.loop(timeout)
-            if connResult != mosquitto.MOSQ_ERR_SUCCESS:
+            if connResult != mqtt.MQTT_ERR_SUCCESS:
                 self._connected = False
                 QObject.emit(self, SIGNAL('mqttConnectionError'), self, str(connResult))
         except ValueError as e:
@@ -276,14 +276,18 @@ class MQTTClient(QtCore.QObject):
                     #self.stop()
                     return
                 Log.debug("Trying to connect")
-                result = self.mqttc.connect(self._host, self._port, self._keepAlive, 1)
-                self._connected = result == mosquitto.MOSQ_ERR_SUCCESS
+                result = self.mqttc.connect(str(self._host), int(self._port),int( self._keepAlive), 1)
+                self._connected = result == mqtt.MQTT_ERR_SUCCESS
                 if not self._connected:
                     self._attempts += 1
         except Exception as e:
             msg = 'MQTT Connection Error: ' + str(e) + ' ' + self._host + ":" + str(self._port)
+
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, msg)
             Log.warn(msg)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                      exc_traceback)))
             self._attempts += 1
             self._connected = False
 
