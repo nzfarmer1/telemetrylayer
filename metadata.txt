@@ -23,7 +23,7 @@ email=andrew@southweb.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Multiple improvements: Fixed crash on feature dialog updates. Refactored plugin framework" 
+changelog="Multiple improvements: Fixed crash on feature dialog updates. Refactored topic manager plugin framework" 
 
 
 # tags are comma separated with spaces allowed
