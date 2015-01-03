@@ -27,7 +27,7 @@ changelog="Multiple improvements: Fixed crash on feature dialog updates. Refacto
 
 
 # tags are comma separated with spaces allowed
-tags=SCADA, Telemetry,  MQTT, IoT, Wireless Sensors, Zigbee, Modbus, AgSense, XBee, ZigBee
+tags=SCADA, Telemetry,  MQTT, MQTT-SN, Internet of Things (I.o.T), Wireless Sensors, Zigbee, Modbus, AgSense, XBee, DigiMesh
 
 homepage=http://www.southweb.co.nz/telemetrylayer
 download=http://southweb.co.nz/sites/default/files/TelemetryLayer.zip

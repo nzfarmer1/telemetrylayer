@@ -49,24 +49,18 @@ Constructive feedback is welcome
 
 TODO:
 
-
 This is my top list. There's lots more of course!
 
-- add support for roll back/undo when adding/deleting/updating features (Deleting done)
-- extend rules based renderer for layers with better examples
+- get topicmanager plugin framework working with Plugin Reloader plugin
+- extend rules based renderer for layers with better examples i.e. alerting
 - icons for symbols and application - including sensor state symbology
-- support to add / edit parameters as additional feature attributes (Done via Feature tab - server side changes only)
 - integrate with QGIS native help with splash screen showing new features
-- replace mosquitto client with paho.Client
-
-- set default broker config tab to be list of brokers
+- replace mosquitto client with paho.Client and add TLS/SSL certificate support
 - add details of broker port/host etc when creating new layer
 - ensure topics can only be added as a feature once?
 - linux testing of custom feature form
+- document topic manager API
 
-
-    
-        
 
 If you want to help with any of this, please get in touch!!!
 
