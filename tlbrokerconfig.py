@@ -467,7 +467,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _test(self):
         if not self.validate():
             return
-        testClient = tlMqttTest(self, self.getHost(), self.getPort())
+        testClient = tlMqttTest(self)
         self.connectTest.setEnabled(False)
 
         QObject.connect(testClient, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)

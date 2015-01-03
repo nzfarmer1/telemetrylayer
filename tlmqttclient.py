@@ -322,13 +322,16 @@ class tlMqttSingleShot(MQTTClient):
         self._pubTopic = pubTopic
         self._subTopics = subTopics
         self._pubData = pubData
-        self._broker = broker
+        self._broker = broker.clone()
         self._qos = int(qos)
         self._timer = QTimer()
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._connectError)
         self._callback = None
         self._callbackonerr = None
+
+        self._broker.setPoll(1)
+        self._broker.keepAlive(10)
 
         if 'method' in str(type(callback)):
             self._callback = callback
@@ -392,16 +395,13 @@ class tlMqttSingleShot(MQTTClient):
 
 class tlMqttTest(MQTTClient):
     def __init__(self,
-                 creator,
-                 host,
-                 port=1883,
-                 poll=1):
-        super(tlMqttTest, self).__init__(creator,
-                                         str(self),  # Add randown
-                                         host,
-                                         port,
-                                         poll,
-                                         60,
-                                         True)
+                 broker):
+        _broker = broker.clone()
+        _broker.setPoll(1)
+        _broker.keepAlive(10)
+
+        super(tlMqttTest, self).__init__(self,
+                                         str(_broker),
+                                         h_broker)
     
     

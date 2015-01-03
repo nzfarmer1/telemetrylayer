@@ -140,10 +140,8 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         _client  = None
         try:
             _broker = self._broker.clone()
-            _broker.setPoll(1)
-            _broker.setKeepAlive(10)
             _client = tlMqttSingleShot(self,
-                                    _broker,
+                                    self._broker,
                                     request,
                                     ["agsense/response/list"],
                                     "",
