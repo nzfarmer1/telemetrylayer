@@ -216,6 +216,7 @@ class tlBroker(QObject):
     Class to represent a single Broker
     
     """
+    deletingBroker = pyqtSignal()
 
     def __init__(self, brokerId, properties={},dirty = False):
         self._properties = properties
@@ -231,19 +232,22 @@ class tlBroker(QObject):
     def id(self):
         return self.get("id")
 
+    """ Setters """
+
     def set(self, key, value):
         self._properties[key] = value
-
-    def get(self, key, default=None):
-        if key in self._properties:
-            return self._properties[key]
-        return default
 
     def setId(self, id):
         self.set('id', id)
 
     def setName(self, name):
         self.set('name', name)
+
+    def setUsername(self, username):
+        self.set('username', username)
+
+    def setPassword(self, password):
+        self.set('password', password)
 
     def setHost(self, host):
         self.set('host', host)
@@ -273,6 +277,49 @@ class tlBroker(QObject):
     def setTopicManager(self, topicManager):
         self.set('topicManager', topicManager)
 
+    """ Getters """
+
+    def get(self, key, default=None):
+        if key in self._properties:
+            return self._properties[key]
+        return default
+
+    def name(self):
+        return self.get('name')
+
+    def username(self):
+        return self.get('username')
+
+    def password(self):
+        return self.get('password')
+
+    def host(self):
+        if not self.useAltConnect():
+            return self.get('host')
+        else:
+            return self.get('hostAlt')
+
+    def port(self):
+        if not self.useAltConnect():
+            return self.get('port')
+        else:
+            return self.get('portAlt')
+
+    def hostAlt(self):
+        return self.get('hostAlt')
+
+    def portAlt(self):
+        return self.get('portAlt')
+
+    def poll(self, poll=0):
+        if self.get('poll') is None:
+            return poll
+        return self.get('poll')
+
+    def keepAlive(self):
+        return self.get('keepalive')
+
+
     # return individual topic
     def topic(self, topic):
         topics = self.topics(None, topic)
@@ -300,38 +347,6 @@ class tlBroker(QObject):
         if self.get('useAltConnect',False):
             return True
         return False
-
-
-
-    def name(self):
-        return self.get('name')
-
-    def host(self):
-        if not self.useAltConnect():
-            return self.get('host')
-        else:
-            return self.get('hostAlt')
-
-    def port(self):
-        if not self.useAltConnect():
-            return self.get('port')
-        else:
-            return self.get('portAlt')
-
-    def hostAlt(self):
-        return self.get('hostAlt')
-
-    def portAlt(self):
-        return self.get('portAlt')
-
-    def poll(self, poll=0):
-        if self.get('poll') is None:
-            return poll
-        return self.get('poll')
-
-
-    def keepAlive(self):
-        return self.get('keepalive')
 
     def uniqTopicTypes(self):
         types = []

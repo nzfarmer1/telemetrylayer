@@ -131,6 +131,7 @@ class tlLogging(QObject):
     def critical(msg,duration = 00):
         if not tlLogging._logStates & tlLogging.CRITICAL:
             return
+        msg  = "Telemetry Layer: " + str(msg)
         QgsMessageLog.logMessage(str(msg),tlLogging.HEADER,QgsMessageLog.CRITICAL)
         if tlLogging._iface != None:
                 widget  = QtGui.QLabel(str(msg))

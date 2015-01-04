@@ -54,6 +54,8 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+class DevicesNotLoaded(Exception):
+    pass
 
 class agTopicManager(tlTopicManager, Ui_agTopicManager):
     """
@@ -119,7 +121,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     def setDevices(self,devices):
         self._devices = devices
 
-    def getDevices(self):
+    def getDevices(self): # hmm might be invalid!
+        if not self._devices:
+            raise DevicesNotLoaded()
         return self._devices
 
     def featureDialog(self, dialog, tLayer, featureId):
@@ -130,7 +134,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     def _updateDevices(self, mqtt, status = True, msg = None):
         if not status:
             Log.warn(msg)
+            QObject.emit(self, QtCore.SIGNAL('topicManagerError'), True, self)
             return
+        QObject.emit(self, QtCore.SIGNAL('topicManagerReady'), True, self)
         Log.debug("Updating Devices")
         self._devices = agDeviceList(msg.payload)
         self._buildDevicesTable()
@@ -174,13 +180,17 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
     def getTopics(self):
         topics = []
-        for device in self.getDevices():
-            
-            topics.append({'name' :device.name(),
-                           'topic':device.topic(),
-                           'units':device.units(),
-                           'type' :device.op(),
-                           'params':device.params().dump()})
+        try:
+            for device in self.getDevices():
+                
+                topics.append({'name' :device.name(),
+                               'topic':device.topic(),
+                               'units':device.units(),
+                               'type' :device.op(),
+                               'params':device.params().dump()})
+        except DevicesNotLoaded:
+            Log.progress("Warning - no topics available. Please check your connection settings")
+
         return super(agTopicManager, self).getTopics(topics)  # Merge System topics
 
     def getBroker(self):
@@ -202,7 +212,14 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         return True
 
     def _buildDevicesTable(self,msg  = ""):
-        devices = self.getDevices()
+        
+        devices = None
+        try:
+            devices = self.getDevices()
+        except DevicesNotLoaded:
+            #Log.progress("Warning - no topics available. Please check your connection settings")
+            return
+        
         tbl = self.tableDevices
 
         tbl.clear()

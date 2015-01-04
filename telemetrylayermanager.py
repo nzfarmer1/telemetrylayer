@@ -283,18 +283,20 @@ class layerManager(QObject):
 
     def brokersLoaded(self, changed=[]):
         remove = []
-        Log.debug("Brokers loaded")
-        for lid, tLayer in self.getTLayers().iteritems():
+        Log.debug("xBrokers loaded")
+        for  tLayer in self.getTLayers().itervalues():
             old_broker = tLayer.getBroker()
             broker = Brokers.instance().find(old_broker.id())
             if broker is None:
                 remove.append(tLayer.layer())
                 continue
+            Log.debug("Updating Broker for " + str(tLayer))
             tLayer.setBroker(broker)
 
         if len(remove) > 0:
             Log.alert("Broker Not found - Removing associated layers!")
             for layer in remove:
+                tLayer.kill()
                 self.removeLayer(tLayer.layer(), False)
 
         self.rebuildLegend()
@@ -307,7 +309,7 @@ class layerManager(QObject):
         Log.debug("Layer Properties Changed " + str(val))
 
     def renderStarting(self):
-        for lid, tLayer in self.getTLayers().iteritems():
+        for tLayer in self.getTLayers().itervalues():
             visible = self._iface.legendInterface().isLayerVisible(tLayer.layer())
             # if not visible:
             #    self.actions['pause' + lid].setEnabled(False)

@@ -241,9 +241,9 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
 
     def _updateBrokerApply(self):
-        Log.debug("_updateBrokerApply")
         if not self._brokerDlg.validate():
             return
+        Log.debug("_updateBrokerApply")
         broker = self._brokerDlg.getBroker()
         #for key, val in broker.properties().iteritems():
         #    Log.debug(key + " " + str(val))
@@ -264,6 +264,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
     def _delBroker(self, broker):
         if not Log.confirm("Are you sure you want to delete the broker " + broker.name() + " (Note: all related layers will be removed) " + broker.name() + "?" ):
             return
+        broker.deletingBroker.emit()
         self._brokers.delete(broker)
         self._brokers.sync()
         self._buildBrokerTable()
@@ -292,6 +293,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self._brokers.update(broker)
         self._brokers.sync(True)
         self._buildBrokerTable()
+        Log.debug("Brokers reloaded")
         self._brokerDlg.connectApply.setEnabled(False)
         self.brokerManagerWidget.setCurrentIndex(self.kBrokerListTabId)
           

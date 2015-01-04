@@ -109,6 +109,7 @@ class tLayer(MQTTClient):
                                      True)
 
         self.updateConnected(False)
+        self._broker.deletingBroker.connect(self.tearDown)
         self.featureUpdated.connect(topicManagerFactory.featureUpdated)  # Tell dialog box to update a feature
         self.layer().attributeValueChanged.connect(self.attributeValueChanged)
         #self.brokerUpdated()
@@ -138,7 +139,12 @@ class tLayer(MQTTClient):
 
     def stop(self):
         super(tLayer, self).stop()
-        self._layer.triggerRepaint()
+        try:
+            iter = self._layer.getFeatures()
+            if iter.next():
+                self._layer.triggerRepaint()
+        except Exception as e: #if the broker is deleted, the layer has been removed - don't repaint
+            Log.debug(e)
 
 
     def onConnect(self, mosq, obj, rc):
@@ -564,6 +570,7 @@ class tLayer(MQTTClient):
         Log.debug("tLayer Tear down")
         self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
         self.layer().attributeValueChanged.disconnect(self.attributeValueChanged)
+        self._broker.deletingBroker.disconnect(self.tearDown)
 
         self._dirty = False  # Don't commit any changes if we are being torn down
         self.stop()

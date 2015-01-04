@@ -100,6 +100,10 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
         self.setPoll(str(self._broker.poll()))
         self.setKeepAlive(str(self._broker.keepAlive()))
+
+        self.setUsername(self._broker.username())
+        self.setPassword(self._broker.password())
+
         self._topicManager = None
         self._connectedTLayers = []
         self._featureListItems = {}
@@ -290,13 +294,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         tbl.horizontalHeader().setStretchLastSection(True)
 
 
-    def _loadTopicManager(self, topicManagerId='digisense'):
+    def _loadTopicManager(self, topicManagerId='agsense'):
         try:
             if self._create:
                 # Add username/password!
-                self._broker.setHost(self.getHost())
-                self._broker.setPort(self.getPort())
-                self._broker.setTopicManager(topicManagerId)
+                self.getBroker()
             Log.debug("_loadTopicManager")
             self._topicManager = topicManagerFactory.getTopicManager(self._broker, self._create)
             QObject.connect(self._topicManager, SIGNAL("topicManagerReady"), self._topicManagerLoaded)
@@ -314,12 +316,12 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _topicManagerLoaded(self, state, obj):
         if state:
             self.Tabs.setTabEnabled(self.kTopicManagerTabId, True)
-            self.connectApply.setEnabled(self.dirty())
+            self.connectApply.setEnabled(self.getTested() and self.dirty())
         else:
             Log.progress(obj)
 
-    def getTopicManager(self):
-        return self.connectTopicManager.itemData(self.connectTopicManager.currentIndex())
+
+    """ Setters """
 
     def setTopicManager(self, tmid):
         tmidx = self.connectTopicManager.findData(tmid)
@@ -330,46 +332,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     def setDirty(self,state):
         self._broker.setDirty(state)
-        self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
-
-    def dirty(self):
-        if not self.dockWidget.isVisible():
-            return self._broker.dirty()
-
-        dirty = False
-        dirty = dirty or self._broker.name() != self.getName()
-        dirty = dirty or self._broker.host() != self.getHost()
-        dirty = dirty or self._broker.port() != self.getPort()
-        dirty = dirty or self._broker.hostAlt() != self.getHostAlt()
-        dirty = dirty or self._broker.portAlt() != self.getPortAlt()
-        dirty = dirty or self._broker.useAltConnect() != self.getUseAltConnect()
-        dirty = dirty or self._broker.poll() != self.getPoll()
-        dirty = dirty or self._broker.keepAlive() != self.getKeepAlive()
-        dirty = dirty or self._broker.topics() != self.getTopics()
-
-        return dirty or self._broker.dirty()
-
-    def getTopics(self):
-        if self._topicManager is None:
-            return []
-        return self._topicManager.getTopics()
-
-
-    def getBroker(self):
-        self._broker.setName(self.getName())
-        self._broker.setHost(self.getHost())
-        self._broker.setPort(self.getPort())
-        self._broker.setHostAlt(self.getHostAlt())
-        self._broker.setPortAlt(self.getPortAlt())
-        self._broker.setUseAltConnect(self.getUseAltConnect())
-        self._broker.setPoll(self.getPoll())
-        self._broker.setKeepAlive(self.getKeepAlive())
-        self._broker.setTopics(self.getTopics())
-        self._broker.setTopicManager(self.getTopicManager())
-        return self._broker
-
-    def getName(self):
-        return self.connectName.text()
+        if self.getTested():
+            self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
 
     def setName(self, name):
         self.connectName.setText(name)
@@ -379,6 +343,46 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     def setHostAlt(self, host):
         self.connectHostAlt.setText(host)
+
+    def setPort(self, port =1883):
+        self.connectPort.setText(str(port))
+
+    def setPortAlt(self, port = 1883):
+        if port.isdigit():
+            self.connectPortAlt.setText(str(port))
+        else:
+            self.connectPortAlt.setText(str(1883))
+
+    def setUsername(self, username):
+        self.connectUsername.setText(username)
+
+    def setPassword(self, password):
+        self.connectPassword.setText(password)
+
+    def setKeepAlive(self, keepalive):
+        idx = self.connectKeepAlive.findText(str(keepalive))
+        if idx is None:
+            idx = 0
+        self.connectKeepAlive.setCurrentIndex(idx)
+
+    def setPoll(self, interval):
+        _interval = int(float(1.0 / 1000) * float(interval))
+        self.connectPoll.setCurrentIndex(self.connectPoll.findText(str(_interval)))
+
+    def setTested(self, state=True):
+        self._tested = state
+        if state and self._topicManager is None:
+            if self._loadTopicManager(self.getTopicManager()):
+                self.connectTopicManager.setEnabled(False)
+        else:
+            pass
+            # self.Tabs.setTabEnabled(1,False)
+
+    """ Getters """
+    
+    def getTopicManager(self):
+        return self.connectTopicManager.itemData(self.connectTopicManager.currentIndex())
+
 
     def getHost(self):
         return self.connectHost.text()
@@ -396,14 +400,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             return int(self.connectPortAlt.text())
         return None
 
-    def setPort(self, port =1883):
-        self.connectPort.setText(str(port))
+    def getUsername(self):
+        return self.connectUsername.text()
 
-    def setPortAlt(self, port = 1883):
-        if port.isdigit():
-            self.connectPortAlt.setText(str(port))
-        else:
-            self.connectPortAlt.setText(str(1883))
+    def getPassword(self):
+        return self.connectPassword.text()
+
+    def getPoll(self):
+        return int(self.connectPoll.itemText(self.connectPoll.currentIndex())) * 1000
 
     def getUseAltConnect(self):
         return self.connectAlt.isChecked()
@@ -414,30 +418,54 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             val = default
         return int(val)
 
-    def setKeepAlive(self, keepalive):
-        idx = self.connectKeepAlive.findText(str(keepalive))
-        if idx is None:
-            idx = 0
-        self.connectKeepAlive.setCurrentIndex(idx)
-
-    def getPoll(self):
-        return int(self.connectPoll.itemText(self.connectPoll.currentIndex())) * 1000
-
-    def setPoll(self, interval):
-        _interval = int(float(1.0 / 1000) * float(interval))
-        self.connectPoll.setCurrentIndex(self.connectPoll.findText(str(_interval)))
-
     def getTested(self):
         return self._tested
 
-    def setTested(self, state=True):
-        self._tested = state
-        if state and self._topicManager is None:
-            if self._loadTopicManager(self.getTopicManager()):
-                self.connectTopicManager.setEnabled(False)
-        else:
-            pass
-            # self.Tabs.setTabEnabled(1,False)
+    def dirty(self):
+        if not self.dockWidget.isVisible():
+            return self._broker.dirty()
+
+        dirty = False
+        dirty = dirty or self._broker.name() != self.getName()
+        dirty = dirty or self._broker.host() != self.getHost()
+        dirty = dirty or self._broker.port() != self.getPort()
+        dirty = dirty or self._broker.username() != self.getUsername()
+        dirty = dirty or self._broker.password() != self.getPassword()
+        dirty = dirty or self._broker.hostAlt() != self.getHostAlt()
+        dirty = dirty or self._broker.portAlt() != self.getPortAlt()
+        dirty = dirty or self._broker.useAltConnect() != self.getUseAltConnect()
+        dirty = dirty or self._broker.poll() != self.getPoll()
+        dirty = dirty or self._broker.keepAlive() != self.getKeepAlive()
+        dirty = dirty or self._broker.topics() != self.getTopics()
+
+        return dirty or self._broker.dirty()
+
+    def getTopics(self):
+        if self._topicManager is None:
+            return []
+        return self._topicManager.getTopics()
+
+    def getName(self):
+        return self.connectName.text()
+
+    def getBroker(self):
+        self._broker.setName(self.getName())
+        self._broker.setHost(self.getHost())
+        self._broker.setPort(self.getPort())
+        self._broker.setUsername(self.getUsername())
+        self._broker.setPassword(self.getPassword())
+        self._broker.setHostAlt(self.getHostAlt())
+        self._broker.setPortAlt(self.getPortAlt())
+        self._broker.setUseAltConnect(self.getUseAltConnect())
+        self._broker.setPoll(self.getPoll())
+        self._broker.setKeepAlive(self.getKeepAlive())
+        self._broker.setTopics(self.getTopics())
+        self._broker.setTopicManager(self.getTopicManager())
+        return self._broker
+
+
+    
+    """ Validator """
 
 
     def validate(self):
@@ -467,41 +495,32 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _test(self):
         if not self.validate():
             return
-        testClient = tlMqttTest(self._broker) # replace with MQTT SingleShot $SYS/#
-        self.connectTest.setEnabled(False)
-
-        QObject.connect(testClient, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)
-        QObject.connect(testClient, QtCore.SIGNAL("mqttConnectionError"), self._connectError)
-        QObject.connect(testClient, QtCore.SIGNAL("mqttOnTimeout"), self._connectError)
 
         Log.progressPush("Testing Connection")
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        #QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.connectTest.setEnabled(False)
 
-        testClient.run()
+        _client = tlMqttSingleShot(self,
+                                self.getBroker(),
+                                None,
+                                ["$SYS/#"],
+                                None,
+                                0, #qos
+                                self._on_test)
+        
+        _client.run()
 
-    def _connectError(self, mqtt, msg=""):
+    
+    def _on_test(self, client, status = True, msg = None):
         self.connectTest.setEnabled(True)
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttConnectionError"), self._connectError)
- #       Log.progressPop("Testing Connection")
-#        Log.progress(msg)
-#        Log.debug(msg)
-        mqtt.kill()
-        if self.getTested():
-            self.setTested(False)
-
-    def _connectSuccess(self, mqtt, obj, rc):
-        self.connectTest.setEnabled(True)
-        QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttOnConnect"), self._connectSuccess)
-        QObject.disconnect(mqtt, QtCore.SIGNAL("mqttConnectionError"), self._connectError)
+        self.setTested(status)
+        
+        #QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
         Log.progressPop("Testing Connection")
-        Log.progress("Connection successful!")
-        mqtt.kill()
-        self.setTested(True)
-        if self._mode == Constants.Update:
-            self.connectApply.setEnabled(self.dirty())
+#        Log.progress(msg.payload)
+#        if status and self._mode == Constants.Update:
+        self.connectApply.setEnabled(status and self.dirty())
+
 
 
     def _help(self):
