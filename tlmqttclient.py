@@ -331,7 +331,7 @@ class tlMqttSingleShot(MQTTClient):
         self._callbackonerr = None
 
         self._broker.setPoll(1)
-        self._broker.keepAlive(10)
+        self._broker.setKeepAlive(10)
 
         if 'method' in str(type(callback)):
             self._callback = callback
