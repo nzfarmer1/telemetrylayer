@@ -27,7 +27,7 @@ from qgis.core import *
 
 import pdb
 # Initialize Qt resources from file resources.py
-import os.path, sys, time, traceback
+import os.path, sys, time, traceback, resource, gc
 import webbrowser
 import resources_rc
 # Import the code for the dialog
@@ -132,8 +132,8 @@ class TelemetryLayerPlugin(QObject):
             Log.debug("Layer Manager Loaded")
             self.telemetryLayer = TelemetryLayer(self)
             Log.debug("Telemetry Layer Loaded")
-            self.iface.projectRead.connect(lambda : self.layerManager.rebuildLegend())
-            self.iface.newProjectCreated.connect(lambda:self.layerManager.rebuildLegend())
+            self.iface.projectRead.connect(self.layerManager.rebuildLegend)
+            self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
         except Exception as e:
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")
@@ -141,6 +141,7 @@ class TelemetryLayerPlugin(QObject):
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
                                                       exc_traceback)))
 
+        
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.aboutA)
         self.iface.addToolBarIcon(self.configureA)
@@ -170,11 +171,16 @@ class TelemetryLayerPlugin(QObject):
             self.iface.newProjectCreated.disconnect(self.layerManager.rebuildLegend)
 
             TopicManagerFactory.unregisterAll()
-            Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
-        except:
+            #Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
+        except Exception as e:
+            Log.debug(e)
             TopicManagerFactory.unregisterAll()
             pass
         finally:
+            self.layerManager.deleteLater()
+            self.telemetryLayer.deleteLater()
+            Brokers.instance().deleteLater()
+            gc.collect()
             Log.debug("Plugin unloaded")
 
 

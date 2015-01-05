@@ -216,7 +216,7 @@ class tLayer(MQTTClient):
 
     def onMessage(self, mq, obj, msg):
         # Log.status('TLayer Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-
+        
         try:
             with QMutexLocker(self._mutex):
                 feat = QgsFeature()
@@ -331,7 +331,6 @@ class tLayer(MQTTClient):
         except Exception as e:
             Log.debug("Error committing " + str(e))
 
-#        Log.debug('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     def focusChange(self, Qw1, Qw2):
         if Log is not None:
@@ -576,5 +575,6 @@ class tLayer(MQTTClient):
        
         self._dirty = False  # Don't commit any changes if we are being torn down
         self.stop()
+        
 
 
