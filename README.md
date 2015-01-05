@@ -51,12 +51,12 @@ TODO:
 
 This is my top list. There's lots more of course!
 
+- experiment rules based renderer for layers with better examples i.e. alerting
 - get topicmanager plugin framework working with Plugin Reloader plugin
-- extend rules based renderer for layers with better examples i.e. alerting
 - icons for symbols and application - including sensor state symbology
 - integrate with QGIS native help with splash screen showing new features
-- replace mosquitto client with paho.Client and add TLS/SSL certificate support
-- add details of broker port/host etc when creating new layer
+- replace mosquitto client with paho.Client and add TLS/SSL certificate support (done)
+- Added basic username/password authentication (done)
 - ensure topics can only be added as a feature once?
 - linux testing of custom feature form
 - document topic manager API

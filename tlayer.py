@@ -26,6 +26,7 @@ from telemetrylayer import TelemetryLayer as telemetryLayer
 from tladdfeature import tlAddFeature as AddFeature
 from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, BrokersNotDefined
 import time, os, zlib
+import resource
 
 
 class tLayer(MQTTClient):
@@ -68,7 +69,6 @@ class tLayer(MQTTClient):
                  layer=None,
                  broker=None,
                  topicType=None):
-
 
         self._layer = layer
         self._plugin_dir = creator._plugin_dir
@@ -140,6 +140,7 @@ class tLayer(MQTTClient):
     def stop(self):
         super(tLayer, self).stop()
         try:
+            pass
             iter = self._layer.getFeatures()
             if iter.next():
                 self._layer.triggerRepaint()
@@ -185,7 +186,7 @@ class tLayer(MQTTClient):
                         #self._layer.commitChanges()
                    
             except TypeError:
-                Log.debug("Type Error")
+                Log.debug("Error adding features from layer")
                 pass
                 
         self._layer.triggerRepaint()
@@ -330,6 +331,8 @@ class tLayer(MQTTClient):
         except Exception as e:
             Log.debug("Error committing " + str(e))
 
+#        Log.debug('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
     def focusChange(self, Qw1, Qw2):
         if Log is not None:
             self.commitChanges()
@@ -351,7 +354,6 @@ class tLayer(MQTTClient):
         self.set(self.kLayerType, "true")
         self.set(self.kBrokerId, broker.id())
         self.set(self.kTopicType, topicType)
-        Log.debug("Getting topic manager" + str(broker.topicManager()))
         attributes = self.getAttributes() + \
                      self._topicManager.instance(topicType).getAttributes()
 
@@ -434,6 +436,7 @@ class tLayer(MQTTClient):
     #        self._layer.destroyEditCommand()
 
     def addFeature(self, fid):
+        Log.debug("add Feature")
         if 0 > fid and not self._fid:
             self._fid = fid
         elif fid > 0 or fid == self._fid:
@@ -567,11 +570,10 @@ class tLayer(MQTTClient):
         return count > 0
 
     def tearDown(self):
-        Log.debug("tLayer Tear down")
+        Log.debug("Tear down TLayer")
         self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
         self.layer().attributeValueChanged.disconnect(self.attributeValueChanged)
-        self._broker.deletingBroker.disconnect(self.tearDown)
-
+       
         self._dirty = False  # Don't commit any changes if we are being torn down
         self.stop()
 

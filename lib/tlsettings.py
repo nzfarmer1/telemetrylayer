@@ -67,6 +67,17 @@ class tlSettings(QObject):
             return str(result);
 
     @staticmethod
+    def getp(key,default =''):
+        proj = QgsProject.instance()
+        return proj.readEntry('TelemetryLayer', key, default)[0]
+
+    @staticmethod
+    def setp(key,val):
+        proj = QgsProject.instance()
+        proj.writeEntry("TelemetryLayer", key, val)
+
+
+    @staticmethod
     def set(key,val):
         if tlSettings.settings == None:
             tlSettings.settings =  QSettings(QSettings.NativeFormat, QSettings.UserScope, 'QuantumGIS', 'TelemetryLayer')

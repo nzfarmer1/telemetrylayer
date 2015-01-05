@@ -79,6 +79,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.dockWidget = None
         TelemetryLayer._this = self
 
+        self._brokers.brokersLoaded.connect(lambda: self.brokersLoaded())    
         pass
 
     @staticmethod
@@ -105,7 +106,10 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         if self.dockWidget.isVisible():
             self.dockWidget.setVisible(False)
 
-
+    def brokersLoaded(self):
+        if self.dockWidget and self.dockWidget.isVisible():
+            self._buildBrokerTable()
+            
     def setupUi(self):
         super(TelemetryLayer, self).setupUi(self)
         self.dockWidget.setFixedHeight(self.height())  # paramterise
@@ -217,7 +221,6 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             self._brokerDlg = None
         Log.debug("Update broker")
         self._brokerDlg = BrokerConfig(self, broker, False)
-        Log.debug("ok")
         self._brokerDlg.connectApply.clicked.connect(self._updateBrokerApply)
         self._brokerDlg.connectClose.clicked.connect(self._updateBrokerClose)
         self.dockWidget.setFixedHeight(25)  # paramterise
@@ -262,7 +265,11 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
 
     def _delBroker(self, broker):
-        if not Log.confirm("Are you sure you want to delete the broker " + broker.name() + " (Note: all related layers will be removed) " + broker.name() + "?" ):
+        if self._layerManager.brokerInUse(broker.id()):
+            Log.alert("A layer is currently using this broker. Please remove this first!")
+            return
+
+        if not Log.confirm("Are you sure you want to delete the broker " + broker.name() + "?"):
             return
         broker.deletingBroker.emit()
         self._brokers.delete(broker)

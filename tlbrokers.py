@@ -9,6 +9,8 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from PyQt4.QtCore import QFile, QIODevice, QObject, pyqtSignal
 from PyQt4.QtGui import QFileDialog
+from qgis.core import QgsProject
+
 import json, os.path, sys,copy
 
 
@@ -53,6 +55,8 @@ class tlBrokers(QObject):
         self._defaultFile = os.path.join(pluginDir, self.kDefaultFile)
         self._jsonfile = Settings.get("brokerFile", self._defaultFile)
         tlBrokers._this = self
+        QgsProject.instance().readProject.connect(self.load)
+
         self.load()
 
     def importFile(self,filename = None):
@@ -83,7 +87,6 @@ class tlBrokers(QObject):
                self._brokers = dict(self.importFile()) # backward compatible
             else:
                self._brokers = dict(json.loads( jsonstr ))
-               
 
             self._validate()
             self.brokersLoaded.emit(self._dirtyList)

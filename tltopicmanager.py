@@ -71,8 +71,6 @@ class tlFeatureDialog(QObject):
         self._tLayer.featureUpdated.connect(self._update)
         self.update()
     
-    def instance(self,topicType):
-        return self
 
     def _update(self, tLayer, feature):
         if feature.id() == self._feature.id():
@@ -276,6 +274,9 @@ class tlTopicManager(QDialog, QObject):
             layer.setEditFormInit("editformfactory.featureDialog")
         layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
+
+    def instance(self,topicType):
+        return self
 
     def beforeCommit(self,tLayer,topicType,values):
         pass

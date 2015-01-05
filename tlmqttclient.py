@@ -12,8 +12,8 @@ import sys
 from PyQt4 import QtCore
 from PyQt4.QtCore import QTimer, QThread, QObject, SIGNAL
 
-#from lib import mosquitto
-from lib import client as mqtt
+#from lib import mosquitto as mqtt # mosquitto
+from lib import client as mqtt # paho
 import sys, traceback,socket, time
 from socket import error as socket_error
 from lib.tlsettings import tlSettings as Settings
@@ -93,7 +93,8 @@ class MQTTClient(QtCore.QObject):
         self._thread.terminated.connect(lambda:Log.debug("Thread terminated"))
         self._restarting = False
         
-        self.mqttc = mqtt.Client(self._clientId, self._cleanSession)
+#        self.mqttc = mqtt.Client(self._clientId, self._cleanSession)
+        self.mqttc = mqtt.Mosquitto(self._clientId, self._cleanSession)
         
         if broker.username(): # Basic Auth!
                 self.mqttc.username_pw_set(broker.username(), broker.password())
@@ -149,8 +150,10 @@ class MQTTClient(QtCore.QObject):
     def getClientId(self):
         return self._clientId
 
-    def on_connect(self, client, obj,flags, rc):
-        if rc != mqtt.MQTT_ERR_SUCCESS:
+    def on_connect(self, client, obj,flags, rc):   # paho
+#    def on_connect(self, client, obj, rc): # mosquitto
+        if rc != mqtt.MQTT_ERR_SUCCESS: # paho
+#        if rc != mqtt.MOSQ_ERR_SUCCESS: # mosquitto
             return
         self._connected = True
         self._attempts = 0
@@ -231,7 +234,8 @@ class MQTTClient(QtCore.QObject):
             return
         try:
             connResult = self.mqttc.loop(timeout)
-            if connResult == mqtt.MQTT_ERR_SUCCESS:
+            if connResult == mqtt.MQTT_ERR_SUCCESS: # paho
+#            if connResult == mqtt.MOSQ_ERR_SUCCESS: # mosquitto
                 return
             
             self._connected = False
@@ -279,7 +283,8 @@ class MQTTClient(QtCore.QObject):
                 Log.debug("Trying to connect")
                 self._attemped = time.time()
                 result = self.mqttc.connect(str(self._host), int(self._port),int( self._keepAlive), 1)
-                self._connected = result == mqtt.MQTT_ERR_SUCCESS
+                self._connected = result == mqtt.MQTT_ERR_SUCCESS # paho
+#                self._connected = result == mqtt.MOSQ_ERR_SUCCESS # mosquitto
                 if not self._connected:
                     self._attempts += 1
                     Log.progress(mqtt.error_string(connResult))
@@ -348,12 +353,10 @@ class tlMqttSingleShot(MQTTClient):
         if 'method' in str(type(callbackonerr)):
             self._callbackonerr = callbackonerr
         
-        Log.debug("single shot")
         super(tlMqttSingleShot, self).__init__(self,
                                                str(self),
                                                broker)  # keep alive
 
-        Log.debug("single shotx")
     def _connectError(self,client, msg):
         Log.debug(msg)
         QObject.emit(self, SIGNAL('mqttOnCompletion'), self, False, msg)

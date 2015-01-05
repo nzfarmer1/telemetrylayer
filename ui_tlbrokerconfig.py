@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_tlbrokerconfig.ui'
 #
-# Created: Tue Dec  2 12:06:04 2014
+# Created: Mon Jan  5 09:14:08 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -51,7 +51,6 @@ class Ui_tlBrokerConfig(object):
         self.connectPoll = QtGui.QComboBox(self.tabConnect)
         self.connectPoll.setGeometry(QtCore.QRect(130, 194, 51, 26))
         self.connectPoll.setObjectName(_fromUtf8("connectPoll"))
-        self.connectPoll.addItem(_fromUtf8(""))
         self.connectPoll.addItem(_fromUtf8(""))
         self.connectPoll.addItem(_fromUtf8(""))
         self.connectPoll.addItem(_fromUtf8(""))
@@ -181,15 +180,14 @@ class Ui_tlBrokerConfig(object):
         tlBrokerConfig.setWindowTitle(_translate("tlBrokerConfig", "Broker Configuration", None))
         self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Broker Configuration", None))
         self.connectPoll.setToolTip(_translate("tlBrokerConfig", "Keep Alive values for MQTT Connection settings - default 60 seconds", None))
-        self.connectPoll.setItemText(0, _translate("tlBrokerConfig", "0", None))
-        self.connectPoll.setItemText(1, _translate("tlBrokerConfig", "1", None))
-        self.connectPoll.setItemText(2, _translate("tlBrokerConfig", "2", None))
-        self.connectPoll.setItemText(3, _translate("tlBrokerConfig", "3", None))
-        self.connectPoll.setItemText(4, _translate("tlBrokerConfig", "4", None))
-        self.connectPoll.setItemText(5, _translate("tlBrokerConfig", "5", None))
-        self.connectPoll.setItemText(6, _translate("tlBrokerConfig", "10", None))
-        self.connectPoll.setItemText(7, _translate("tlBrokerConfig", "30", None))
-        self.connectPoll.setItemText(8, _translate("tlBrokerConfig", "60", None))
+        self.connectPoll.setItemText(0, _translate("tlBrokerConfig", "1", None))
+        self.connectPoll.setItemText(1, _translate("tlBrokerConfig", "2", None))
+        self.connectPoll.setItemText(2, _translate("tlBrokerConfig", "3", None))
+        self.connectPoll.setItemText(3, _translate("tlBrokerConfig", "4", None))
+        self.connectPoll.setItemText(4, _translate("tlBrokerConfig", "5", None))
+        self.connectPoll.setItemText(5, _translate("tlBrokerConfig", "10", None))
+        self.connectPoll.setItemText(6, _translate("tlBrokerConfig", "30", None))
+        self.connectPoll.setItemText(7, _translate("tlBrokerConfig", "60", None))
         self.connectUsername.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>MQTT Broker Username</p></body></html>", None))
         self.connectTest.setToolTip(_translate("tlBrokerConfig", "<html><head/><body><p>Test and save the connection settings</p></body></html>", None))
         self.connectTest.setText(_translate("tlBrokerConfig", "Test", None))

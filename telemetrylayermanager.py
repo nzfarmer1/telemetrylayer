@@ -16,7 +16,7 @@ from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, Bro
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
-import os.path
+import os.path,sys,traceback
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -74,7 +74,6 @@ class layerManager(QObject):
         self.menuName = Settings.getMeta('name')
         self._tLayers = {}
         layerManager._rebuildingLegend = False
-        Log.debug('success')
 
         layers = layerManager.getLayers()
         if len(layers) > 0:  # Existing layers
@@ -180,6 +179,8 @@ class layerManager(QObject):
     """
 
     def rebuildLegend(self):
+        
+        
         if layerManager._rebuildingLegend:
             return
 
@@ -194,7 +195,9 @@ class layerManager(QObject):
 
                 broker = tLayer.getBroker()
                 nodeLayer = self._addLayerToGroup(tLayer.layer(), broker)
-                if nodeLayer.parent().parent() != root:
+                if not nodeLayer:
+                    return
+                if nodeLayer and nodeLayer.parent().parent() != root:
                     if not nodeLayer.parent() in parentsToRoot:
                         parentsToRoot.append(nodeLayer.parent())
 
@@ -207,6 +210,7 @@ class layerManager(QObject):
                     nodeGroup.insertChildNode(1, child.clone())
                 parent.removeAllChildren()
                 parent.parent().removeChildNode(parent)
+                
 
             # handle removed brokers
             removed = []
@@ -225,15 +229,19 @@ class layerManager(QObject):
             for node in root.children():
                 if self._isBrokerGroup(node) and len(node.children()) == 0:
                     removed.append(node.name())
-
+                
+                
             # perform removal                
             for group in removed:
-                Log.warn("Broker " + group + " not found in list of Brokers. Removing from legend")
+                Log.progress("Broker " + group + " not found in list of Brokers. Removing from legend")
                 nodeGrp = root.findGroup(group)
-                root.removeChildNode(root.findGroup(group))
+                root.removeChildNode(nodeGrp)
 
         except Exception as e:
             Log.debug(e)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                      exc_traceback)))
 
         layerManager._rebuildingLegend = False
 
@@ -279,18 +287,17 @@ class layerManager(QObject):
         multiple calls to rebuildLegend
         and the possibility of multiple broker removals
         """
+
         self.rebuildLegend()
 
     def brokersLoaded(self, changed=[]):
         remove = []
-        Log.debug("xBrokers loaded")
         for  tLayer in self.getTLayers().itervalues():
             old_broker = tLayer.getBroker()
             broker = Brokers.instance().find(old_broker.id())
             if broker is None:
                 remove.append(tLayer.layer())
                 continue
-            Log.debug("Updating Broker for " + str(tLayer))
             tLayer.setBroker(broker)
 
         if len(remove) > 0:
@@ -304,6 +311,14 @@ class layerManager(QObject):
             if tLayer.isRunning() and tLayer.getBroker().id() in changed:
                 Log.debug("Restarting  " + tLayer.getBroker().name())
                 tLayer.restart()
+
+
+    def brokerInUse(self,bid):
+        """ Return try if a layer exists with the broker id """
+        found = False
+        for  tLayer in self.getTLayers().itervalues():
+             found = found or (bid == tLayer.getBroker().id())
+        return found
 
     def layerPropertiesChanged(self, val=0):
         Log.debug("Layer Properties Changed " + str(val))
@@ -513,6 +528,7 @@ class layerManager(QObject):
         tLayer.beforeRollBack()
 
     def featureAdded(self, fid):
+        Log.debug("Adding Feature")
         layer = self._iface.activeLayer()
         if layer is None:
             return
@@ -566,9 +582,8 @@ class layerManager(QObject):
             tLayer.tearDown()
 
     def tearDown(self):
-        Log.debug("Layer Manager Teardown")
-        self.tearDownTLayers()
         self._iface.legendInterface().groupRelationsChanged.disconnect(self.legendRelationsChanged)
+        self.tearDownTLayers()
         if 0:
             self._iface.legendInterface().removeLegendLayerAction(self.actions['config'])
             self._iface.legendInterface().removeLegendLayerAction(self.actions['pause'])

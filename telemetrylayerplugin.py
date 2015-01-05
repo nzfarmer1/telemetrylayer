@@ -67,7 +67,7 @@ class TelemetryLayerPlugin(QObject):
         self.installed = False
         self.configureDlg = None
         self.plugin_basename = str(os.path.basename(self.plugin_dir))
-
+        self.state="Init"
 
         # Initialise Settings and Log handlers
         try:
@@ -78,6 +78,7 @@ class TelemetryLayerPlugin(QObject):
             Log.debug("Topic Managers Loaded")
             Brokers(os.path.join(self.plugin_dir, 'data'))
             Log.debug("Brokers Loaded")
+
         except Exception as e:
             Log.critical("Error on Plugin initialization " + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -131,8 +132,8 @@ class TelemetryLayerPlugin(QObject):
             Log.debug("Layer Manager Loaded")
             self.telemetryLayer = TelemetryLayer(self)
             Log.debug("Telemetry Layer Loaded")
-            self.iface.projectRead.connect(self.layerManager.rebuildLegend)
-            self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
+            self.iface.projectRead.connect(lambda : self.layerManager.rebuildLegend())
+            self.iface.newProjectCreated.connect(lambda:self.layerManager.rebuildLegend())
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
         except Exception as e:
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")
