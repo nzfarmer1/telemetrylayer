@@ -140,7 +140,6 @@ class tLayer(MQTTClient):
     def stop(self):
         super(tLayer, self).stop()
         try:
-            pass
             iter = self._layer.getFeatures()
             if iter.next():
                 self._layer.triggerRepaint()
@@ -277,7 +276,6 @@ class tLayer(MQTTClient):
 
     def commitChanges(self):
         #Log.debug("Committing"  + str( QgsApplication.activeWindow()))
-
         if not self._dirty:
             return
         

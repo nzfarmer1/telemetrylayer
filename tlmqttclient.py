@@ -152,6 +152,7 @@ class MQTTClient(QtCore.QObject):
 
     def on_connect(self, client, obj,flags, rc):   # paho
 #    def on_connect(self, client, obj, rc): # mosquitto
+        Log.debug("Connected " + str(rc))
         if rc != mqtt.MQTT_ERR_SUCCESS: # paho
 #        if rc != mqtt.MOSQ_ERR_SUCCESS: # mosquitto
             return
@@ -273,6 +274,7 @@ class MQTTClient(QtCore.QObject):
     def _connect(self):
         try:
             if not self._connected:
+                Log.debug("Connecting")
                 if not self._attempts < self.kMaxAttempts:
                     if not self._resetTimer.isActive():
                         Log.warn("Max connection attempts reached - waiting " + str(self.kResetTimer) + " seconds" )
@@ -339,7 +341,7 @@ class tlMqttSingleShot(MQTTClient):
         self._qos = int(qos)
         self._timer = QTimer()
         self._timer.setSingleShot(True)
-        self._timer.timeout.connect(self._connectError)
+        self._timer.timeout.connect(lambda: self._connectError(self.mqttc,"timeout"))
         self._callback = None
         self._callbackonerr = None
         self._messages = 0
@@ -388,6 +390,7 @@ class tlMqttSingleShot(MQTTClient):
 
 
     def onConnect(self, mqtt, obj, rc):
+        Log.debug("rc")
         if len(self._subTopics) == 0:
             self._connectError(False, "No Subcription Topic defined")
         for topic in self._subTopics:

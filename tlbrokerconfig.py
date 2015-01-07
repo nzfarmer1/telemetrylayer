@@ -480,13 +480,23 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         if not Brokers.instance().uniqName(self._broker.id(), self.getName()):
             Log.alert("A broker named " + self.getName() + " already exists")
             return False
+        
 
         if len(self.getHost()) == 0:
             Log.alert("Please supply a hostname")
             return False
 
+        if self.getUseAltConnect() and len(self.getHostAlt()) == 0:
+            Log.alert("Please supply a hostname (alt)")
+            return False
+
+
         if self.getPort() is None:
             Log.alert("Please specify a port")
+            return False
+
+        if self.getUseAltConnect() and self.getPortAlt() is None:
+            Log.alert("Please supply a port (alt)")
             return False
 
         return True
