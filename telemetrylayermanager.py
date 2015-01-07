@@ -84,15 +84,15 @@ class layerManager(QObject):
         self._disable_enter_attribute_values_dialog_global_default = QSettings().value(
             "/qgis/digitizing/disable_enter_attribute_values_dialog")
 
-        self.actions['config'] = QAction(QIcon(":/plugins/digisense/icon.png"), u"Configure",
+        self.actions['config'] = QAction(QIcon(":/plugins/telemetrylayer/icon.png"), u"Configure",
                                          self._iface.legendInterface())
 
         self.actions['pause'] = QAction(
-            QIcon(":/plugins/digisense/icon.png"),
+            QIcon(":/plugins/telemetrylayer/icon.png"),
             "Pause", self._iface.legendInterface())
 
         self.actions['resume'] = QAction(
-            QIcon(":/plugins/digisense/icon.png"),
+            QIcon(":/plugins/telemetrylayer/icon.png"),
             "Resume", self._iface.legendInterface())
 
         self._iface.legendInterface().addLegendLayerAction(self.actions['resume'], self.menuName, u"id1",
@@ -383,15 +383,15 @@ class layerManager(QObject):
                 return None
 
         self.actions['config' + layer.id()] = QAction(
-            QIcon(":/plugins/digisense/icon.png"),
+            QIcon(":/plugins/telemetrylayer/icon.png"),
             u"Configure", self._iface.legendInterface())
 
         self.actions['pause' + layer.id()] = QAction(
-            QIcon(":/plugins/digisense/icon.png"),
+            QIcon(":/plugins/telemetrylayer/icon.png"),
             u"Pause", self._iface.legendInterface())
 
         self.actions['resume' + layer.id()] = QAction(
-            QIcon(":/plugins/digisense/icon.png"),
+            QIcon(":/plugins/telemetrylayer/icon.png"),
             u"Resume", self._iface.legendInterface())
 
         if 0:  # disable menu actions

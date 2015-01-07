@@ -85,8 +85,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.connectTest.clicked.connect(self._test)
 
         self.connectName.setValidator(QRegExpValidator(QRegExp("^[a-zA-Z0-9\s]+"), self))
-        self.connectHost.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\.]+"), self))
-        self.connectHostAlt.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\.]+"), self))
+        self.connectHost.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\-\.]+"), self))
+        self.connectHostAlt.setValidator(QRegExpValidator(QRegExp("^[a-z0-9\-\.]+"), self))
 
         
         self.Tabs.setCurrentIndex(self.kBrokerConfigTabId)  # First index
