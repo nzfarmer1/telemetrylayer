@@ -177,9 +177,12 @@ class TelemetryLayerPlugin(QObject):
             TopicManagerFactory.unregisterAll()
             pass
         finally:
-            self.layerManager.deleteLater()
-            self.telemetryLayer.deleteLater()
-            Brokers.instance().deleteLater()
+            if  self.layerManager:
+                self.layerManager.deleteLater()
+            if  self.telemetryLayer:
+                self.telemetryLayer.deleteLater()
+            if Brokers:
+                Brokers.instance().deleteLater()
             gc.collect()
             Log.debug("Plugin unloaded")
 

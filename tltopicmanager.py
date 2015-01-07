@@ -278,7 +278,7 @@ class tlTopicManager(QDialog, QObject):
     def instance(self,topicType):
         return self
 
-    def beforeCommit(self,tLayer,topicType,values):
+    def beforeCommit(self,tLayer,values):
         pass
 
     def formatPayload(self, payload):
