@@ -27,7 +27,7 @@ from qgis.core import *
 
 import pdb
 # Initialize Qt resources from file resources.py
-import os.path, sys, time, traceback, resource, gc
+import os.path, sys, time, traceback, gc
 import webbrowser
 import resources_rc
 # Import the code for the dialog
