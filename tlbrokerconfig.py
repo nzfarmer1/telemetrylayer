@@ -101,7 +101,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.setPoll(str(self._broker.poll()))
         self.setKeepAlive(str(self._broker.keepAlive()))
 
-        self.setUsername(self._broker.username())
+        self.setUsername(self._broker.username())   
         self.setPassword(self._broker.password())
 
         self._topicManager = None

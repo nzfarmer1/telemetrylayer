@@ -26,7 +26,7 @@ from telemetrylayer import TelemetryLayer as telemetryLayer
 from tladdfeature import tlAddFeature as AddFeature
 from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, BrokersNotDefined
 import time, os, zlib
-import resource
+#import resource
 
 
 class tLayer(MQTTClient):
