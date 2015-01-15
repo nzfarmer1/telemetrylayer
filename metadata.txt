@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 qgisMaximumVersion=2.69
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of brokers. Define a set of topics for each broker. Create a new Telemetry Layer (Layers are placed under a Broker Group and represent a set of topics by type).   Add topics as features.  Apply Rules based formatting.  Note: Plugin is at an alpha stage of development and being actively improved.  Please ensure to check regularly for updates and get in touch if you are keen to join the project." 
-version=0.910027
+version=0.910028
 author=Andrew McClure
 email=andrew@southweb.co.nz
 
@@ -23,11 +23,11 @@ email=andrew@southweb.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Removed reference to resource package"
+changelog="Fixed issue with labels not showing up on adding a feature (Windows version)"
 
 
 # tags are comma separated with spaces allowed
-tags=SCADA, Telemetry, remote sensing,  MQTT, MQTT-SN, Internet of Things (I.o.T), Wireless Sensors, Zigbee, Modbus, AgSense, XBee, DigiMesh
+tags="SCADA, Telemetry, remote sensing,  MQTT, MQTT-SN, Internet of Things (I.o.T), Wireless Sensors, Zigbee, Modbus, AgSense, XBee, DigiMesh"
 
 homepage=http://www.southweb.co.nz/telemetrylayer
 download=http://southweb.co.nz/sites/default/files/TelemetryLayer.zip

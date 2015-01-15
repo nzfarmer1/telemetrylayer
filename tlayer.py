@@ -382,13 +382,13 @@ class tLayer(MQTTClient):
         self._layer.commitChanges()
 
         self._layer.startEditing()
-        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
-        self._layer.commitChanges()
-        self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setLayerStyle(self._layer)
         self._layer.commitChanges()
         self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
+        self._layer.commitChanges()
+        self._layer.startEditing()
+        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
         self._layer.commitChanges()
 
     def getAttributes(self):
