@@ -319,6 +319,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         if QgsExpression.isFunctionName("$agsense_format_label"):
             QgsExpression.unregisterFunction("$agsense_format_label")
 
+        if QgsExpression.isFunctionName("$agsense_alert"):
+            QgsExpression.unregisterFunction("$agsense_alert")
+
     def __del__(self):
         QObject.disconnect(self, SIGNAL("deviceMapsRefreshed"), self._buildDevicesTables)
 

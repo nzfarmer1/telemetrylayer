@@ -142,9 +142,10 @@ class tLayer(MQTTClient):
         try:
             iter = self._layer.getFeatures()
             if iter.next():
-                self._layer.triggerRepaint()
+                self.triggerRepaint()
         except Exception as e: #if the broker is deleted, the layer has been removed - don't repaint
             Log.debug(e)
+
 
 
     def onConnect(self, mosq, obj, rc):
@@ -188,7 +189,7 @@ class tLayer(MQTTClient):
                 Log.debug("Error adding features from layer")
                 pass
                 
-        self._layer.triggerRepaint()
+        self.triggerRepaint()
 
 
     def onLog(self, mosq, obj, level, string):
@@ -197,7 +198,6 @@ class tLayer(MQTTClient):
 
     def onDisConnect(self, mosq, obj, rc):
 
-        self.updateConnected(False)
         feat = QgsFeature()
         iter = self._layer.getFeatures()
         while iter.nextFeature(feat):
@@ -205,7 +205,8 @@ class tLayer(MQTTClient):
             if topic is not None:
                 Log.debug("Unsubscribe " + topic)
                 self.unsubscribe(topic)
-        self._layer.triggerRepaint()
+        self.updateConnected(False)
+        self.triggerRepaint()
 
 
     """
@@ -230,7 +231,7 @@ class tLayer(MQTTClient):
                         self.updateFeature(feat, msg.topic, msg.payload)
 
             #Log.debug("Triggering repaint")
-            self._layer.triggerRepaint()
+            self.triggerRepaint()
 
         except Exception as e:
             Log.critical("MQTT Client - Error updating features! " + str(e))
@@ -263,6 +264,7 @@ class tLayer(MQTTClient):
     def changeAttributeValue(self, fid, idx, val, signal=False):
         key = (fid, idx)
         self._values[key] = val
+        self._dirty = True
 
 
     def brokerUpdated(self):
@@ -285,14 +287,14 @@ class tLayer(MQTTClient):
             
             #                Log.debug(QgsApplication.activeWindow().centralWidget().windowTitle())
 
-            if QgsApplication.activeWindow() is None:
+            #if QgsApplication.activeWindow() is None:
             #is None \
             #        or (
             #                    not 'QMainWindow' in str(QgsApplication.activeWindow())
             #                and not QgsApplication.activeWindow().windowTitle() == 'Feature Attributes'
             #                    # Paramaterise?
             #        ):
-                return
+            #    return
 
             #  Todo: Check for valid Layer!!!!
             if self.isEditing or self._layer.isReadOnly():
@@ -541,6 +543,16 @@ class tLayer(MQTTClient):
             self.resume()
         else:
             self.pause()
+
+
+    def triggerRepaint(self):
+        if 'QDialog' in str( QgsApplication.activeWindow()): # Avoid nasty surprises
+        
+            # Log.debug("triggerRepaint"  + str( QgsApplication.activeWindow()))
+            pass
+        # Add additional checks?
+        else:
+            self._layer.triggerRepaint()
 
     def layerEditStarted(self):
         self.isEditing = True

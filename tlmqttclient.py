@@ -241,7 +241,8 @@ class MQTTClient(QtCore.QObject):
             
             self._connected = False
             self._attempts += 1
-            Log.progress(mqtt.error_string(connResult))
+            
+            Log.warn("MQTT: An error occurred while looping")
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, mqtt.error_string(connResult))
         except ValueError as e:
             if e == 'Invalid timeout.':
@@ -250,7 +251,7 @@ class MQTTClient(QtCore.QObject):
                 Log.debug("Paho Client ValueError" + str(e))
         except Exception as e:
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, str(e))
-            Log.progress("MQTT Connect: Unknown exception raised "  + str(e))
+            Log.debug("MQTT Connect: Unknown exception raised "  + str(e))
 
 
     def _kill(self):
@@ -274,7 +275,6 @@ class MQTTClient(QtCore.QObject):
     def _connect(self):
         try:
             if not self._connected:
-                Log.debug("Connecting")
                 if not self._attempts < self.kMaxAttempts:
                     if not self._resetTimer.isActive():
                         Log.warn("Max connection attempts reached - waiting " + str(self.kResetTimer) + " seconds" )
@@ -289,17 +289,18 @@ class MQTTClient(QtCore.QObject):
 #                self._connected = result == mqtt.MOSQ_ERR_SUCCESS # mosquitto
                 if not self._connected:
                     self._attempts += 1
-                    Log.progress(mqtt.error_string(connResult))
-                    QObject.emit(self, SIGNAL('mqttConnectionError'), self, mqtt.error_string(connResult))
+                    Log.progress(mqtt.connack_string(connResult))
+                    QObject.emit(self, SIGNAL('mqttConnectionError'), self, mqtt.connack_string(connResult))
  
         except Exception as e:
-            msg = 'MQTT Connection Error: ' + str(e) + ' ' + self._host + ":" + str(self._port)
+            msg = 'MQTT: ' + str(e)
 
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, msg)
-            Log.warn(msg)
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                                                      exc_traceback)))
+            Log.progress(msg)
+            Log.debug(msg)
+            #exc_type, exc_value, exc_traceback = sys.exc_info()
+            #Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+             #                                         exc_traceback)))
             self._attempts += 1
             self._connected = False
 

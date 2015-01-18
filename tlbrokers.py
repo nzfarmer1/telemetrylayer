@@ -92,7 +92,7 @@ class tlBrokers(QObject):
             self.brokersLoaded.emit(self._dirtyList)
             self._dirtyList[:] = []
         except Exception as e:
-            Log.debug("Error loading broker " + str(e))
+            Log.debug("Error loading broker: " + str(e))
         finally:
             self._dirty = False
 

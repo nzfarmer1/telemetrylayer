@@ -807,6 +807,7 @@ class Client(object):
         if self.socket() in socklist[1]:
             rc = self.loop_write(max_packets)
             if rc or (self._ssl is None and self._sock is None):
+                print("PAHO: Rc2 " + str(rc))
                 return rc
 
         return self.loop_misc()
