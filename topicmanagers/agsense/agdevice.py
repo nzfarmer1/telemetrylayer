@@ -87,7 +87,7 @@ class agParams:
     """
     def __init__(self, params):
         self.params = {}
-        for param in params.getiterator():
+        for param in params.iter():
             _p = agParam(param)
             try:
                 if not _p.name():

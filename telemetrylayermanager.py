@@ -137,7 +137,9 @@ class layerManager(QObject):
         # replace with _getGroupNode
         nodeGrp = root.findGroup(broker.name())
         if nodeGrp is None and create:
-            nodeGrp = root.insertGroup(len(root.children()), broker.name())
+            
+            nodeGrp = root.insertGroup(0, broker.name())
+            # Changed from len(root.children()) to 0 to place at top of tree!
             # nodeGrp.setToolTip("Double click to view features")
             nodeGrp.setCustomProperty(TLayer.kBrokerId, broker.id())
 
@@ -283,7 +285,7 @@ class layerManager(QObject):
 
     def legendRelationsChanged(self):
         """
-        Note: when a projec is loading this will cause
+        Note: when a project is loading this will cause
         multiple calls to rebuildLegend
         and the possibility of multiple broker removals
         """

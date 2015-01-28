@@ -366,6 +366,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.connectKeepAlive.setCurrentIndex(idx)
 
     def setPoll(self, interval):
+        if int(interval) < 1000:
+            interval = 1000 # Min 1 second
         _interval = int(float(1.0 / 1000) * float(interval))
         self.connectPoll.setCurrentIndex(self.connectPoll.findText(str(_interval)))
 

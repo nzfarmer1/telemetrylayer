@@ -36,7 +36,7 @@ from agfeaturedialog import agFeatureDialog as FeatureDialog
 from ui_agtopicmanager import Ui_agTopicManager
 from agdevice import agDeviceList, agDevice, agParams, agParam
     
-import os, zlib, datetime, json,imp
+import os, zlib, datetime, json,imp,sys
 
 import tank
 
@@ -280,23 +280,32 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         tbl.resizeColumnsToContents()
         tbl.horizontalHeader().setStretchLastSection(True)
 
-    def setLabelFormatter(self, layer):
+    def setLabelFormatter(self, layer): # remove topicType
         try:
             palyr = QgsPalLayerSettings()
             palyr.readFromLayer(layer)
             palyr.enabled = True
+            palyr.fontBold = True
+           # palyr.dataDefinedProperty(QgsPalLayerSettings.DataDefinedProperties.shapeBlendMode)
+            palyr.shapeDraw = True
+            palyr.shapeTransparency = 66
+            palyr.shapeType = QgsPalLayerSettings.ShapeEllipse
+            palyr.textColor = QColor(255,134,13)
             palyr.placement = QgsPalLayerSettings.OverPoint
             palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
+            palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
             palyr.yOffset = 0.01
-            palyr.fieldName = '$format_label'
+            palyr.fieldName =  '$agsense_format_label'
             palyr.writeToLayer(layer)
+            Log.debug("Palyr Settings updated")
         except Exception as e:
-            Log.debug("Error setting Format " + str(e))
+            Log.debug("Error setting Label Format " + str(e))
 
     def setLayerStyle(self, layer):
+        Log.debug("agTopicManager setLayerStyle " + self.path())
         if not self.path() in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
-        self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
+        self.loadStyle(layer, os.path.join(self.path(), "agsense.qml"))
 
     def formatPayload(self, payload):
         return str(payload)

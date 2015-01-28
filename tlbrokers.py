@@ -11,7 +11,7 @@ from PyQt4.QtCore import QFile, QIODevice, QObject, pyqtSignal
 from PyQt4.QtGui import QFileDialog
 from qgis.core import QgsProject
 
-import json, os.path, sys,copy
+import json, os.path, sys,copy, traceback
 
 
 class BrokerNotFound(Exception):
@@ -89,10 +89,14 @@ class tlBrokers(QObject):
                self._brokers = dict(json.loads( jsonstr ))
 
             self._validate()
+            Log.debug(self._dirtyList)
             self.brokersLoaded.emit(self._dirtyList)
             self._dirtyList[:] = []
         except Exception as e:
             Log.debug("Error loading broker: " + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                      exc_traceback)))
         finally:
             self._dirty = False
 

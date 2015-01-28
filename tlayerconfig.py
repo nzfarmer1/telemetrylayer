@@ -41,8 +41,9 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
     def __init__(self, creator):
         super(tLayerConfig, self).__init__()
 
-        self._iface = creator._iface
+        self._creator = creator
         self._brokers = Brokers.instance().list()
+        self._invalidTypes = []
         self.setupUi()
         self.selectBroker.currentIndexChanged.connect(self._brokerChanged)
         self.selectTopicType.currentIndexChanged.connect(self._topicTypeChanged)
@@ -52,24 +53,28 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         super(tLayerConfig, self).setupUi(self)
 
         self.selectBroker.addItem("Select Broker ...", None)
-
-        for broker in self._brokers:
+        for broker in self._brokers: # Note: If NOT already Layer in Layers!
             self.selectBroker.addItem(broker.name(), broker)
         self._brokerChanged(0)
         self.buttonCreate.clicked.connect(self.accept)
         self.buttonCancel.clicked.connect(self.reject)
-
+        for  tLayer in self._creator.getTLayers().itervalues():
+            self._invalidTypes.append((tLayer.brokerId(),tLayer.topicType()))
+ 
         # Note: tLayerConfig - add code to get currently selected broker")
         return
 
     def _brokerChanged(self, idx):
+ 
         self.selectTopicType.clear()
         broker = self.selectBroker.itemData(idx)
         if broker is None:
             self.selectTopicType.setEnabled(False)
             return
         for ttype in broker.uniqTopicTypes():
-            self.selectTopicType.addItem(ttype)
+            if not (broker.id(),ttype) in self._invalidTypes:
+                self.selectTopicType.addItem(ttype)
+
         self.selectTopicType.setEnabled(True)
 
     def _topicTypeChanged(self, idx):

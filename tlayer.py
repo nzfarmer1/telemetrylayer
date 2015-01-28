@@ -64,6 +64,9 @@ class tLayer(MQTTClient):
     def getBrokerId(l):
         return l.customProperty(tLayer.kBrokerId, -1)
 
+    def brokerId(self):
+        return self.getBrokerId(self._layer)
+
     def __init__(self,
                  creator,
                  layer=None,
