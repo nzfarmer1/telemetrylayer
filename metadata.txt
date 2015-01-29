@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 qgisMaximumVersion=2.69
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of brokers. Define a set of topics for each broker. Create a new Telemetry Layer (Layers are placed under a Broker Group and represent a set of topics by type).   Add topics as features.  Apply Rules based formatting.  Note: Plugin is at an alpha stage of development and being actively improved.  Please ensure to check regularly for updates and get in touch if you are keen to join the project." 
-version=0.910050
+version=0.910100
 author=Andrew McClure
 email=andrew@southweb.co.nz
 
@@ -23,7 +23,7 @@ email=andrew@southweb.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Removed updates when dialogs open. Added example of mulitple rules to AgSense node"
+changelog="Place new broker groups at top of legend; Check for duplicate broker->type combinations before adding T layers; custom label/icon styling for AgSense; fix paramater table initialisation; improve broker reloading; improve robustness for feature Dialogs" 
 
 
 # tags are comma separated with spaces allowed
