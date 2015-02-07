@@ -93,9 +93,12 @@ class tLayer(MQTTClient):
         self._topicType = None
         self._topicManager = None
 
+            
         if broker is not None and topicType is not None:
             self.setBroker(broker, False)
-            self._prepare(broker, topicType)  # Add Layer properties for broker
+            if not self.isTLayer(self._layer):
+                Log.debug("Not already a layer")
+                self._prepare(broker, topicType)  # Add Layer properties for broker
         else:
             _broker = Brokers.instance().find(self.get(self.kBrokerId))
             if _broker is None:
@@ -103,7 +106,6 @@ class tLayer(MQTTClient):
 
             self.setBroker(_broker)
             self._topicType = self.get(self.kTopicType)
-
             #self._setFormatters()
 
         super(tLayer, self).__init__(self,
@@ -366,8 +368,9 @@ class tLayer(MQTTClient):
         self._layer.commitChanges()
         self._setFormatters()
         self._iface.legendInterface().setCurrentLayer(self._layer)
-
-    def _setFormatters(self):
+    
+     
+    def _setFormatters(self,V2WidgetsOnly = False ): # change to bitmask  
 
         # Configure Attributes
         self._layer.startEditing()
@@ -385,13 +388,18 @@ class tLayer(MQTTClient):
         self.brokerUpdated()
 
         self._layer.commitChanges()
+        
+        if V2WidgetsOnly:
+            return
 
         self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setLayerStyle(self._layer)
         self._layer.commitChanges()
+        
         self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
         self._layer.commitChanges()
+        
         self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
         self._layer.commitChanges()

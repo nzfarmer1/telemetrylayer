@@ -1,5 +1,6 @@
 from qgis.utils import qgsfunction, QgsExpression
-
+import json
+from TelemetryLayer.lib.tllogging import tlLogging as Log
 
 @qgsfunction(0, u"Telemetry Layer")
 def agsense_format_label(values, feature, parent):
@@ -7,8 +8,11 @@ def agsense_format_label(values, feature, parent):
         if  int(feature.attribute('visible'))  == 0:
             return ""
         else:
-            return str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+            Log.debug(feature.attribute('payload'))
+            payload = json.loads(feature.attribute('payload'))
+            return str(feature.attribute('name')) + '\n(' + str(payload['raw']) + ')'
     except:
+        return str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
         pass
 
 @qgsfunction(0, u"Telemetry Layer")
@@ -18,6 +22,7 @@ def agsense_alert(values, feature, parent):
     """
     try:
         return int(feature['alert']) == 1 or feature['alert'] == 'true' or feature['alert'] == 'True'
-    except KeyError:
+    except:
         return False
+        pass
 

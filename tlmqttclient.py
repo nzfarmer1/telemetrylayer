@@ -277,7 +277,7 @@ class MQTTClient(QtCore.QObject):
             if not self._connected:
                 if not self._attempts < self.kMaxAttempts:
                     if not self._resetTimer.isActive():
-                        Log.warn("Max connection attempts reached - waiting " + str(self.kResetTimer) + " seconds" )
+                        Log.progress(Settings.getMeta("name") + ": Max connection attempts reached - waiting " + str(self.kResetTimer) + " seconds before retrying" )
                         self._resetTimer.start(self.kResetTimer*1000)  # 1 minute parameterise
                     return
                 if self._attempts > 0 and (time.time() - pow(2,self._attempts +1)) < self._attemped:
@@ -296,7 +296,7 @@ class MQTTClient(QtCore.QObject):
             msg = 'MQTT: ' + str(e)
 
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, msg)
-            Log.progress(msg)
+            #Log.progress(msg)
             Log.debug(msg)
             #exc_type, exc_value, exc_traceback = sys.exc_info()
             #Log.debug(repr(traceback.format_exception(exc_type, exc_value,

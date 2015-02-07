@@ -173,7 +173,9 @@ class layerManager(QObject):
     def readProject(self):
         for lid, tLayer in self.getTLayers().iteritems():
             Log.debug("Adding V2 Format data to loaded layers")
-            tLayer._setFormatters()  # Memory Layer Saver doesn't save some V2 format data
+            # Change this to add in only the path details!
+            tLayer._setFormatters(True)  # Memory Layer Saver doesn't save some V2 format data
+           
         return
 
     """
@@ -224,21 +226,21 @@ class layerManager(QObject):
                         Log.debug("Broker not found")
                         nodeLayer = root.findLayer(lid)
                         if not nodeLayer.parent().name() in removed:
-                            removed.append(nodeLayer.parent().name())
+                            removed.append(nodeLayer.parent())
                         root.removeChildNode(nodeLayer)
 
             # Remove empty or groups referencing older renamed brokers
             for node in root.children():
-                if self._isBrokerGroup(node) and len(node.children()) == 0:
-                    removed.append(node.name())
-                
-                
+                if self._isBrokerGroup(node) and not node.children():
+                    Log.debug(node)
+                    removed.append(node)
+             
             # perform removal                
-            for group in removed:
-                Log.progress("Broker " + group + " not found in list of Brokers. Removing from legend")
-                nodeGrp = root.findGroup(group)
-                root.removeChildNode(nodeGrp)
-
+            for node in removed:
+                #Log.progress("Broker " + group + " not found in list of Brokers. Removing from legend")
+                #nodeGrp     = root.findGroup(group)
+                root.removeChildNode(node)
+    
         except Exception as e:
             Log.debug(e)
             exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -200,7 +200,7 @@
     <attribute name="title">
      <string>Configure</string>
     </attribute>
-    <widget class   ="QTableWidget" name="tblParams">
+    <widget class="QTableWidget" name="tblParams">
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -219,6 +219,9 @@
        <height>32</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply settings for device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>Apply</string>
      </property>
@@ -234,6 +237,22 @@
      </property>
      <property name="text">
       <string>Update server based configuration</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnReload">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>190</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Refresh local copies of all devices for this AgSense broker.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Reload</string>
      </property>
     </widget>
    </widget>

@@ -262,9 +262,9 @@ class tlTopicManager(QDialog, QObject):
         palyr.writeToLayer(layer)
         Log.debug("Setting feature form to:" + os.path.join(self.path(), "topicmanagers", "ui_tleditfeature.ui"))
 
-        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
-        layer.setEditFormInit("editformfactory.featureDialog")
-        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+#        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
+ #       layer.setEditFormInit("editformfactory.featureDialog")
+  #      layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
     def setFeatureForm(self, layer):
         _form = os.path.join(TelemetryLayer.path(), "topicmanagers", "ui_tleditfeature.ui")

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'topicmanagers/agsense/ui_agdatatabwidget.ui'
 #
-# Created: Fri Jan  2 16:03:41 2015
+# Created: Tue Feb  3 14:40:13 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,6 +89,9 @@ class Ui_Form(object):
         self.label = QtGui.QLabel(self.configTab)
         self.label.setGeometry(QtCore.QRect(50, 0, 261, 16))
         self.label.setObjectName(_fromUtf8("label"))
+        self.btnReload = QtGui.QPushButton(self.configTab)
+        self.btnReload.setGeometry(QtCore.QRect(80, 190, 114, 32))
+        self.btnReload.setObjectName(_fromUtf8("btnReload"))
         self.Tabs.addTab(self.configTab, _fromUtf8(""))
 
         self.retranslateUi(Form)
@@ -114,7 +117,10 @@ class Ui_Form(object):
         self.btnRefreshc.setToolTip(_translate("Form", "<html><head/><body><p>Refresh</p></body></html>", None))
         self.btnRefreshc.setText(_translate("Form", "Draw", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.chartTab), _translate("Form", "Chart", None))
+        self.btnApply.setToolTip(_translate("Form", "<html><head/><body><p>Apply settings for device.</p></body></html>", None))
         self.btnApply.setText(_translate("Form", "Apply", None))
         self.label.setText(_translate("Form", "Update server based configuration", None))
+        self.btnReload.setToolTip(_translate("Form", "<html><head/><body><p>Refresh local copies of all devices for this AgSense broker.</p></body></html>", None))
+        self.btnReload.setText(_translate("Form", "Reload", None))
         self.Tabs.setTabText(self.Tabs.indexOf(self.configTab), _translate("Form", "Configure", None))
 

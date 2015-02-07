@@ -38,7 +38,7 @@ from agdevice import agDeviceList, agDevice, agParams, agParam
     
 import os, zlib, datetime, json,imp,sys
 
-import tank
+import tank, relay
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -107,9 +107,12 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         For existing topic managers
         
         """
+        
+        Log.debug("instance: " + topicType.lower() )
         if topicType is not None:
             try:
                 module = __import__(topicType.lower())
+                
                 return module.getClass(self._broker)
             except ImportError:
                 return self
@@ -303,8 +306,8 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
     def setLayerStyle(self, layer):
         Log.debug("agTopicManager setLayerStyle " + self.path())
-        if not self.path() in QgsApplication.svgPaths():
-            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+    #    if not self.path() in QgsApplication.svgPaths():
+     #       QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "agsense.qml"))
 
     def formatPayload(self, payload):
@@ -316,12 +319,16 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
 
         path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
         imp.load_source('qgsfuncs', path)
+      
+        icons = os.path.join(os.path.dirname(__file__), 'icons')
+
+        if not icons in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [icons])
 
         # from qgsfuncs import format_label
         pass
     
     
-
 
     @staticmethod
     def unregister():

@@ -39,11 +39,11 @@ class agParam:
     def desc(self):
         return self._attr("description")
 
-    def _attr(self,key):
+    def readonly(self):
         try:
-            return self.param.get(key)
+            return self._attr("readonly").lower() == "true"
         except:
-            return None # raise exception
+            return False
 
     def value(self):
         if self._find('Value') is None:
@@ -68,6 +68,12 @@ class agParam:
     def type(self):
         return self._find('Type')
 
+    def _attr(self,key):
+        try:
+            return self.param.get(key)
+        except:
+            return None # raise exception
+
     def _find(self,key):
         try:
             return self.param.find(key).text
@@ -75,7 +81,12 @@ class agParam:
             return None
         
     def dump(self):
-        _param = {'name': self.name(), 'type': self.type(),'widget':self.widget(),'title':self.title(),'desc':self.desc()}
+        _param = {'name': self.name(),
+                  'type': self.type(),
+                  'widget':self.widget(),
+                  'title':self.title(),
+                  'desc':self.desc(),
+                  'readonly':self.readonly()}
         for p in self.param:
             _param[p.tag.lower()] = p.text
         return _param

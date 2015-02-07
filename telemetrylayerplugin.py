@@ -131,7 +131,7 @@ class TelemetryLayerPlugin(QObject):
             self.layerManager = layerManager(self)
             Log.debug("Layer Manager Loaded")
             self.telemetryLayer = TelemetryLayer(self)
-            Log.debug("Telemetry Layer Loaded")
+            Log.debug(Settings.getMeta("name") + ": Loaded")
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)

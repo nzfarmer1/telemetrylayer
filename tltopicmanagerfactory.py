@@ -24,8 +24,8 @@ import traceback, sys, time
 @qgsfunction(0, u"Telemetry Layer")
 def is_connected(values, feature, parent):
     try:
-        return int(feature['connected']) == 1 or feature['connected'] == 'true' or feature['connected'] == 'True'
-    except KeyError:
+        return  int(feature['connected']) == 1 or feature['connected'] == 'true' or feature['connected'] == 'True'
+    except KeyError,TypeError:
         return 0
 
 

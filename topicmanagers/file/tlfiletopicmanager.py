@@ -75,8 +75,8 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
         palyr.writeToLayer(layer)
 
     def setLayerStyle(self, layer):
-        if not self.path() in QgsApplication.svgPaths():
-            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+   #     if not self.path() in QgsApplication.svgPaths():
+    #        QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
 
 
@@ -138,3 +138,14 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
         tbl.resizeColumnsToContents()
         # tbl.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
         tbl.horizontalHeader().setStretchLastSection(True)
+
+
+    @staticmethod
+    def register():
+        Log.debug("File Register")
+        icons = os.path.join(os.path.dirname(__file__), 'icons')
+
+        if not icons in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [icons])
+
+        pass

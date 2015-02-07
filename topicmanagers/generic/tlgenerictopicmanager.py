@@ -59,8 +59,8 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         palyr.writeToLayer(layer)
 
     def setLayerStyle(self, layer):
-        if not self.path() in QgsApplication.svgPaths():
-            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+      #  if not self.path() in QgsApplication.svgPaths():
+       #     QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
 
 
@@ -70,6 +70,10 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
 
         path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
         imp.load_source('qgsfuncs', path)
+        icons = os.path.join(os.path.dirname(__file__), 'icons')
+
+        if not icons in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [icons])
 
         # from qgsfuncs import format_label
         pass
