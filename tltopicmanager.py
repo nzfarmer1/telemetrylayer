@@ -49,7 +49,7 @@ class tlFeatureDialog(QObject):
 
         if widgets is not None:
             for (widget, title, idx) in widgets:
-                self._addTab(widget, title, idx + 1)
+                self._addTab(widget, title, idx)
 
         Log.debug("Dialog Editable " + str(dialog.editable()))
 
@@ -92,8 +92,8 @@ class tlFeatureDialog(QObject):
         return tabWidget.count()
 
     def _addTab(self, widget, title, idx):
-        tabWidget = self._find(QTabWidget, 'tabWidget')  # Remove History Tab!
-        if tabWidget.count() < idx + 1:
+        tabWidget = self._find(QTabWidget, 'tabWidget')
+        if tabWidget.count() < idx  and tabWidget.indexOf(widget) ==-1:
             tabWidget.addTab(widget, title)
         pass
 
@@ -262,9 +262,9 @@ class tlTopicManager(QDialog, QObject):
         palyr.writeToLayer(layer)
         Log.debug("Setting feature form to:" + os.path.join(self.path(), "topicmanagers", "ui_tleditfeature.ui"))
 
-        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
-        layer.setEditFormInit("editformfactory.featureDialog")
-        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+#        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
+#        layer.setEditFormInit("editformfactory.featureDialog")
+#        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
     def setFeatureForm(self, layer):
         _form = os.path.join(TelemetryLayer.path(), "topicmanagers", "ui_tleditfeature.ui")
