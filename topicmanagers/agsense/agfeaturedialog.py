@@ -58,8 +58,13 @@ class agFeatureDialog(tlFeatureDialog):
         super(agFeatureDialog, self).__init__(dialog, tLayer, feature, widgets)
 
         topicCombo = self._find(QComboBox, 'topic') # Disable changing topics!
-        if topicCombo:
-            topicCombo.setEnabled(False)
+        Log.debug(topicCombo);
+        if not topicCombo is None:
+             Log.debug("Setting disabled")
+             Log.debug(topicCombo.isEnabled())
+             topicCombo.setEnabled(False)
+             Log.debug(topicCombo.isEnabled())
+
         
 
     

@@ -108,11 +108,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         
         """
         
-        Log.debug("instance: " + topicType.lower() )
         if topicType is not None:
             try:
                 module = __import__(topicType.lower())
-                
                 return module.getClass(self._broker)
             except ImportError:
                 return self

@@ -184,7 +184,6 @@ class layerManager(QObject):
 
     def rebuildLegend(self):
         
-        
         if layerManager._rebuildingLegend:
             return
 
@@ -532,7 +531,12 @@ class layerManager(QObject):
         tLayer.beforeRollBack()
 
     def featureAdded(self, fid):
-        Log.debug("Adding Feature")
+        #if fid < 0 and "Feature Attributes" in QgsApplication.activeWindow().windowTitle():
+         #   return
+        
+        #if fid >0:
+         #   return
+         
         layer = self._iface.activeLayer()
         if layer is None:
             return

@@ -68,7 +68,7 @@ class tlFeatureDialog(QObject):
 
         buttonBox.rejected.connect(lambda: tlFeatureDialog._clicked(self))
 
-#        self._tLayer.featureUpdated.connect(self._update)
+        self._tLayer.featureUpdated.connect(self._update)
         self.update()
     
 
@@ -170,7 +170,7 @@ class tlFeatureDialog(QObject):
 
 
     def __del__(self):
-#        self._tLayer.featureUpdated.disconnect(self._update)
+        self._tLayer.featureUpdated.disconnect(self._update)
         if self._editable:
             self._tLayer.featureDialogClosed.emit(self._tLayer)
         pass
@@ -262,9 +262,9 @@ class tlTopicManager(QDialog, QObject):
         palyr.writeToLayer(layer)
         Log.debug("Setting feature form to:" + os.path.join(self.path(), "topicmanagers", "ui_tleditfeature.ui"))
 
-#        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
- #       layer.setEditFormInit("editformfactory.featureDialog")
-  #      layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
+        layer.setEditForm(os.path.join(Settings.get('plugin_dir'), "topicmanagers", "ui_tleditfeature.ui"))
+        layer.setEditFormInit("editformfactory.featureDialog")
+        layer.setEditorLayout(QgsVectorLayer.UiFileLayout)
 
     def setFeatureForm(self, layer):
         _form = os.path.join(TelemetryLayer.path(), "topicmanagers", "ui_tleditfeature.ui")
