@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 qgisMaximumVersion=2.69
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of MQTT brokers. Select a topic manager (generic and proprietory examples provided). Create a new Telemetry Layer (Layers are placed under a Broker Group in the Legend and represent a set of topics by type). Add topics as features. Apply Rules based formatting. Note: Plugin is at a beta stage of development and being actively improved. Please ensure to check regularly for updates and get in touch if you are keen to join the project."
-version=0.9.2
+version=1.0.1
 author=Andrew McClure
 email=andrew@agsense.co.nz
 
