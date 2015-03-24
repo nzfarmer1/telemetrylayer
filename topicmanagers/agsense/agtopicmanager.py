@@ -289,9 +289,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             palyr.fontBold = True
            # palyr.dataDefinedProperty(QgsPalLayerSettings.DataDefinedProperties.shapeBlendMode)
             palyr.shapeDraw = True
-            palyr.shapeTransparency = 66
-            palyr.shapeType = QgsPalLayerSettings.ShapeEllipse
-            palyr.textColor = QColor(255,134,13)
+            palyr.shapeTransparency = 0
+            palyr.shapeType = QgsPalLayerSettings.ShapeRectangle
+            palyr.textColor = QColor(255,255,255) # white
             palyr.placement = QgsPalLayerSettings.OverPoint
             palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
             palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
@@ -303,13 +303,17 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             Log.debug("Error setting Label Format " + str(e))
 
     def setLayerStyle(self, layer):
-        Log.debug("agTopicManager setLayerStyle " + self.path())
+        Log.debug("agTopicManager setLayerStyle " + self.path() + "/agsense.qml")
     #    if not self.path() in QgsApplication.svgPaths():
      #       QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "agsense.qml"))
 
     def formatPayload(self, payload):
-        return str(payload)
+        try:
+            p = json.loads(payload)
+            return str(p['format'])
+        except (TypeError,KeyError):
+            return  str(payload)
 
     @staticmethod
     def register():

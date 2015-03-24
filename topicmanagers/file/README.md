@@ -13,4 +13,4 @@ If you have a project that requires integration assistance, please get in touch
 (Note: check the double click XML file table row)
 
 
-Andrew McClure - andrew@southweb.co.nz
+Andrew McClure - andrew@agsense.co.nz

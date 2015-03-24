@@ -25,7 +25,7 @@ import traceback, sys, time
 def is_connected(values, feature, parent):
     try:
         return  int(feature['connected']) == 1 or feature['connected'] == 'true' or feature['connected'] == 'True'
-    except KeyError,TypeError:
+    except (KeyError,TypeError):
         return 0
 
 
@@ -47,7 +47,7 @@ def is_changed(values, feature, parent):
     result = 0
     try:
         result = (int(time.time()) - int(feature['changed'])) < int(Settings.get('changedTimeout', 25))
-    except KeyError, TypeError:
+    except (KeyError, TypeError):
         return 0
     finally:
         return result

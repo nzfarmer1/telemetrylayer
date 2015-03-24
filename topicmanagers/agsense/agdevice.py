@@ -229,7 +229,7 @@ class agDeviceList:
                 Log.debug("Unable to open/parse XML file: " + str(e))
 
         for device in self.root.iter('Device'):
-            _id = device.get('id')
+            _id = device.get('nid')
             self.devices[_id] = agDevice(device)
 
     def toString(self):

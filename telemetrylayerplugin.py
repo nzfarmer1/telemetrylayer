@@ -6,7 +6,7 @@
                              -------------------
         begin                : 2014-05-30
         copyright            : (C) 2014 by Andrew McClure
-        email                : andrew@southweb.co.nz
+        email                : andrew@agsense.co.nz
  ***************************************************************************/
 
 /***************************************************************************
@@ -104,7 +104,7 @@ class TelemetryLayerPlugin(QObject):
 
         # Create action that will start plugin configuration
         self.aboutA = QAction(
-            QIcon(":/plugins/" + self.plugin_basename + "/icons/southweb.png"),
+            QIcon(":/plugins/" + self.plugin_basename + "/icons/agsense.png"),
             "About", self.iface.mainWindow())  # Replace or Add About
         # connect the action to the run method
         self.aboutA.triggered.connect(self.about)

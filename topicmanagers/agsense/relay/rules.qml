@@ -10,7 +10,7 @@
           <prop k="angle" v="0"/>
           <prop k="fill" v="#000000"/>
           <prop k="horizontal_anchor_point" v="1"/>
-          <prop k="name" v="tlayer-file.svg"/>`
+          <prop k="name" v="tlayer-generic.svg"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0"/>
           <prop k="offset_unit" v="MM"/>
@@ -26,6 +26,7 @@
         </layer>
       </symbol>
     </symbols>
+
   </renderer-v2>
   <customproperties>
     <property key="labeling" value="pal"/>
@@ -193,4 +194,5 @@
   </labelattributes>
 
   <displayfield>name</displayfield>
+
 </qgis>
