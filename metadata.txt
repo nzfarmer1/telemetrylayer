@@ -13,7 +13,7 @@ name=Telemetry Layer
 qgisMinimumVersion=2.4
 qgisMaximumVersion=2.69
 description=MQTT Messaging integration with support for custom Topic Managers
-about="Improved label formatting and icon appearance. Change version numbering"
+about="Manage a list of MQTT brokers. Select a topic manager (generic and proprietory examples provided). Create a new Telemetry Layer (Layers are placed under a Broker Group in the Legend and represent a set of topics by type). Add topics as features. Apply Rules based formatting. Note: Plugin is at a beta stage of development and being actively improved. Please ensure to check regularly for updates and get in touch if you are keen to join the project."
 version=0.9.2
 author=Andrew McClure
 email=andrew@agsense.co.nz
@@ -23,7 +23,7 @@ email=andrew@agsense.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Place new broker groups at top of legend; Check for duplicate broker->type combinations before adding T layers; custom label/icon styling for AgSense; fix paramater table initialisation; improve broker reloading; improve robustness for feature Dialogs" 
+changelog="Improved label formatting and icon appearance. Change version numbering"
 
 
 # tags are comma separated with spaces allowed
