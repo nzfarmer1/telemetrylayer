@@ -12,11 +12,11 @@ def getClass(broker):
     
     """
 
-    from agrelay import agRelayTopicManager
+    from agtank import agRelayTopicManager
     
     if broker in _class and _class[broker] is not None:
         return _class[broker] # return valid instance
     
-    _class[broker]  = agRelayTopicManager(broker) # create new
+    _class[broker]  = agRelayTopicManager(broker) # create new singleton
     return _class[broker]
 

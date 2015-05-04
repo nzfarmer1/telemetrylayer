@@ -17,6 +17,20 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+
+Todo:
+- Remove topic manager framwork
+- Add dockwidget handler for showing details
+- Replace with simple API based on @qgsfunc
+i.e.
+@qgsfunction(0, u"Telemetry Layer")
+def tank(values, feature, parent,api = 'default'):
+# where API options are:
+- definition => return {name:<Group Name>;description: <Description>; alertable:boolean; configurable:boolean}
+- default => print label
+- widget => print widget output
+- config => print widget output
+
 """
 
 from PyQt4 import QtCore
@@ -24,6 +38,7 @@ from PyQt4.QtCore import pyqtSlot, SIGNAL, SLOT
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+from qgis.gui import QgsMapToolEmitPoint
 
 import pdb
 # Initialize Qt resources from file resources.py
@@ -51,18 +66,15 @@ class TelemetryLayerPlugin(QObject):
     Username password for MQTT Broker
     """
 
+  
     def __init__(self, iface):
         # Save reference to the QGIS interface
         super(TelemetryLayerPlugin, self).__init__(iface)
         self.iface = iface
-
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         sys.path.append(os.path.join(self.plugin_dir, "topicmanagers"))
-        import editformfactory
-
-        editformfactory.this = self
-
+        
         self.layerManager = None
         self.installed = False
         self.configureDlg = None
@@ -73,11 +85,12 @@ class TelemetryLayerPlugin(QObject):
         try:
             Settings(self)
             Log(self)
-            Log.debug("Loading topic managers")
+            Log.debug("Loading Topic Managers")
             TopicManagerFactory(iface)
             Log.debug("Topic Managers Loaded")
             Brokers(os.path.join(self.plugin_dir, 'data'))
             Log.debug("Brokers Loaded")
+
 
         except Exception as e:
             Log.critical("Error on Plugin initialization " + str(e))
@@ -124,7 +137,7 @@ class TelemetryLayerPlugin(QObject):
             lMenuTitle, self.iface.mainWindow())
         QObject.connect(self.newLayerA, SIGNAL("triggered()"), self.createLayer)
         self.iface.newLayerMenu().addAction(self.newLayerA)  # API >= 1.9
-        self.iface.registerMainWindowAction(self.newLayerA, "Ctrl+F")
+        self.iface.registerMainWindowAction(self.newLayerA, "Shift+Ctrl+T")
 
         try:
             Log.debug("Loading Layer Manager")

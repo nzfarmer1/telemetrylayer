@@ -6,7 +6,7 @@
 """
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QTimer, Qt
-from ui_tladdfeature import Ui_tlAddFeature
+from forms.ui_tladdfeature import Ui_tlAddFeature
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from tlbrokers import tlBroker as Broker

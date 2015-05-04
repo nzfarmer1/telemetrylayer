@@ -161,6 +161,7 @@ class MQTTClient(QtCore.QObject):
         self.onConnect(client, obj, rc)
 
     def restart(self):
+     
         Log.debug("Restarting")
         if self.isRunning():
             self._restarting = True
@@ -391,7 +392,7 @@ class tlMqttSingleShot(MQTTClient):
 
 
     def onConnect(self, mqtt, obj, rc):
-        Log.debug("rc")
+        Log.debug("Connect rc = " + str(rc))
         if len(self._subTopics) == 0:
             self._connectError(False, "No Subcription Topic defined")
         for topic in self._subTopics:
@@ -404,7 +405,6 @@ class tlMqttSingleShot(MQTTClient):
         self._messages += 1
         if self._messages > 1:
             return # ignore subsequent
-        Log.debug('onMessage! ' +str(msg.payload))
         self._timer.stop()
         client.disconnect()
         QObject.emit(self, SIGNAL('mqttOnCompletion'), self, True, msg.payload)

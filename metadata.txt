@@ -11,10 +11,10 @@
 [general]
 name=Telemetry Layer
 qgisMinimumVersion=2.4
-qgisMaximumVersion=2.69
+qgisMaximumVersion=2.8
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of MQTT brokers. Select a topic manager (generic and proprietory examples provided). Create a new Telemetry Layer (Layers are placed under a Broker Group in the Legend and represent a set of topics by type). Add topics as features. Apply Rules based formatting. Note: Plugin is at a beta stage of development and being actively improved. Please ensure to check regularly for updates and get in touch if you are keen to join the project."
-version=1.0.1
+version=1.1.1
 author=Andrew McClure
 email=andrew@agsense.co.nz
 
@@ -23,14 +23,13 @@ email=andrew@agsense.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Improved label formatting and icon appearance. Change version numbering"
-
+changelog="Remove custom feature dialog (not stable on Ubuntu); make feature dialog modeless - fix issues with saving feature properties; refactored code; improved label formatting; change hot key for New Telemetry Layer (Shift+Cntl+T); "
 
 # tags are comma separated with spaces allowed
 tags="SCADA, Telemetry, remote sensing,  MQTT, MQTT-SN, Internet of Things (I.o.T), Wireless Sensors, Zigbee, Modbus, AgSense, XBee, DigiMesh"
 
-homepage=http://www.southweb.co.nz/telemetrylayer
-download=http://southweb.co.nz/sites/default/files/TelemetryLayer.zip
+homepage=http://agsense.co.nz/telemetrylayer
+#download=http://southweb.co.nz/sites/default/files/TelemetryLayer.zip
 tracker=https://github.com/nzfarmer1/telemetrylayer/issues
 repository=https://github.com/nzfarmer1/telemetrylayer
 icon=icons/icon.png
@@ -40,7 +39,7 @@ experimental=True
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False
 
-helpURL=http://southweb.co.nz/telemetrylayer
+helpURL=http://agsense.co.nz/telemetrylayer
 layerName=TelemetryLayer
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Layer Manager - managers groups, legends, and controls individual layers
+
 """
 from PyQt4 import QtCore
 from PyQt4.QtCore import pyqtSlot, SIGNAL
@@ -112,6 +113,7 @@ class layerManager(QObject):
         self._iface.mapCanvas().renderStarting.connect(self.renderStarting)
 
         QgsProject.instance().readProject.connect(self.readProject)
+        QgsProject.instance().readMapLayer.connect(self.readMapLayer)
 
         QgsProject.instance().layerLoaded.connect(self.layerLoaded)
 
@@ -171,13 +173,25 @@ class layerManager(QObject):
         return nodeLayer
 
     def readProject(self):
+        return
         for lid, tLayer in self.getTLayers().iteritems():
             Log.debug("Adding V2 Format data to loaded layers")
             # Change this to add in only the path details!
             tLayer._setFormatters(True)  # Memory Layer Saver doesn't save some V2 format data
            
         return
-
+    
+    def readMapLayer(self,layer,dom):
+        pass
+#        tLayer = self.getTLayer(layer.id(),False)
+#        if tLayer is None:
+#            Log.debug(str(layer.id()) + " not tLayer" )
+#            Log.debug(str(layer.id()) + " => " + str(TLayer.isTLayer(layer)) )
+#            return
+#        if TLayer.isTLayer(layer):
+#            tLayer = self.getTLayer(layer.id(),add)
+           # tLayer._setFormatters(True)  # Memory Layer Saver doesn't save some V2 format data
+           
     """
     If the list of brokers have changed checked the integrity
     """
@@ -231,7 +245,6 @@ class layerManager(QObject):
             # Remove empty or groups referencing older renamed brokers
             for node in root.children():
                 if self._isBrokerGroup(node) and not node.children():
-                    Log.debug(node)
                     removed.append(node)
              
             # perform removal                
@@ -531,6 +544,15 @@ class layerManager(QObject):
         tLayer.beforeRollBack()
 
     def featureAdded(self, fid):
+#        Log.debug("feature Added" + str(fid))
+        request = QgsFeatureRequest(fid)
+        layer = self._iface.activeLayer()
+        feature = next(layer.getFeatures(request), None)
+        try:
+            featureExists = feature and feature['topic']
+        except IndexError:
+            featureExists = False
+        
         #if fid < 0 and "Feature Attributes" in QgsApplication.activeWindow().windowTitle():
          #   return
         
@@ -541,6 +563,11 @@ class layerManager(QObject):
         if layer is None:
             return
         tLayer = self.getTLayer(layer.id())
+
+        if featureExists:
+            tLayer.applyFeature(feature)
+            return
+        
         if tLayer is None:
             Log.debug("Error Loading tLayer")
             return
@@ -553,6 +580,7 @@ class layerManager(QObject):
     def featureDeleted(self, fid):
         if fid < 0:
             return
+        Log.debug(str(fid) + " Deleted")
         layer = self._iface.activeLayer()
         if layer is None:
             return

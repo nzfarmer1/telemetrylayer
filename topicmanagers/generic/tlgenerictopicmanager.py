@@ -17,9 +17,9 @@ import os, imp
 from qgis.utils import qgsfunction, QgsExpression
 from qgis.core import *
 
-from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tllogging import tlLogging as Log
+from TelemetryLayer.tltopicmanager import tlTopicManager
 
 from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
 
@@ -30,43 +30,22 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
         self._topics = []
         self._broker = broker
         self._create = create
-        self._featureDialog = None
-
-
-    def featureDialog(self, dialog, tLayer, feature):
-        try:
-            # Let the $SYS type in the super class handle this 
-            return super(tlGenericTopicManager, self).featureDialog(dialog, tLayer, feature)
-        except Exception as e:
-            Log("featureDialog " + str(e))
-            return None
-
 
     def getWidget(self):
         super(tlGenericTopicManager, self).setupUi()
         QObject.emit(self, QtCore.SIGNAL('topicManagerReady'), True, self)
         return self.Tabs.widget(0)
 
-    def setLabelFormatter(self, layer):
-        Log.debug("setFormatter")
-        palyr = QgsPalLayerSettings()
-        palyr.readFromLayer(layer)
-        palyr.enabled = True
-        palyr.placement = QgsPalLayerSettings.OverPoint
-        palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
-        palyr.yOffset = 0.01
-        palyr.fieldName = '$format_label'
-        palyr.writeToLayer(layer)
-
+ 
     def setLayerStyle(self, layer):
-      #  if not self.path() in QgsApplication.svgPaths():
-       #     QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+        if not self.path() in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
+        Log.debug("Loading QML " +os.path.join(self.path(), "rules.qml"))
         self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
 
 
     @staticmethod
     def register():
-        Log.debug("Generic Register")
 
         path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
         imp.load_source('qgsfuncs', path)

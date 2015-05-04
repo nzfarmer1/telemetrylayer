@@ -63,16 +63,27 @@ class tlFileTopicManager(TopicManager, Ui_tlFileTopicManager):
         return super(tlFileTopicManager, self).getTopics(self._topics)  # Merge System topics
 
 
-    def setLabelFormatter(self, layer):
-        Log.debug("setFormatter")
-        palyr = QgsPalLayerSettings()
-        palyr.readFromLayer(layer)
-        palyr.enabled = True
-        palyr.placement = QgsPalLayerSettings.OverPoint
-        palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
-        palyr.yOffset = 0.01
-        palyr.fieldName = '$format_label'
-        palyr.writeToLayer(layer)
+    def setLabelFormatter(self, layer): # remove topicType
+        try:
+            palyr = QgsPalLayerSettings()
+            palyr.readFromLayer(layer)
+            palyr.enabled = True
+            palyr.fontBold = True
+           # palyr.dataDefinedProperty(QgsPalLayerSettings.DataDefinedProperties.shapeBlendMode)
+            palyr.shapeDraw = True
+            palyr.shapeTransparency = 0
+            palyr.shapeType = QgsPalLayerSettings.ShapeRectangle
+            palyr.textColor = QColor(255,255,255) # white
+            palyr.placement = QgsPalLayerSettings.OverPoint
+            palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
+            palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
+            palyr.yOffset = 0.01
+            palyr.fieldName = '$format_label'
+            palyr.writeToLayer(layer)
+            Log.debug("Palyr Settings updated")
+        except Exception as e:
+            Log.debug("Error setting Label Format " + str(e))
+
 
     def setLayerStyle(self, layer):
    #     if not self.path() in QgsApplication.svgPaths():

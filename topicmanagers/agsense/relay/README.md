@@ -1,4 +1,4 @@
-telemetrylayer -> agsense tank topic manager
+telemetrylayer -> agsense relay topic manager
 ============================================
 
 Sub topic manager to handle topic "type" variances.

@@ -12,7 +12,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from ui_tlayerconfig import Ui_tLayerConfig
+from forms.ui_tlayerconfig import Ui_tLayerConfig
 from tlbrokers import tlBrokers as Brokers
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
@@ -58,6 +58,7 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         self._brokerChanged(0)
         self.buttonCreate.clicked.connect(self.accept)
         self.buttonCancel.clicked.connect(self.reject)
+        self.buttonCreate.setEnabled(False)
         for  tLayer in self._creator.getTLayers().itervalues():
             self._invalidTypes.append((tLayer.brokerId(),tLayer.topicType()))
  

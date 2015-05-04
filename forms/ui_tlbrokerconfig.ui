@@ -453,6 +453,9 @@
           <height>20</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use Proxy Server&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>RadioButton</string>
         </property>
@@ -486,7 +489,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>If you have an alternative port you wish to use with this broker, enter it here.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Proxy server port&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>1883</string>
@@ -505,7 +508,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>If you have an alternative host you wish to use with this broker, enter it here.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Proxy server host&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="accessibleDescription">
          <string/>

@@ -16,7 +16,7 @@ import topicmanagers
 from lib.tllogging import tlLogging as Log
 from lib.tlsettings import tlSettings as Settings
 
-from tltopicmanager import tlTopicManager as TopicManager, tlFeatureDialog  as DialogManager
+from tltopicmanager import tlTopicManager as TopicManager
 
 import traceback, sys, time
 
@@ -77,9 +77,7 @@ class tlTopicManagerFactory():
     Factory class to keep register and keep track of all custom topic managers
     
     """
-
     registered = []
-    featureDialogs = []
     topicManagers = []
     classObjects = {}
 

@@ -12,13 +12,14 @@ from PyQt4.QtGui import *
 from qgis.core import *
 import webbrowser
 
-from ui_tlbrokerconfig import Ui_tlBrokerConfig
+from forms.ui_tlbrokerconfig import Ui_tlBrokerConfig
 from tlbrokers import tlBrokers as Brokers
 from lib.tlsettings import tlSettings as Settings
 from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
+from forms.ui_tleditfeature import Ui_tlEditFeature
 import traceback, sys, os, imp, json, zlib
 import copy, pickle
 
@@ -39,6 +40,56 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
+
+class tlFeatureDialogWrapper(QDialog,Ui_tlEditFeature):
+    """
+    Dialog to manage eatures
+    """
+
+    def __init__(self, iface, tLayer, feature):
+        self._iface =iface
+        self._feature = feature
+        self._tlayer = tLayer
+        super(tlFeatureDialogWrapper,self).__init__()
+        self.setupUi(self)
+        self.dockWidget.setWindowTitle(feature['name'])
+        self.dockWidget.setAllowedAreas(Qt.AllDockWidgetAreas)
+        self._iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
+        self.dockWidget.hide()
+        self.dockWidget.setFloating(True)
+        self.dockWidget.resize(300,300)
+        self.dockWidget.move(   300,300)
+        self.dockWidget.show()
+        self.dockWidget.setObjectName(str(self))
+        self._palyr = QgsPalLayerSettings()
+        self._palyr.readFromLayer(tLayer.layer())
+        tLayer.featureUpdated.connect(self._featureUpdated)
+        self._featureUpdated(tLayer,feature)
+        Log.debug(self.dockWidget.saveGeometry())
+        pass
+    
+ #   def closeEvent(event):
+#        Log.debug(saveGeometry())
+
+    def _featureUpdated(self,tLayer,feat):
+        if feat.id() != self._feature.id():
+            return
+#        Log.debug(feat.id())
+ #       Log.debug(self._feature.id())
+
+#        s = layer().rendererV2()
+#        s.rootRule().findRuleByKey(s.rootRule().ruleKey()).symbol()
+        self.payload.setText(self._palyr.getLabelExpression().evaluate(feat))    
+        pass
+    
+    
+    def _resizeFeatureDialog(self):
+        pass
+
+    def _validateApply(self):
+        self.accept()
+
 
 
 class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
@@ -69,6 +120,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._broker = broker
         self._topicManager = None
         self._tested = False
+        self._fd = None
 
         if self._create:
             self._mode = Constants.Create
@@ -141,6 +193,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure ", None) + self.getName())
             self.connectApply.setText(_translate("tlBrokerConfig", "Apply", None))
             self.dockWidget.visibilityChanged.connect(self.tearDown)
+
+
             if self._broker.topicManager() is not None:
                 self.setTopicManager(self._broker.topicManager())
                 if self._loadTopicManager(self.getTopicManager()):
@@ -192,26 +246,22 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self._iface.mapCanvas().refresh()
         pass
 
-
     def _showFeatureDialog(self, modelIdx):
         item = self.tableFeatureList.item(modelIdx.row(), self.kDataCol)
         layer = QgsMapLayerRegistry.instance().mapLayer(item.data(self.kLayerId))
         request = QgsFeatureRequest(item.data(self.kFeatureId))
         feature = next(layer.getFeatures(request), None)
 
-        feat = QgsFeature(item.data(self.kFeature))
-        feat.setFields(feature.fields())
-        feat.setAttributes(feature.attributes())
-
         if not layer.isEditable() and not layer.isReadOnly():
             layer.startEditing()
         try:
-            self._iface.openFeatureForm(layer, feat, True)
+            self._iface.openFeatureForm(layer, feature, True,False)
+
         except Exception as e:
-#            Log.debug(e)
-#            exc_type, exc_value, exc_traceback = sys.exc_info()
-#            print(repr(traceback.format_exception(exc_type, exc_value,
-#                                             exc_traceback)))
+            Log.debug(e)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(repr(traceback.format_exception(exc_type, exc_value,
+                                             exc_traceback)))
             pass
 
     def _closedFeatureDialog(self, tLayer):
@@ -250,7 +300,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
             if not tLayer in self._connectedTLayers:
                 # Add connections and append to connected layers
-                tLayer.featureDialogClosed.connect(self._closedFeatureDialog)
 
                 tLayer.featureUpdated.connect(self._updateFeatureList)
                 tLayer.layer().featureAdded.connect(self._updateFeatureList)

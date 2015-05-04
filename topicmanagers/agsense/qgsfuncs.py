@@ -10,7 +10,7 @@ def agsense_format_label(values, feature, parent):
         else:
             payload = json.loads(feature.attribute('payload'))
             return str(feature.attribute('name')) + '\n(' + str(payload['format']) + ')'
-    except (KeyError,ValueError):
+    except (KeyError,ValueError,TypeError):
         try:
             return str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
         except:

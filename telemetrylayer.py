@@ -24,7 +24,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from ui_telemetrylayer import Ui_TelemetryLayer
+from forms.ui_telemetrylayer import Ui_TelemetryLayer
 from tlbrokers import tlBrokers as Brokers, BrokerNotSynced, BrokerNotFound
 from tlbrokerconfig import tlBrokerConfig as BrokerConfig
 from lib.tlsettings import tlSettings as Settings, tlConstants as Constants

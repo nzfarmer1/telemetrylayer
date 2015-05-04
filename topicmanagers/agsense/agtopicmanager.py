@@ -25,14 +25,13 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 
-from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
+from TelemetryLayer.tltopicmanager import tlTopicManager
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tlsettings import tlConstants as Constants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
-from agfeaturedialog import agFeatureDialog as FeatureDialog
 from ui_agtopicmanager import Ui_agTopicManager
 from agdevice import agDeviceList, agDevice, agParams, agParam
     
@@ -62,11 +61,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
     Implementation of tlTopicManager
     """
 
-    kDeviceMapsTabId = 0
-    kDeviceLogicalTabId = 1
-    kDeviceTypesTabId = 2
-
-    kAlertIdx = 10
 
 
     @staticmethod
@@ -112,7 +106,9 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
             try:
                 module = __import__(topicType.lower())
                 return module.getClass(self._broker)
-            except ImportError:
+            except ImportError as e:
+                if not 'No module named' in str(e):
+                    Log.debug(e)
                 return self
             except Exception as e:
                 Log.debug(e)
@@ -126,11 +122,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         if not self._devices:
             raise DevicesNotLoaded()
         return self._devices
-
-    def featureDialog(self, dialog, tLayer, featureId):
-        # Check tLayer.topicType type
-            return super(agTopicManager, self).featureDialog(dialog, tLayer, featureId) 
-
 
     def _updateDevices(self, mqtt, status = True, msg = None):
         if not status:
@@ -163,13 +154,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
                 _client.kill()
 
 
-    def isDemo(self):
-        return False;# self._demo
-
-    def _updateFeatures(self):
-        # Iterate through a list of tlLayers and if they are using
-        # agTopicManager update the features with any new parameter settings
-        pass
 
     def _editTopicRow(self, modelIdx):
         item = self.tableLogical.item(modelIdx.row(), 0)
@@ -186,9 +170,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
                 
                 topics.append({'name' :device.name(),
                                'topic':device.topic(),
-                               'units':device.units(),
-                               'type' :device.op(),
-                               'params':device.params().dump()})
+                               'type' :device.op()})
         except DevicesNotLoaded:
             Log.progress("Warning - no topics available. Please check your connection settings")
 
@@ -312,7 +294,7 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
         try:
             p = json.loads(payload)
             return str(p['format'])
-        except (TypeError,KeyError):
+        except (TypeError,KeyError,ValueError):
             return  str(payload)
 
     @staticmethod

@@ -46,8 +46,7 @@ class tLayer(MQTTClient):
 
     # SIGNALS
     featureUpdated = pyqtSignal(object, object)
-    featureDialogClosed = pyqtSignal(object)  # Hmm should be a SLOT?
-
+    
 
     @staticmethod
     def isTLayer(l):
@@ -82,6 +81,8 @@ class tLayer(MQTTClient):
         self._values = {}
         self._dirty = False
         # self._topicChanged= []
+        self.establishedFeatures = []
+        self.restartScheduled = False 
 
         self.isEditing = False
 
@@ -117,22 +118,24 @@ class tLayer(MQTTClient):
         self._broker.deletingBroker.connect(self.tearDown)
         self.featureUpdated.connect(topicManagerFactory.featureUpdated)  # Tell dialog box to update a feature
         self.layer().attributeValueChanged.connect(self.attributeValueChanged)
-        #self.brokerUpdated()
+
 
     def attributeValueChanged(self, fid, idx, val):
         if fid < 0:
             return
 
-        if idx == Constants.topicIdx:
-            Log.debug("topic changed")
-        if idx in [Constants.topicIdx, Constants.qosIdx] and self.isRunning():
-            self.restart()  # Enqueue?
+        # Scheduled restarts not stable. Need to check if process is in start/stop phase
+#        if idx in [Constants.topicIdx, Constants.qosIdx] and self.isRunning():
+#           self.restartScheduled = True
 
 
     def run(self):
         if not self._canRun():
             return
+
         Log.debug("Running " + self.layer().name())
+
+        self._setFormatters(True)
         self._dict = {}
         self._values = {}
 
@@ -220,7 +223,7 @@ class tLayer(MQTTClient):
     """
 
     def onMessage(self, mq, obj, msg):
-        # Log.status('TLayer Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+        Log.status('TLayer Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
         
         try:
             with QMutexLocker(self._mutex):
@@ -271,14 +274,6 @@ class tLayer(MQTTClient):
         self._values[key] = val
         self._dirty = True
 
-
-    def brokerUpdated(self):
-        topics = self._broker.topics(self._topicType)
-        topicmap = dict()
-        for topic in topics:
-            if not topic['name'] in topicmap:  # there shouldn't be dups!
-                topicmap[topic['name']] = topic['topic']
-        self._layer.setEditorWidgetV2Config(Constants.topicIdx, topicmap)
 
 
     def commitChanges(self):
@@ -372,10 +367,15 @@ class tLayer(MQTTClient):
      
     def _setFormatters(self,V2WidgetsOnly = False ): # change to bitmask  
 
+        if self.get('kFormattersSet') is not None:
+            return
+
+        self.set("kFormattersSet",True)
+
         # Configure Attributes
         self._layer.startEditing()
 
-        for i in range(Constants.reservedIdx):
+        for i in range(Constants.reservedIdx+1):
             self._layer.setEditorWidgetV2(i, 'Hidden')
 
         self._layer.setEditorWidgetV2(Constants.qosIdx, 'ValueMap')
@@ -384,8 +384,7 @@ class tLayer(MQTTClient):
         self._layer.setEditorWidgetV2(Constants.visibleIdx, 'ValueMap')
         self._layer.setEditorWidgetV2Config(Constants.visibleIdx, {"True": 1, "False": 0})
 
-        self._layer.setEditorWidgetV2(Constants.topicIdx, 'ValueMap')
-        self.brokerUpdated()
+#        self._layer.setEditorWidgetV2(Constants.topicIdx, 'Immutable')
 
         self._layer.commitChanges()
         
@@ -396,9 +395,9 @@ class tLayer(MQTTClient):
         self._topicManager.instance(self.topicType()).setLayerStyle(self._layer)
         self._layer.commitChanges()
         
-        self._layer.startEditing()
-        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
-        self._layer.commitChanges()
+#        self._layer.startEditing()
+#        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
+#        self._layer.commitChanges()
         
         self._layer.startEditing()
         self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
@@ -444,6 +443,28 @@ class tLayer(MQTTClient):
     #               Log.debug(self._fid)
     #                self._layer.dataProvider().deleteFeatures([self._fid])
     #        self._layer.destroyEditCommand()
+
+
+    def applyFeature(self,feature):
+        found = False
+        for feat in self.establishedFeatures:
+            if feat['topic'] == feature['topic']:
+                found = True
+                break
+        if not found:
+            Log.debug("No feature to Apply")
+            return
+        fmap = self._layer.dataProvider().fieldNameMap()
+        try:
+            for key,fieldId in fmap.iteritems():
+                if key in ['qos','visible']:
+#                   Log.debug("changing value " + key + " " + str(feat[key]) + " to " + str(feature[key]))
+                   self._layer.changeAttributeValue(feat.id(), fieldId, feature[key])
+            self._layer.deleteFeature(feature.id())
+            self._layer.commitChanges()
+        except Exception as e:
+            Log.debug("Error applying feature " + str(e))
+        
 
     def addFeature(self, fid):
         Log.debug("add Feature")
@@ -550,6 +571,13 @@ class tLayer(MQTTClient):
     def refresh(self, state):
         if self._canRun():
             self.commitChanges()
+
+# This is evil.  We need to capture the state between starting and running first!        
+#        if state and self.restartScheduled and self.isRunning():
+#            self.restartScheduled = False
+#            self.restart()
+#            return
+
         if state:
             self.resume()
         else:
@@ -558,19 +586,27 @@ class tLayer(MQTTClient):
 
     def triggerRepaint(self):
         if 'QDialog' in str( QgsApplication.activeWindow()): # Avoid nasty surprises
-        
-            # Log.debug("triggerRepaint"  + str( QgsApplication.activeWindow()))
             pass
         # Add additional checks?
         else:
             self._layer.triggerRepaint()
 
     def layerEditStarted(self):
+        self.establishedFeatures = []
+        feature = QgsFeature()
+        iter = self._layer.getFeatures()
+        while iter.nextFeature( feature ):
+            self.establishedFeatures.append( feature )
+
         self.isEditing = True
 
     def layerEditStopped(self):
+        self.establishedFeatures = []
         self.isEditing = False
+        if self.restartScheduled:
+                self.triggerRepaint()
 
+        
     def topicManager(self):
         return topicManagerFactory.getTopicManager(self._broker)
 

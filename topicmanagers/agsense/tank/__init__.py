@@ -11,12 +11,12 @@ def getClass(broker):
       with regards the Broker instance.
     
     """
-
+    
     from agtank import agTankTopicManager
     
     if broker in _class and _class[broker] is not None:
         return _class[broker] # return valid instance
     
-    _class[broker]  = agTankTopicManager(broker) # create new
+    _class[broker]  = agTankTopicManager(broker) # create new singleton
     return _class[broker]
 

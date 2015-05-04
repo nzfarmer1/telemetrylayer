@@ -70,7 +70,8 @@ class tlBrokers(QObject):
                 qfile.close()
                 return json.loads(jsonstr)
             else:
-                Log.critical("Broker file " + filename + " not found!")
+                # no file available
+                Log.debug("Broker file " + filename + " not found!")
         except Exception as e:
             Log.critical(e)
 
@@ -83,7 +84,7 @@ class tlBrokers(QObject):
         try:
             jsonstr = Settings.get(self.kBrokerList)
             if not jsonstr:
-               Log.debug("Load from file") 
+               Log.debug("Load brokers from file") 
                self._brokers = dict(self.importFile()) # backward compatible
             else:
                self._brokers = dict(json.loads( jsonstr ))

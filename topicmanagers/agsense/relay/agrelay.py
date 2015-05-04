@@ -3,7 +3,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from TelemetryLayer.tltopicmanager import tlTopicManager, tlFeatureDialog
+from TelemetryLayer.tltopicmanager import tlTopicManager
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tlsettings import tlConstants as Constants
@@ -32,7 +32,5 @@ class agRelayTopicManager(agTopicManager, Ui_agTopicManager):
         self.loadStyle(layer, os.path.join(_path,  "agsense.qml"))
 
 
-    def featureDialog(self, dialog, tLayer, featureId):
-            return FeatureDialog(dialog, tLayer, featureId)
 
 
