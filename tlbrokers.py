@@ -90,7 +90,7 @@ class tlBrokers(QObject):
                self._brokers = dict(json.loads( jsonstr ))
 
             self._validate()
-            Log.debug(self._dirtyList)
+            #Log.debug(self._dirtyList)
             self.brokersLoaded.emit(self._dirtyList)
             self._dirtyList[:] = []
         except Exception as e:

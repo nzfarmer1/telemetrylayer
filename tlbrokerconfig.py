@@ -163,7 +163,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._refreshFeature.setSingleShot(True)
         self._refreshFeature.timeout.connect(self._updateFeatureList)
         self.Tabs.currentChanged.connect(lambda: self._refreshFeature.start(3))
-        self.Tabs.currentChanged.connect(lambda: self.setDirty(True))
+        #self.Tabs.currentChanged.connect(lambda: self.setDirty(True))
 
         self.connectApply.setEnabled(False)
         self.connectTopicManager.addItem("Please select ...", None)
@@ -348,7 +348,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             if self._create:
                 # Add username/password!
                 self.getBroker()
-            Log.debug("_loadTopicManager")
+            #Log.debug("_loadTopicManager")
             self._topicManager = topicManagerFactory.getTopicManager(self._broker, self._create)
             QObject.connect(self._topicManager, SIGNAL("topicManagerReady"), self._topicManagerLoaded)
             QObject.connect(self._topicManager, SIGNAL("topicManagerError"), self._topicManagerLoaded)
