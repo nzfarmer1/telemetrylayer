@@ -17,6 +17,7 @@ from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, Bro
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
+from tlfeaturedock import tlFeatureDock as FeatureDock
 import os.path,sys,traceback
 
 try:
@@ -64,6 +65,21 @@ class layerManager(QObject):
             raise Exception('Telemetry Layer Manager not created')
         return layerManager._this
 
+    def showFeatureDock(self,layer,feature):
+        try:
+            key = (layer.id(),feature.id())
+            if key in self._featureDocks:
+                dock = self._featureDocks[key]
+                if dock is not None and dock.isVisible():
+                    return
+            
+            self._featureDocks[key] = FeatureDock(self._iface,
+                                            self.getTLayer(layer.id(),False),
+                                            feature)
+            pass
+        except Exception as e:
+            Log.debug('showFeatureDock: ' + str(e))
+
     def __init__(self, creator):
         Log.debug('init Layer Manager')
         super(layerManager, self).__init__()
@@ -74,6 +90,7 @@ class layerManager(QObject):
         self.actions = {}
         self.menuName = Settings.getMeta('name')
         self._tLayers = {}
+        self._featureDocks = {}
         layerManager._rebuildingLegend = False
 
         layers = layerManager.getLayers()

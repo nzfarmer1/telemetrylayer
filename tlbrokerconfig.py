@@ -19,7 +19,6 @@ from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
 from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
-from forms.ui_tleditfeature import Ui_tlEditFeature
 import traceback, sys, os, imp, json, zlib
 import copy, pickle
 
@@ -208,7 +207,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
   #      if not layer.isEditable() and not layer.isReadOnly():
  #           layer.startEditing()
         try:
-            topicManagerFactory.showFeatureDock(self._layerManager.getTLayer(layer.id()),
+            self._layerManager.showFeatureDock(layer,
                                                 feature)
 #            self._fd = tlFeatureDialogWrapper(self._iface,
 #                                                 self._layerManager.getTLayer(layer.id()),

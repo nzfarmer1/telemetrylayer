@@ -38,10 +38,11 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
     Dialog to manage a feature within a dock
     """
 
-    def __init__(self, iface, tLayer, feature):
+    def __init__(self, iface, tlayer, feature):
         self._iface =iface
         self._feature = feature
-        self._tlayer = tLayer
+        self._tlayer = tlayer
+        
         super(tlFeatureDock,self).__init__()
         self.setupUi(self)
         self.dockWidget.setWindowTitle(feature['name'])
@@ -50,13 +51,13 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
         self.dockWidget.hide()
         self.dockWidget.setFloating(True)
         self.dockWidget.resize(300,300)
-        self.dockWidget.move(   300,300)
+        self.dockWidget.move(300,300)
         self.dockWidget.show()
         self.dockWidget.setObjectName(str(self))
         self._palyr = QgsPalLayerSettings()
-        self._palyr.readFromLayer(tLayer.layer())
-        tLayer.featureUpdated.connect(self._featureUpdated)
-        self._featureUpdated(tLayer,feature)
+        self._palyr.readFromLayer(tlayer.layer())
+        self._tlayer.featureUpdated.connect(self._featureUpdated)
+        self._featureUpdated(self._tlayer,feature)
         Log.debug(self.dockWidget.saveGeometry())
         pass
     
