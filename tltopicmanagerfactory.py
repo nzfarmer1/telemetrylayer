@@ -15,10 +15,11 @@ from qgis.utils import qgsfunction, QgsExpression
 import topicmanagers
 from lib.tllogging import tlLogging as Log
 from lib.tlsettings import tlSettings as Settings
-
 from tltopicmanager import tlTopicManager as TopicManager
+from tlfeaturedock import tlFeatureDock as FeatureDock
 
 import traceback, sys, time
+
 
 
 @qgsfunction(0, u"Telemetry Layer")
@@ -72,6 +73,8 @@ def is_silent(values, feature, parent):
         return 0
 
 
+
+
 class tlTopicManagerFactory():
     """
     Factory class to keep register and keep track of all custom topic managers
@@ -79,7 +82,25 @@ class tlTopicManagerFactory():
     """
     registered = []
     topicManagers = []
+    featureDocks = {}
     classObjects = {}
+    _iface =None
+
+    @staticmethod
+    def showFeatureDock(tlayer,feature):
+        try:
+            key = (tlayer.layer().id(),feature.id())
+            if key in tlTopicManagerFactory.featureDocks:
+                dock = tlTopicManagerFactory.featureDocks[key]
+                if dock is not None and dock.isVisible():
+                    return
+            
+            _tmf.featureDocks[key] = FeatureDock(tlTopicManagerFactory._iface,
+                                            tlayer,
+                                            feature)
+            pass
+        except Exception as e:
+            Log.debug('showFeatureDock: ' + str(e))
 
     @staticmethod
     def featureUpdated(layer, feature):
@@ -164,6 +185,7 @@ class tlTopicManagerFactory():
         return _obj
 
     def __init__(self, iface):
+        tlTopicManagerFactory._iface = iface
         self.registerAll()
 
     @staticmethod
@@ -187,3 +209,5 @@ class tlTopicManagerFactory():
 
         if QgsExpression.isFunctionName("$is_silent"):
             QgsExpression.unregisterFunction("$is_silent")
+
+_tmf = tlTopicManagerFactory

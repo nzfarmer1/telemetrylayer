@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'topicmanagers/ui_tleditfeature.ui'
+# Form implementation generated from reading ui file 'forms/ui_tleditfeature.ui'
 #
-# Created: Fri May  1 16:35:54 2015
+# Created: Sun May 10 01:24:54 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,8 +40,14 @@ class Ui_tlEditFeature(object):
         self.dockWidgetContents = QtGui.QWidget()
         self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
         self.payload = QtGui.QLabel(self.dockWidgetContents)
-        self.payload.setGeometry(QtCore.QRect(80, 80, 101, 61))
+        self.payload.setGeometry(QtCore.QRect(80, 110, 101, 61))
         self.payload.setObjectName(_fromUtf8("payload"))
+        self.symbol = QtGui.QLabel(self.dockWidgetContents)
+        self.symbol.setGeometry(QtCore.QRect(30, 10, 128, 128))
+        self.symbol.setMinimumSize(QtCore.QSize(128, 128))
+        self.symbol.setMaximumSize(QtCore.QSize(128, 128))
+        self.symbol.setText(_fromUtf8(""))
+        self.symbol.setObjectName(_fromUtf8("symbol"))
         self.dockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(tlEditFeature)
@@ -53,4 +59,5 @@ class Ui_tlEditFeature(object):
         tlEditFeature.setProperty("text", _translate("tlEditFeature", "Edit Feature", None))
         self.payload.setToolTip(_translate("tlEditFeature", "<html><head/><body><p>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</p></body></html>", None))
         self.payload.setText(_translate("tlEditFeature", "Payload", None))
+        self.symbol.setToolTip(_translate("tlEditFeature", "<html><head/><body><p>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</p></body></html>", None))
 

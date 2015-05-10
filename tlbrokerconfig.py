@@ -42,53 +42,6 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-class tlFeatureDialogWrapper(QDialog,Ui_tlEditFeature):
-    """
-    Dialog to manage eatures
-    """
-
-    def __init__(self, iface, tLayer, feature):
-        self._iface =iface
-        self._feature = feature
-        self._tlayer = tLayer
-        super(tlFeatureDialogWrapper,self).__init__()
-        self.setupUi(self)
-        self.dockWidget.setWindowTitle(feature['name'])
-        self.dockWidget.setAllowedAreas(Qt.AllDockWidgetAreas)
-        self._iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
-        self.dockWidget.hide()
-        self.dockWidget.setFloating(True)
-        self.dockWidget.resize(300,300)
-        self.dockWidget.move(   300,300)
-        self.dockWidget.show()
-        self.dockWidget.setObjectName(str(self))
-        self._palyr = QgsPalLayerSettings()
-        self._palyr.readFromLayer(tLayer.layer())
-        tLayer.featureUpdated.connect(self._featureUpdated)
-        self._featureUpdated(tLayer,feature)
-        Log.debug(self.dockWidget.saveGeometry())
-        pass
-    
- #   def closeEvent(event):
-#        Log.debug(saveGeometry())
-
-    def _featureUpdated(self,tLayer,feat):
-        if feat.id() != self._feature.id():
-            return
-#        Log.debug(feat.id())
- #       Log.debug(self._feature.id())
-
-#        s = layer().rendererV2()
-#        s.rootRule().findRuleByKey(s.rootRule().ruleKey()).symbol()
-        self.payload.setText(self._palyr.getLabelExpression().evaluate(feat))    
-        pass
-    
-    
-    def _resizeFeatureDialog(self):
-        pass
-
-    def _validateApply(self):
-        self.accept()
 
 
 
@@ -252,10 +205,16 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         request = QgsFeatureRequest(item.data(self.kFeatureId))
         feature = next(layer.getFeatures(request), None)
 
-        if not layer.isEditable() and not layer.isReadOnly():
-            layer.startEditing()
+  #      if not layer.isEditable() and not layer.isReadOnly():
+ #           layer.startEditing()
         try:
-            self._iface.openFeatureForm(layer, feature, True,False)
+            topicManagerFactory.showFeatureDock(self._layerManager.getTLayer(layer.id()),
+                                                feature)
+#            self._fd = tlFeatureDialogWrapper(self._iface,
+#                                                 self._layerManager.getTLayer(layer.id()),
+#                                                 feature)
+                                                 
+#            self._iface.openFeatureForm(layer, feature, True,False)
 
         except Exception as e:
             Log.debug(e)
