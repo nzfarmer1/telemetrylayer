@@ -64,6 +64,9 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
  #   def closeEvent(event):
 #        Log.debug(saveGeometry())
 
+    def isVisible(self):
+        return self.dockWidget.isVisible()
+    
     def _featureUpdated(self,tLayer,feat):
         try:
             if feat.id() != self._feature.id():
