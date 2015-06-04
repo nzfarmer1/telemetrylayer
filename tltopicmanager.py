@@ -98,8 +98,6 @@ class tlTopicManager(QDialog, QObject):
     def beforeCommit(self,tLayer,values):
         pass
 
-    def formatPayload(self, payload):
-        return str(payload)
 
     def path(self, _class=None):
         if _class is None:

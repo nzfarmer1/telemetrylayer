@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'forms/ui_tleditfeature.ui'
 #
-# Created: Sun May 10 01:24:54 2015
+# Created: Mon May 11 17:34:26 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,24 +26,24 @@ except AttributeError:
 class Ui_tlEditFeature(object):
     def setupUi(self, tlEditFeature):
         tlEditFeature.setObjectName(_fromUtf8("tlEditFeature"))
-        tlEditFeature.resize(216, 190)
+        tlEditFeature.resize(360, 150)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(tlEditFeature.sizePolicy().hasHeightForWidth())
         tlEditFeature.setSizePolicy(sizePolicy)
-        tlEditFeature.setMaximumSize(QtCore.QSize(500, 16777215))
+        tlEditFeature.setMaximumSize(QtCore.QSize(360, 150))
         self.dockWidget = QtGui.QDockWidget(tlEditFeature)
         self.dockWidget.setEnabled(True)
-        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 481, 200))
+        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 150))
         self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
         self.dockWidgetContents = QtGui.QWidget()
         self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
         self.payload = QtGui.QLabel(self.dockWidgetContents)
-        self.payload.setGeometry(QtCore.QRect(80, 110, 101, 61))
+        self.payload.setGeometry(QtCore.QRect(170, 10, 151, 121))
         self.payload.setObjectName(_fromUtf8("payload"))
         self.symbol = QtGui.QLabel(self.dockWidgetContents)
-        self.symbol.setGeometry(QtCore.QRect(30, 10, 128, 128))
+        self.symbol.setGeometry(QtCore.QRect(20, 10, 128, 128))
         self.symbol.setMinimumSize(QtCore.QSize(128, 128))
         self.symbol.setMaximumSize(QtCore.QSize(128, 128))
         self.symbol.setText(_fromUtf8(""))
@@ -54,10 +54,10 @@ class Ui_tlEditFeature(object):
         QtCore.QMetaObject.connectSlotsByName(tlEditFeature)
 
     def retranslateUi(self, tlEditFeature):
-        tlEditFeature.setWindowTitle(_translate("tlEditFeature", "Edit Feature", None))
+        tlEditFeature.setWindowTitle(_translate("tlEditFeature", "View Feature", None))
         tlEditFeature.setToolTip(_translate("tlEditFeature", "<html><head/><body><p>Add Feature</p><p><br/></p></body></html>", None))
         tlEditFeature.setProperty("text", _translate("tlEditFeature", "Edit Feature", None))
-        self.payload.setToolTip(_translate("tlEditFeature", "<html><head/><body><p>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</p></body></html>", None))
+        self.payload.setToolTip(_translate("tlEditFeature", "Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)", None))
         self.payload.setText(_translate("tlEditFeature", "Payload", None))
         self.symbol.setToolTip(_translate("tlEditFeature", "<html><head/><body><p>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</p></body></html>", None))
 

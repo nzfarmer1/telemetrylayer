@@ -290,12 +290,6 @@ class agTopicManager(tlTopicManager, Ui_agTopicManager):
      #       QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "agsense.qml"))
 
-    def formatPayload(self, payload):
-        try:
-            p = json.loads(payload)
-            return str(p['format'])
-        except (TypeError,KeyError,ValueError):
-            return  str(payload)
 
     @staticmethod
     def register():

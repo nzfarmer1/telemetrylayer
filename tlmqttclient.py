@@ -410,6 +410,7 @@ class tlMqttSingleShot(MQTTClient):
         QObject.emit(self, SIGNAL('mqttOnCompletion'), self, True, msg.payload)
         if not self._callback is None:
             self._callback(self,True,msg)
+        self.kill()
         
 
 

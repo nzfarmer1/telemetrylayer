@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>216</width>
-    <height>190</height>
+    <width>360</width>
+    <height>150</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,12 +18,12 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
-    <height>16777215</height>
+    <width>360</width>
+    <height>150</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Edit Feature</string>
+   <string>View Feature</string>
   </property>
   <property name="toolTip">
    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add Feature&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -39,22 +39,22 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>481</width>
-     <height>200</height>
+     <width>360</width>
+     <height>150</height>
     </rect>
    </property>
    <widget class="QWidget" name="dockWidgetContents">
     <widget class="QLabel" name="payload">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>110</y>
-       <width>101</width>
-       <height>61</height>
+       <x>170</x>
+       <y>10</y>
+       <width>151</width>
+       <height>121</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</string>
      </property>
      <property name="text">
       <string>Payload</string>
@@ -63,7 +63,7 @@
     <widget class="QLabel" name="symbol">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>20</x>
        <y>10</y>
        <width>128</width>
        <height>128</height>

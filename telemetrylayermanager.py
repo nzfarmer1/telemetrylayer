@@ -18,7 +18,7 @@ from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
 from tlfeaturedock import tlFeatureDock as FeatureDock
-import os.path,sys,traceback
+import os.path,sys,traceback,json
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -70,8 +70,13 @@ class layerManager(QObject):
             key = (layer.id(),feature.id())
             if key in self._featureDocks:
                 dock = self._featureDocks[key]
-                if dock is not None and dock.isVisible():
-                    return
+                if dock is not None:
+                    if dock.isVisible():
+                        return
+                    else:
+                        Log.debug(str(dock) + ' show') 
+                        dock.show()
+                        return
             
             self._featureDocks[key] = FeatureDock(self._iface,
                                             self.getTLayer(layer.id(),False),
@@ -79,6 +84,27 @@ class layerManager(QObject):
             pass
         except Exception as e:
             Log.debug('showFeatureDock: ' + str(e))
+
+    def _showFeatureDocks(self):
+        for (lid,fid) in self._featureDocks.keys():
+            try:
+                dock = self._featureDocks[(lid,fid)]
+                if dock and dock.isVisible():
+                    dock.close()
+            except Exception as e:
+                Log.debug("Error closing existing docks")
+        self._featureDocks = {}
+        
+        reopen = json.loads(Settings.getp('featureDocks',json.dumps([])))
+        for (layerId,featureId) in reopen:
+            try:
+                layer = QgsMapLayerRegistry.instance().mapLayer(layerId)
+                request = QgsFeatureRequest(featureId)
+                feature = next(layer.getFeatures(request), None)
+                if layer and feature:       
+                    self.showFeatureDock(layer,feature)
+            except Exception as e:
+                Log.debug("Error reloading feature dock " +str(e))
 
     def __init__(self, creator):
         Log.debug('init Layer Manager')
@@ -92,6 +118,9 @@ class layerManager(QObject):
         self._tLayers = {}
         self._featureDocks = {}
         layerManager._rebuildingLegend = False
+        QgsProject.instance().readProject.connect(self._showFeatureDocks)
+#        QgsProject.instance().writeProject.connect(self.tearDownDocks)
+        QgsProject.instance().writeMapLayer.connect(self._writeMapLayer)
 
         layers = layerManager.getLayers()
         if len(layers) > 0:  # Existing layers
@@ -487,6 +516,7 @@ class layerManager(QObject):
             tLayer = self.getTLayer(layerId)
 
             if tLayer is not None:
+                self.tearDownDocks(layerId)
                 tLayer.tearDown()
                 self.delTLayer(layerId)
                 self.rebuildLegend()
@@ -634,7 +664,31 @@ class layerManager(QObject):
             tLayer.layer().editingStopped.disconnect(tLayer.layerEditStopped)
             tLayer.tearDown()
 
+
+    def _writeMapLayer(self,layer,elem,doc):
+        Log.debug("Write Map Layer")
+        self.tearDownDocks(layer.id())
+
+    def tearDownDocks(self,layerId = None):
+        Log.debug("tearDownDocks")
+        reopen = []
+        for (lid,fid) in self._featureDocks.keys():
+            if layerId is not None and lid != layerId:
+                continue
+            try:
+                dock = self._featureDocks[(lid,fid)]
+                Log.debug(dock)
+                if dock and dock.isVisible():
+                    Log.debug("Closing")
+                    dock.saveGeometry()
+                    reopen.append((lid,fid))
+            except Exception as e:
+                Log.debug(e)
+        Settings.setp('featureDocks',json.dumps(reopen))
+
     def tearDown(self):
+        
+        self.tearDownDocks()
         self._iface.legendInterface().groupRelationsChanged.disconnect(self.legendRelationsChanged)
         self.tearDownTLayers()
         if 0:

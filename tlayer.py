@@ -223,7 +223,7 @@ class tLayer(MQTTClient):
     """
 
     def onMessage(self, mq, obj, msg):
-        Log.status('TLayer Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+        Log.debug('Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
         
         try:
             with QMutexLocker(self._mutex):
@@ -238,8 +238,8 @@ class tLayer(MQTTClient):
                         self._dict[key] = feat.id()
                         self.updateFeature(feat, msg.topic, msg.payload)
 
-            #Log.debug("Triggering repaint")
-            self.triggerRepaint()
+            if self._dirty:
+                self.triggerRepaint()
 
         except Exception as e:
             Log.critical("MQTT Client - Error updating features! " + str(e))
@@ -253,9 +253,9 @@ class tLayer(MQTTClient):
         if zlib.crc32(_payload) == zlib.crc32(payload):  # no change
             self.changeAttributeValue(feat.id(), Constants.updatedIdx, int(time.time()), False)
         else:
-            fmt = self._topicManager.instance(self.topicType()).formatPayload(payload)
-            Log.status("Telemetry Layer " + self._broker.name() + ":" + self._layer.name() + ":" + feat.attribute(
-                "name") + ": now " + fmt)
+        #    fmt = self._topicManager.instance(self.topicType()).formatPayload(payload)
+         #   Log.status("Telemetry Layer " + self._broker.name() + ":" + self._layer.name() + ":" + feat.attribute(
+          #      "name") + ": now " + fmt)
             self.changeAttributeValue(feat.id(), Constants.payloadIdx, payload, False)
             self.changeAttributeValue(feat.id(), Constants.matchIdx, topic, False)
             self.changeAttributeValue(feat.id(), Constants.updatedIdx, int(time.time()), False)
@@ -325,6 +325,7 @@ class tLayer(MQTTClient):
                 feat = next(self.layer().getFeatures(request), None)
                 if feat is not None:
                     self.featureUpdated.emit(self, feat)
+            self.triggerRepaint()
 
         except AttributeError:
             pass
@@ -429,8 +430,8 @@ class tLayer(MQTTClient):
                       QgsField("connected", QVariant.Int, "Broker is connected", 1, 0, "Valid only for visible layers"),
                       QgsField("visible", QVariant.Int, "Visible", 1, 0,
                                "Feature is visible and can be rendered. Invisible layers available via Features Tab under Broker"),
-                      QgsField("reserved", QVariant.Int, "Reserved", 1, 0,
-                               "Reserved for future use")]
+                      QgsField("context", QVariant.String, "Context", 0, 0,
+                               "Context of label renderer - i.e. map, feature-list, dock-title,dock-content")]
 
         return attributes
 
@@ -500,7 +501,8 @@ class tLayer(MQTTClient):
                                 int(time.time()),
                                 int(time.time()),
                                 self.isRunning(),
-                                visible])
+                                visible,
+                                'map'])
             # Add Params
 
             self._layer.updateFeature(feat)
@@ -590,6 +592,7 @@ class tLayer(MQTTClient):
         # Add additional checks?
         else:
             self._layer.triggerRepaint()
+            pass
 
     def layerEditStarted(self):
         self.establishedFeatures = []

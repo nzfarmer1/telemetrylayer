@@ -249,9 +249,12 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         if lm is None:
             return
 
+
+        _palyr = QgsPalLayerSettings()
         row = 0
         for lid, tLayer in self._layerManager.getTLayers().iteritems():
             _topicManager = topicManagerFactory.getTopicManager(tLayer.getBroker())
+            _palyr.readFromLayer(tLayer.layer())
 
             if tLayer.getBroker().id() != self._broker.id():
                 continue
@@ -266,9 +269,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 self._connectedTLayers.append(tLayer)
 
             features = tLayer.layer().getFeatures()
-            for feature in features:
-                if feature.id() <= 0:
+            for feat in features:
+
+                if feat.id() <= 0:
                     continue
+
+                feature =   QgsFeature(feat)
+                feature['context'] = 'feature-list' # replace with constants
+
                 tbl.setRowCount(row + 1)
                 # Append the feature
                 self._featureListItems[(lid, feature.id())] = row
@@ -289,7 +297,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kFeatureNameCol, item)
 
-                item = QtGui.QLabel(_topicManager.instance(tLayer.topicType()).formatPayload(feature['payload']))
+                item = QtGui.QLabel(_palyr.getLabelExpression().evaluate(feature))
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kPayloadCol, item)
@@ -499,7 +507,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             Log.alert("Please supply a hostname (alt)")
             return False
 
-
         if self.getPort() is None:
             Log.alert("Please specify a port")
             return False
@@ -522,11 +529,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         _client = tlMqttSingleShot(self,
                                 self.getBroker(),
                                 None,
-                                ["$SYS/#"],
+                                ["#"],
                                 None,
                                 0, #qos
                                 self._on_test)
-        
+        # change to simple connection test?
         _client.run()
 
     
@@ -539,6 +546,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 #        Log.progress(msg.payload)
 #        if status and self._mode == Constants.Update:
         self.connectApply.setEnabled(status and self.dirty())
+        client.kill();
 
 
 

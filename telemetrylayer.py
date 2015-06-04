@@ -255,6 +255,9 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         broker.setDirty(False)
         self._brokerDlg.connectApply.setEnabled(False)
         Log.progress("Broker updated")
+        for tLayer in self._layerManager.getTLayers().itervalues():
+            if tLayer.isRunning():
+                tLayer.restart();
        
         #self._brokerDlg.dockWidget.setVisible(False)
         #self.dockWidget.setFixedHeight(self.height())  # paramterise

@@ -53,6 +53,7 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 from telemetrylayer import TelemetryLayer
 from tltopicmanagerfactory import tlTopicManagerFactory as   TopicManagerFactory
+import NewMemoryLayer
 
 import sys, os
 
@@ -66,7 +67,6 @@ class TelemetryLayerPlugin(QObject):
     Username password for MQTT Broker
     """
 
-  
     def __init__(self, iface):
         # Save reference to the QGIS interface
         super(TelemetryLayerPlugin, self).__init__(iface)
@@ -148,6 +148,8 @@ class TelemetryLayerPlugin(QObject):
             self.iface.projectRead.connect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.connect(self.layerManager.rebuildLegend)
             Brokers.instance().brokersLoaded.connect(self.layerManager.brokersLoaded)
+
+            #Log.debug(TelemetryLayer.instance()._layerManager.getTLayers(False).iteritems())
         except Exception as e:
             Log.critical(Settings.getMeta("name") + ": There was a problem loading the layer manager")
             exc_type, exc_value, exc_traceback = sys.exc_info()
