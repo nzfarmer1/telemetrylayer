@@ -21,15 +21,12 @@ from TelemetryLayer.lib.tlsettings import tlSettings as Settings
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tltopicmanager import tlTopicManager
 
-from ui_tlgenerictopicmanager import Ui_tlGenericTopicManager
 
 
-class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
-    def __init__(self, broker, create=False):
-        super(tlGenericTopicManager, self).__init__(broker, create)
+class tlGenericTopicManager(tlTopicManager):
+    def __init__(self,iface =None):
+        super(tlGenericTopicManager, self).__init__( iface)
         self._topics = []
-        self._broker = broker
-        self._create = create
 
     def getWidget(self):
         super(tlGenericTopicManager, self).setupUi()
@@ -48,7 +45,8 @@ class tlGenericTopicManager(tlTopicManager, Ui_tlGenericTopicManager):
     def register():
 
         path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
-        imp.load_source('qgsfuncs', path)
+        if not QgsExpression.isFunctionName("$format_label"):
+            imp.load_source('qgsfuncs', path)
         icons = os.path.join(os.path.dirname(__file__), 'icons')
 
         if not icons in QgsApplication.svgPaths():

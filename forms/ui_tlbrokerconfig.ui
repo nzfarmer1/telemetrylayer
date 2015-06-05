@@ -338,35 +338,6 @@
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
-      <widget class="QLabel" name="connectTopicManagerLabel">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>40</y>
-         <width>41</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Set the Topic Manager. This is the module that manages available topics</string>
-       </property>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="connectTopicManager">
-       <property name="geometry">
-        <rect>
-         <x>79</x>
-         <y>33</y>
-         <width>141</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Set the Topic Manager. This is the module that manages available topics</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="connectKeepAliveLabel">
        <property name="geometry">
         <rect>

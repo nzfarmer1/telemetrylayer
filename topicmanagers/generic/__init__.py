@@ -1,5 +1,5 @@
 def classFactory(iface):
     from tlgenerictopicmanager import tlGenericTopicManager
 
-    return {"name": "Generic", "class": tlGenericTopicManager}
+    return [{"name": "Generic", "class": tlGenericTopicManager(iface)}]
 

@@ -26,7 +26,7 @@
    <string>Create Layer</string>
   </property>
   <property name="toolTip">
-   <string></string>
+   <string/>
   </property>
   <widget class="QComboBox" name="selectBroker">
    <property name="geometry">
@@ -57,20 +57,20 @@
     <string>Select Broker</string>
    </property>
   </widget>
-  <widget class="QLabel" name="selectTopicTypeLabel">
+  <widget class="QLabel" name="selectTopicManagerLabel">
    <property name="geometry">
     <rect>
      <x>49</x>
      <y>114</y>
-     <width>131</width>
+     <width>151</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Select Topic Type</string>
+    <string>Select Topic Manager</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="selectTopicType">
+  <widget class="QComboBox" name="selectTopicManager">
    <property name="geometry">
     <rect>
      <x>47</x>
@@ -125,7 +125,7 @@
  </widget>
  <tabstops>
   <tabstop>selectBroker</tabstop>
-  <tabstop>selectTopicType</tabstop>
+  <tabstop>selectTopicManager</tabstop>
   <tabstop>buttonCreate</tabstop>
   <tabstop>buttonCancel</tabstop>
  </tabstops>

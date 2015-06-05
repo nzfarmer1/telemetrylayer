@@ -199,7 +199,6 @@ class layerManager(QObject):
     """
 
     def _addLayerToGroup(self, layer, broker):
-
         li = self._iface.legendInterface()
         nodeGrp = self._getGroup(broker, True)
         nodeLayer = nodeGrp.findLayer(layer.id())
@@ -250,6 +249,7 @@ class layerManager(QObject):
         layerManager._rebuildingLegend = True
 
         root = QgsProject.instance().layerTreeRoot()
+
         try:
             parentsToRoot = []
             for lid, tLayer in self.getTLayers(False).iteritems():
@@ -304,8 +304,8 @@ class layerManager(QObject):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
                                                       exc_traceback)))
-
-        layerManager._rebuildingLegend = False
+        finally:
+            layerManager._rebuildingLegend = False
 
     def getTLayers(self, add=True):
         for l in layerManager.getLayers():
@@ -574,10 +574,10 @@ class layerManager(QObject):
         geomType = 'Point' + '?crs=proj4:' + QgsProject.instance().readEntry("SpatialRefSys", "/ProjectCRSProj4String")[
             0]  # dodana linia - from Menory Layer Module
         broker = dlg.getBroker()
-        topicType = dlg.getTopicType()
-        layer = QgsVectorLayer(geomType, topicType, 'memory')  # zmieniona linia
+        topicManager = dlg.getTopicManager()
+        layer = QgsVectorLayer(geomType, topicManager.name(), 'memory')  # zmieniona linia
 
-        tLayer = self.initLayer(layer, broker, topicType)
+        tLayer = self.initLayer(layer, broker, topicManager)
         # self._iface.legendInterface().setCurrentLayer(layer)
         Log.debug("telemetrylayermanager - set Current Layer")
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'forms/ui_tleditfeature.ui'
 #
-# Created: Mon May 11 17:34:26 2015
+# Created: Fri Jun  5 21:52:07 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,21 +26,22 @@ except AttributeError:
 class Ui_tlEditFeature(object):
     def setupUi(self, tlEditFeature):
         tlEditFeature.setObjectName(_fromUtf8("tlEditFeature"))
-        tlEditFeature.resize(360, 150)
+        tlEditFeature.resize(360, 300)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(tlEditFeature.sizePolicy().hasHeightForWidth())
         tlEditFeature.setSizePolicy(sizePolicy)
-        tlEditFeature.setMaximumSize(QtCore.QSize(360, 150))
+        tlEditFeature.setMaximumSize(QtCore.QSize(360, 300))
         self.dockWidget = QtGui.QDockWidget(tlEditFeature)
         self.dockWidget.setEnabled(True)
-        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 150))
+        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 300))
+        self.dockWidget.setMinimumSize(QtCore.QSize(360, 300))
         self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
         self.dockWidgetContents = QtGui.QWidget()
         self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
         self.payload = QtGui.QLabel(self.dockWidgetContents)
-        self.payload.setGeometry(QtCore.QRect(170, 10, 151, 121))
+        self.payload.setGeometry(QtCore.QRect(20, 150, 331, 111))
         self.payload.setObjectName(_fromUtf8("payload"))
         self.symbol = QtGui.QLabel(self.dockWidgetContents)
         self.symbol.setGeometry(QtCore.QRect(20, 10, 128, 128))

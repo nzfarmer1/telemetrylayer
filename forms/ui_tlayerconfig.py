@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_tlayerconfig.ui'
+# Form implementation generated from reading ui file 'forms/ui_tlayerconfig.ui'
 #
-# Created: Tue Mar 24 14:11:03 2015
+# Created: Fri Jun  5 15:20:04 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,12 +40,12 @@ class Ui_tLayerConfig(object):
         self.selectBrokerLabel = QtGui.QLabel(tLayerConfig)
         self.selectBrokerLabel.setGeometry(QtCore.QRect(49, 62, 101, 16))
         self.selectBrokerLabel.setObjectName(_fromUtf8("selectBrokerLabel"))
-        self.selectTopicTypeLabel = QtGui.QLabel(tLayerConfig)
-        self.selectTopicTypeLabel.setGeometry(QtCore.QRect(49, 114, 131, 16))
-        self.selectTopicTypeLabel.setObjectName(_fromUtf8("selectTopicTypeLabel"))
-        self.selectTopicType = QtGui.QComboBox(tLayerConfig)
-        self.selectTopicType.setGeometry(QtCore.QRect(47, 126, 151, 26))
-        self.selectTopicType.setObjectName(_fromUtf8("selectTopicType"))
+        self.selectTopicManagerLabel = QtGui.QLabel(tLayerConfig)
+        self.selectTopicManagerLabel.setGeometry(QtCore.QRect(49, 114, 151, 16))
+        self.selectTopicManagerLabel.setObjectName(_fromUtf8("selectTopicManagerLabel"))
+        self.selectTopicManager = QtGui.QComboBox(tLayerConfig)
+        self.selectTopicManager.setGeometry(QtCore.QRect(47, 126, 151, 26))
+        self.selectTopicManager.setObjectName(_fromUtf8("selectTopicManager"))
         self.title = QtGui.QLabel(tLayerConfig)
         self.title.setGeometry(QtCore.QRect(27, 24, 191, 16))
         self.title.setObjectName(_fromUtf8("title"))
@@ -58,8 +58,8 @@ class Ui_tLayerConfig(object):
 
         self.retranslateUi(tLayerConfig)
         QtCore.QMetaObject.connectSlotsByName(tLayerConfig)
-        tLayerConfig.setTabOrder(self.selectBroker, self.selectTopicType)
-        tLayerConfig.setTabOrder(self.selectTopicType, self.buttonCreate)
+        tLayerConfig.setTabOrder(self.selectBroker, self.selectTopicManager)
+        tLayerConfig.setTabOrder(self.selectTopicManager, self.buttonCreate)
         tLayerConfig.setTabOrder(self.buttonCreate, self.buttonCancel)
 
     def retranslateUi(self, tLayerConfig):
@@ -67,8 +67,8 @@ class Ui_tLayerConfig(object):
         self.selectBroker.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select MQTT Broker from list (configure new if required)</p></body></html>", None))
         self.selectBrokerLabel.setToolTip(_translate("tLayerConfig", "<html><head/><body><p>Select broker from list</p></body></html>", None))
         self.selectBrokerLabel.setText(_translate("tLayerConfig", "Select Broker", None))
-        self.selectTopicTypeLabel.setText(_translate("tLayerConfig", "Select Topic Type", None))
-        self.selectTopicType.setToolTip(_translate("tLayerConfig", "Select the Topic Types able to be shown on this layer", None))
+        self.selectTopicManagerLabel.setText(_translate("tLayerConfig", "Select Topic Manager", None))
+        self.selectTopicManager.setToolTip(_translate("tLayerConfig", "Select the Topic Types able to be shown on this layer", None))
         self.title.setText(_translate("tLayerConfig", "Create new Telemetry Layer", None))
         self.buttonCreate.setText(_translate("tLayerConfig", "Create", None))
         self.buttonCancel.setText(_translate("tLayerConfig", "Cancel", None))

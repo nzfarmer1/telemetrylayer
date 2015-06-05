@@ -76,13 +76,13 @@ def register():
         if path not in sys.path:
             sys.path.append(path)
         module = None
-        meta = {}
-        Log.debug("Loading topic manager " + package)
+        meta = []
         try:
             if sys.modules[package]:
                 module = __import__(package)
                 meta = module.classFactory(Settings.getIface())
-                meta['class'] = reload_class(meta['class'])
+                for m in meta:
+                    m['class'] = reload_class(m['class'])
         except AttributeError:
             pass
         except Exception as e:
@@ -93,8 +93,11 @@ def register():
                 module = __import__(package)
                 meta = module.classFactory(Settings.getIface())
 
-        meta['id'] = package
-        topicManagers.append(meta)
+        for m in meta:
+            m['id'] = m['name'].replace(" ","_").lower()
+            Log.debug("Loading topic manager ")
+            Log.debug(m)
+            topicManagers.append(m)
     Log.debug("Done")
     return topicManagers
 

@@ -94,8 +94,8 @@ class tlTopicManagerFactory():
         Log.debug("Loading Topic Managers")
         tlTopicManagerFactory.topicManagers = topicmanagers.register()
 
-        for _id in tlTopicManagerFactory.getTopicManagerIds():
-           tlTopicManagerFactory.registerTopicManager(_id)
+        for tmeta in tlTopicManagerFactory.topicManagers:
+           tlTopicManagerFactory.registerTopicManager(tmeta)
 
     @staticmethod
     def unregisterAll():
@@ -105,12 +105,16 @@ class tlTopicManagerFactory():
         tlTopicManagerFactory.unregister()
 
     @staticmethod
-    def registerTopicManager(_id):
-        if not _id in tlTopicManagerFactory.registered:
-            _obj = tlTopicManagerFactory.getTopicManagerById(_id)
+    def registerTopicManager(tmeta):
+        if not tmeta['id'] in tlTopicManagerFactory.registered:
+            _obj = tlTopicManagerFactory.getTopicManagerById(tmeta['id'])
             if hasattr(_obj, "register"):
+                Log.debug("Registering")
+                Log.debug(_obj)
                 _obj.register()
-            tlTopicManagerFactory.registered.append(_id)
+                _obj.setId(tmeta['id'])
+                _obj.setName(tmeta['name'])
+            tlTopicManagerFactory.registered.append(tmeta['id'])
 
     @staticmethod
     def unregisterTopicManager(_id):
@@ -121,35 +125,22 @@ class tlTopicManagerFactory():
             del _obj
             tlTopicManagerFactory.registered.remove(_id)
 
+
     @staticmethod
-    def getTopicManager(broker, create=False):
-        try:
-            if not create and broker.id() in tlTopicManagerFactory.classObjects:
-                return tlTopicManagerFactory.classObjects[broker.id()]
-
-            _class = tlTopicManagerFactory.getTopicManagerById(broker.topicManager())
-            if not _class:
-                Log.alert("Error loading topic manager " + str(broker.id()))
-                return None
-
-            tlTopicManagerFactory.classObjects[broker.id()] = _class(broker, create)
-            return tlTopicManagerFactory.classObjects[broker.id()]
-        except Exception as e:
-            Log.progress("Unable to load topic manager from " + str(broker.topicManager()) + " " + str(e))
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                                                      exc_traceback)))
-
-            return None
+    def getTopicManagerList():
+        return tlTopicManagerFactory.topicManagers
 
     @staticmethod
     def getTopicManagers():
-        return tlTopicManagerFactory.topicManagers
+        objs = []
+        for tm in tlTopicManagerFactory.topicManagers:
+            objs.append(tm['class'])
+        return objs
 
     @staticmethod
     def getTopicManagerIds():
         ids = []
-        for tm in tlTopicManagerFactory.getTopicManagers():
+        for tm in tlTopicManagerFactory.getTopicManagerList():
             ids.append(tm['id'])
         return ids
 
@@ -157,7 +148,7 @@ class tlTopicManagerFactory():
     @staticmethod
     def getTopicManagerById(_id):
         _obj = None
-        for topicManager in tlTopicManagerFactory.getTopicManagers():
+        for topicManager in tlTopicManagerFactory.getTopicManagerList():
             if topicManager['id'] == _id:
                 try:
                     _obj = topicManager['class']

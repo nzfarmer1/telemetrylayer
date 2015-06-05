@@ -41,7 +41,7 @@ class tLayer(MQTTClient):
 
     kLayerType = 'tlayer/Telemetry'
     kBrokerId = 'tlayer/brokerid'
-    kTopicType = 'tlayer/topictype'
+    kTopicManager = 'tlayer/topicManager'
 
 
     # SIGNALS
@@ -70,7 +70,7 @@ class tLayer(MQTTClient):
                  creator,
                  layer=None,
                  broker=None,
-                 topicType=None):
+                 topicManager=None):
 
         self._layer = layer
         self._plugin_dir = creator._plugin_dir
@@ -86,27 +86,26 @@ class tLayer(MQTTClient):
 
         self.isEditing = False
 
-        self._iface = creator._iface
-        self._paused = False
-        self._fid = None
-        self._feat = None
-        self._broker = None
+        self._iface     = creator._iface
+        self._paused    = False
+        self._fid       = None
+        self._feat      = None
+        self._broker    = None
         self._topicType = None
         self._topicManager = None
-
+        self._formattersSet = False
             
-        if broker is not None and topicType is not None:
+        if broker is not None and topicManager is not None:
             self.setBroker(broker, False)
             if not self.isTLayer(self._layer):
-                Log.debug("Not already a layer")
-                self._prepare(broker, topicType)  # Add Layer properties for broker
+                self._prepare(broker, topicManager)  # Add Layer properties for broker
         else:
             _broker = Brokers.instance().find(self.get(self.kBrokerId))
             if _broker is None:
                 raise BrokerNotFound("No MQTT Broker found when loading Telemetry Layer " + self.layer().name())
 
             self.setBroker(_broker)
-            self._topicType = self.get(self.kTopicType)
+            self.topicManager()
             #self._setFormatters()
 
         super(tLayer, self).__init__(self,
@@ -174,24 +173,12 @@ class tLayer(MQTTClient):
                     Log.warn("Topic QoS must be beween 0 and 2")
                     continue
     
-                # If the topic has changed, we need to update the name
-                # (and perhaps additional properties for the layer)
-                # This code is a little redundant as we're not
-                # checking for topic change - however, it is not
-                # called often and uses our own self.changeAttributeValue
-                # method so the overhead is very small
     
                 if topic is not None:
-                    _topic = self._broker.topic(topic)
-                    if _topic is not None:
-                        self.changeAttributeValue(feat.id(), Constants.nameIdx, _topic['name'])
-                        Log.debug("Subscribing " + topic + " " + str(qos))
-                        self.subscribe(topic, qos)
-                    else:
-                        Log.critical("Updated topic " + topic + " not found! Please refresh your topic manager then re add the feature")
-                        #self._layer.startEditing()
-                        #self._layer.deleteFeature(feat.id())
-                        #self._layer.commitChanges()
+                    Log.debug("Subscribing " + topic + " " + str(qos))
+                    self.subscribe(topic, qos)
+                else:
+                    Log.critical("Invalid topic")
                    
             except TypeError:
                 Log.debug("Error adding features from layer")
@@ -309,7 +296,7 @@ class tLayer(MQTTClient):
                 
 
                 self._layer.startEditing()
-                self._topicManager.instance(self.topicType()).beforeCommit(self,self._values)
+                self.topicManager().beforeCommit(self,self._values)
 
                 for key, val in self._values.iteritems():
                     fid, fieldId = key
@@ -340,10 +327,9 @@ class tLayer(MQTTClient):
     def layer(self):
         return self._layer
 
-    def _prepare(self, broker, topicType):
+    def _prepare(self, broker, topicManager):
 
         self._broker = broker
-        self._topicType = topicType
         pr = self._layer.dataProvider()
 
         # Enter editing mode
@@ -353,9 +339,9 @@ class tLayer(MQTTClient):
 
         self.set(self.kLayerType, "true")
         self.set(self.kBrokerId, broker.id())
-        self.set(self.kTopicType, topicType)
+        self.set(self.kTopicManager, topicManager.id())
         attributes = self.getAttributes() + \
-                     self._topicManager.instance(topicType).getAttributes()
+                     topicManager.getAttributes()
 
         # Add Params
 
@@ -366,12 +352,13 @@ class tLayer(MQTTClient):
         self._iface.legendInterface().setCurrentLayer(self._layer)
     
      
-    def _setFormatters(self,V2WidgetsOnly = False ): # change to bitmask  
+    def _setFormatters(self,update = False ): # change to bitmask
 
-        if self.get('kFormattersSet') is not None:
+
+        if self._formattersSet:
             return
-
-        self.set("kFormattersSet",True)
+        else:
+            self._formattersSet = True
 
         # Configure Attributes
         self._layer.startEditing()
@@ -388,21 +375,27 @@ class tLayer(MQTTClient):
 #        self._layer.setEditorWidgetV2(Constants.topicIdx, 'Immutable')
 
         self._layer.commitChanges()
-        
-        if V2WidgetsOnly:
-            return
+
+        if not update:
+    
+            self._layer.startEditing()
+            self.topicManager().setLayerStyle(self._layer)
+            self._layer.commitChanges()
+
+            self._layer.startEditing()
+            self.topicManager().setLabelFormatter(self._layer)
+            self._layer.commitChanges()
+            
+        Log.debug("_setFormatters " + str(self.topicManager()))
 
         self._layer.startEditing()
-        self._topicManager.instance(self.topicType()).setLayerStyle(self._layer)
+        self.topicManager().setEditorWidgetsV2(self._layer)
         self._layer.commitChanges()
         
 #        self._layer.startEditing()
 #        self._topicManager.instance(self.topicType()).setFeatureForm(self._layer)
 #        self._layer.commitChanges()
         
-        self._layer.startEditing()
-        self._topicManager.instance(self.topicType()).setLabelFormatter(self._layer)
-        self._layer.commitChanges()
 
     def getAttributes(self):
 
@@ -456,10 +449,12 @@ class tLayer(MQTTClient):
             Log.debug("No feature to Apply")
             return
         fmap = self._layer.dataProvider().fieldNameMap()
+        mmax = self._layer.dataProvider().fieldNameIndex("context")
+
         try:
             for key,fieldId in fmap.iteritems():
-                if key in ['qos','visible']:
-#                   Log.debug("changing value " + key + " " + str(feat[key]) + " to " + str(feature[key]))
+                if key in ['qos','visible'] or fieldId > mmax:
+                #   Log.debug("changing value " + key + " " + str(feat[key]) + " to " + str(feature[key]))
                    self._layer.changeAttributeValue(feat.id(), fieldId, feature[key])
             self._layer.deleteFeature(feature.id())
             self._layer.commitChanges()
@@ -492,6 +487,19 @@ class tLayer(MQTTClient):
             topic = tlAddFeature.getTopic()
             visible = tlAddFeature.getVisible()
             qos = tlAddFeature.getQoS()
+            
+            attrs = [topic['name'],
+                    topic['topic'],
+                    qos,
+                    topic['topic'],  # gets updated with topic
+                    "No updates",
+                    int(time.time()),
+                    int(time.time()),
+                    self.isRunning(),
+                    visible,
+                    'map']
+            
+            attrs = self.topicManager().setAttributes(self._layer,attrs)
 
             feat.setAttributes([topic['name'],
                                 topic['topic'],
@@ -532,14 +540,7 @@ class tLayer(MQTTClient):
         self.setHost(broker.host())
         self.setPort(broker.port())
         self.setKeepAlive(broker.keepAlive())
-        self._topicManager = topicManagerFactory.getTopicManager(broker)
-        #if updateFeatures:
-        #    self.brokerUpdated()
 
-        # Todo:
-        # For each topic
-        # Find features with feat.attrib[topic] == topic
-        # Update params
 
     def getBroker(self):
         return self._broker
@@ -611,7 +612,7 @@ class tLayer(MQTTClient):
 
         
     def topicManager(self):
-        return topicManagerFactory.getTopicManager(self._broker)
+        return topicManagerFactory.getTopicManagerById(self.get(self.kTopicManager))
 
     def topicType(self):
         return self._topicType

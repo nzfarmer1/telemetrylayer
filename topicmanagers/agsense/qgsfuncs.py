@@ -11,11 +11,8 @@ def agsense_format_label(values, feature, parent):
 
     if context == 'dock-title' or context == 'feature-list':
         try:
-            if int(feature.attribute('visible'))  == 0:
-                return ""
-            else:
-                payload = json.loads(feature.attribute('payload'))
-                return str(payload['format'])
+            payload = json.loads(feature.attribute('payload'))
+            return str(payload['format'])
         except (KeyError,ValueError,TypeError):
             try:
                 return str(feature.attribute('payload'))
@@ -31,9 +28,9 @@ def agsense_format_label(values, feature, parent):
                 return "<b style=font-size:72pt>" + str(payload['format']) + "</b>"
         except (KeyError,ValueError,TypeError):
             try:
-                return "<b" + str(feature.attribute('payload')) + "</b>"
+                return "<b style=font-size:72pt>" + str(feature.attribute('payload')) + "</b>"
             except:
-                return "<b>n/a</b>"
+                return "<b style=font-size:72pt>n/a</b>"
             
     # default context (map)
 
@@ -45,7 +42,7 @@ def agsense_format_label(values, feature, parent):
             return str(feature.attribute('name')) + '\n(' + str(payload['format']) + ')'
     except (KeyError,ValueError,TypeError):
         try:
-            return str(feature.attribute('name')) + '\n(' + str(feature.attribute('payload')) + ')'
+            return str(feature.attribute('match')) + '\n(' + str(feature.attribute('payload')) + ')'
         except:
             return "n/a"
 

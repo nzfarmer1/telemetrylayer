@@ -280,12 +280,7 @@ class tlBroker(QObject):
     def setKeepAlive(self, keepalive):
         self.set('keepalive', keepalive)
 
-    def setTopics(self, topics):
-        self.set('topics', topics)
-#        Log.debug("tlBroker set Topics " + str(topics))
 
-    def setTopicManager(self, topicManager):
-        self.set('topicManager', topicManager)
 
     """ Getters """
 
@@ -329,42 +324,11 @@ class tlBroker(QObject):
     def keepAlive(self):
         return self.get('keepalive')
 
-
-    # return individual topic
-    def topic(self, topic):
-        topics = self.topics(None, topic)
-        if len(topics) > 0:
-            return topics[0]
-        else:
-            return None
-
-    def topics(self, type_=None, topic_=None):
-        topics = self.get('topics')
-        if type_ is None and topic_ is None:
-            return topics
-        _topics = []
-        for topic in topics:
-            if type_ is None or str(topic['type']) == str(type_):
-                if topic_ is None or str(topic_) == str(topic['topic']):
-                    _topics.append(topic)
-
-        return _topics
-
-    def topicManager(self):
-        return self.get('topicManager')
-    
     def useAltConnect(self):
         if self.get('useAltConnect',False):
             return True
         return False
 
-    def uniqTopicTypes(self):
-        types = []
-        for topic in self.topics():
-            if not topic['type'] in types:
-                Log.debug("Found " + topic['type'])
-                types.append(topic['type'])
-        return types
     
     def setDirty(self,state = True):
         self._dirty = state

@@ -1,3 +1,4 @@
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -16,12 +17,19 @@ from TelemetryLayer.topicmanagers.agsense.agtopicmanager import agTopicManager
 
 
     
-class agTankTopicManager(agTopicManager, Ui_agTopicManager):
-    def __init__(self, broker):
-        super(agTopicManager, self).__init__(broker, False)
-        self._broker = broker
+class agTankTopicManager(agTopicManager):
+    def __init__(self,iface=None):
+        super(agTopicManager, self).__init__( False)
         pass
 
+    def setEditorWidgetsV2(self,layer):
+        Log.debug("setEditorWidgetV2 ")
+        fid = layer.dataProvider().fieldNameIndex("lowater")
+        Log.debug("setEditorWidgetV2 "  + str(fid))
+        layer.setEditorWidgetV2(fid, 'Range')
+        layer.setEditorWidgetV2Config(fid, {"Style": "Slider", "Min": 0,"Max":100,"Step":1})
+        #layer.setEditorWidgetV2(fid, 'ValueMap')
+        #layer.setEditorWidgetV2Config(fid, {"True": 1, "False": 0})
 
     def setLayerStyle(self, layer):
         Log.debug("agTankTopicManager setLayerStyle " + os.path.join(self.path(), "rules.qml"))
@@ -39,7 +47,12 @@ class agTankTopicManager(agTopicManager, Ui_agTopicManager):
     
     """
 
-#    def getAttributes(self): 
-#        attributes = [QgsField("alert", QVariant.Int, "Alert", 0, 0, "Low water alert level")]
-#        return attributes
+    def setAttributes(self,layer,attrs): 
+        fid = layer.dataProvider().fieldNameIndex("lowater")
+        attrs.append(0)
+        return attrs
+
+    def getAttributes(self): 
+        attributes = [QgsField("lowater", QVariant.Int, "Alert", 1, 0, "Low water alert level")]
+        return attributes
 

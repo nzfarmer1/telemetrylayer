@@ -19,12 +19,10 @@ import os, sys, math, time
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 import TelemetryLayer
-from tlxmltopicparser import tlXMLTopicParser as XMLTopicParser
 
 
 
-
-class tlTopicManager(QDialog, QObject):
+class tlTopicManager(QObject):
     """
     Super class for all custom topic managers.
     
@@ -34,38 +32,25 @@ class tlTopicManager(QDialog, QObject):
     Provides default handler's for defining a tLayer's settings (look and feel).
     
     """
-    topicManagerReady = QtCore.SIGNAL('topicManagerReady(QObject,QObject)')
-    topicManagerError = QtCore.SIGNAL('topicManagerError(QObject,QObject)')
 
-    def __init__(self, broker, create=False):
+    def __init__(self,  iface = None):
         super(tlTopicManager, self).__init__()
 
-        self._broker = broker
-        self._create = create
+        self._iface = iface
 
-        systopicxml = os.path.join(Settings.get('plugin_dir'), 'data', 'systopics.xml')
-
-        self._systopics = XMLTopicParser(systopicxml).getTopics()
-
- 
-    def setupUi(self):
-        super(tlTopicManager, self).setupUi(self)
-
-    def getTopics(self, topics=[]):
-        uniq = []
-        _topics = []
-        for topic in topics + self._systopics:
-            if not topic['topic'] in uniq:
-                _topics.append(topic)
-                uniq.append(topic['topic'])
-
-        return _topics
 
     def getWidget(self):
         pass
 
-    def getAttributes(self, topicType =None):
+    def getAttributes(self):
         return []
+
+    def setAttributes(self,layer,attrs):
+        return attrs
+
+    def setEditorWidgetsV2(self, layer): # add custom formatters
+        Log.debug("Default setEditorWidgetsV2")
+        pass
 
     # Todo
     # Label not showing in Windows initially
@@ -84,7 +69,8 @@ class tlTopicManager(QDialog, QObject):
             palyr.placement = QgsPalLayerSettings.OverPoint
             palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
             palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
-            palyr.yOffset = 0.01
+            palyr.yOffset = 2
+            palyr.labelOffsetInMapUnits = False
             palyr.fieldName = '$format_label'
             palyr.writeToLayer(layer)
             Log.debug("Palyr Settings updated")
@@ -92,8 +78,6 @@ class tlTopicManager(QDialog, QObject):
             Log.debug("Error setting Label Format " + str(e))
 
 
-    def instance(self,topicType):
-        return self
 
     def beforeCommit(self,tLayer,values):
         pass
@@ -116,4 +100,15 @@ class tlTopicManager(QDialog, QObject):
         qfile.close()
         layer.loadNamedStyle(filename)
         #
- 
+
+    def id(self):
+        return self._id
+    
+    def name(self):
+        return self._name
+
+    def setId(self,_id):
+        self._id = _id
+
+    def setName(self,name):
+        self._name = name

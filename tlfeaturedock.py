@@ -15,7 +15,6 @@ import webbrowser,pickle,json
 from lib.tlsettings import tlSettings as Settings
 from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
-#from tlmqttclient import *
 from forms.ui_tleditfeature import Ui_tlEditFeature
 
 try:

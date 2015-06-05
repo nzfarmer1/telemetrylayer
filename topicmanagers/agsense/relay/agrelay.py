@@ -11,16 +11,12 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 import os
 
-from agrelayfeaturedialog import agRelayFeatureDialog as FeatureDialog
-#from TelemetryLayer.tltopicmanager import tlFeatureDialog as FeatureDialog
-from TelemetryLayer.topicmanagers.agsense.ui_agtopicmanager import Ui_agTopicManager
 from TelemetryLayer.topicmanagers.agsense.agtopicmanager import agTopicManager
 
     
-class agRelayTopicManager(agTopicManager, Ui_agTopicManager):
-    def __init__(self, broker):
-        super(agTopicManager, self).__init__(broker, False)
-        self._broker = broker
+class agRelayTopicManager(agTopicManager):
+    def __init__(self,iface=None):
+        super(agTopicManager, self).__init__(iface)
         pass
 
 

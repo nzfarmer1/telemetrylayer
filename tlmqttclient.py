@@ -253,6 +253,9 @@ class MQTTClient(QtCore.QObject):
         except Exception as e:
             QObject.emit(self, SIGNAL('mqttConnectionError'), self, str(e))
             Log.debug("MQTT Connect: Unknown exception raised "  + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                     exc_traceback)))
 
 
     def _kill(self):
@@ -393,8 +396,10 @@ class tlMqttSingleShot(MQTTClient):
 
     def onConnect(self, mqtt, obj, rc):
         Log.debug("Connect rc = " + str(rc))
+        QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
         if len(self._subTopics) == 0:
-            self._connectError(False, "No Subcription Topic defined")
+#            self._connectError(False, "No Subcription Topic defined")
+            return
         for topic in self._subTopics:
             self.subscribe(str(topic), self._qos)
         if self._pubTopic is not None:

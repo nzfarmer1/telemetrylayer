@@ -35,7 +35,7 @@
           <prop k="name" v="connected.svg"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0"/>
-          <prop k="offset_unit" v="MM   "/>
+          <prop k="offset_unit" v="MM"/>
           <prop k="outline_color" v="#fa1b06"/>
           <prop k="outline_width" v="3"/>
           <prop k="outline_width_map_unit_scale" v="0,0"/>
@@ -211,7 +211,8 @@
     <property key="labeling/upsidedownLabels" value="0"/>
     <property key="labeling/wrapChar" value=""/>
     <property key="labeling/xOffset" value="0"/>
-    <property key="labeling/yOffset" value="0.01"/>
+    <property key="labeling/yOffset" value="2"/>
+    <property key="labeling/labelOffsetInMapUnits" value="0"/>
   </customproperties>
 
   <labelattributes>

@@ -18,7 +18,6 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
 from tlmqttclient import *
-from tltopicmanagerfactory import tlTopicManagerFactory as topicManagerFactory
 import traceback, sys, os, imp, json, zlib
 import copy, pickle
 
@@ -70,7 +69,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._layerManager = creator._layerManager
         self._create = create
         self._broker = broker
-        self._topicManager = None
         self._tested = False
         self._fd = None
 
@@ -94,6 +92,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
         
         self.Tabs.setCurrentIndex(self.kBrokerConfigTabId)  # First index
+
+
         # if Modal create mode
         self.setName(self._broker.name())
         self.setHost(self._broker.host())
@@ -108,20 +108,20 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.setUsername(self._broker.username())   
         self.setPassword(self._broker.password())
 
-        self._topicManager = None
         self._connectedTLayers = []
         self._featureListItems = {}
         self._refreshFeature = QTimer()
         self._refreshFeature.setSingleShot(True)
         self._refreshFeature.timeout.connect(self._updateFeatureList)
         self.Tabs.currentChanged.connect(lambda: self._refreshFeature.start(3))
-        #self.Tabs.currentChanged.connect(lambda: self.setDirty(True))
+        QgsMapLayerRegistry.instance().layersRemoved.connect(self._updateFeatureList)
+        QgsProject.instance().layerLoaded.connect(self._updateFeatureList)
+        
+        self.tableFeatureList.doubleClicked.connect(self._showFeatureDialog)
+        self.tableFeatureList.clicked.connect(self._zoomToFeature)
 
         self.connectApply.setEnabled(False)
-        self.connectTopicManager.addItem("Please select ...", None)
 
-        for topicManager in topicManagerFactory.getTopicManagers():
-            self.connectTopicManager.addItem(topicManager['name'], topicManager['id'])
 
         if self._mode == Constants.Create:  # Create Layer - so Modal
             self.connectPoll.setCurrentIndex(
@@ -146,19 +146,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self.connectApply.setText(_translate("tlBrokerConfig", "Apply", None))
             self.dockWidget.visibilityChanged.connect(self.tearDown)
 
-
-            if self._broker.topicManager() is not None:
-                self.setTopicManager(self._broker.topicManager())
-                if self._loadTopicManager(self.getTopicManager()):
-                    self.connectTopicManager.setEnabled(False)
-                    self._loadFeatureList()
-                    QgsMapLayerRegistry.instance().layersRemoved.connect(
-                        self._updateFeatureList)  # change to when layer is loaded also!
-                    QgsProject.instance().layerLoaded.connect(self._updateFeatureList)
-                    self.tableFeatureList.doubleClicked.connect(self._showFeatureDialog)
-                    self.tableFeatureList.clicked.connect(self._zoomToFeature)
-            else:
-                self.Tabs.setEnabled(False)
 
         self.connectName.textChanged.connect(lambda: self.setDirty(True))
         self.connectHost.textChanged.connect(lambda: self.setDirty(True))
@@ -204,16 +191,16 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         request = QgsFeatureRequest(item.data(self.kFeatureId))
         feature = next(layer.getFeatures(request), None)
 
-  #      if not layer.isEditable() and not layer.isReadOnly():
- #           layer.startEditing()
         try:
-            self._layerManager.showFeatureDock(layer,
+            if layer.isEditable() and not layer.isReadOnly():
+                self._iface.openFeatureForm(layer, feature, True,False)
+            else:
+                self._layerManager.showFeatureDock(layer,
                                                 feature)
 #            self._fd = tlFeatureDialogWrapper(self._iface,
 #                                                 self._layerManager.getTLayer(layer.id()),
 #                                                 feature)
                                                  
-#            self._iface.openFeatureForm(layer, feature, True,False)
 
         except Exception as e:
             Log.debug(e)
@@ -228,8 +215,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     # Show a list of features for the layers associated with this broker            
     def _loadFeatureList(self):
-        self._featureListItems = {}
 
+        self._featureListItems = {}
         tbl = self.tableFeatureList
 
         columns = ["Data", "Layer", "Feature", "Last"]
@@ -253,7 +240,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         _palyr = QgsPalLayerSettings()
         row = 0
         for lid, tLayer in self._layerManager.getTLayers().iteritems():
-            _topicManager = topicManagerFactory.getTopicManager(tLayer.getBroker())
             _palyr.readFromLayer(tLayer.layer())
 
             if tLayer.getBroker().id() != self._broker.id():
@@ -309,46 +295,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         tbl.horizontalHeader().setStretchLastSection(True)
 
 
-    def _loadTopicManager(self, topicManagerId='agsense'):
-        try:
-            if self._create:
-                # Add username/password!
-                self.getBroker()
-            #Log.debug("_loadTopicManager")
-            self._topicManager = topicManagerFactory.getTopicManager(self._broker, self._create)
-            QObject.connect(self._topicManager, SIGNAL("topicManagerReady"), self._topicManagerLoaded)
-            QObject.connect(self._topicManager, SIGNAL("topicManagerError"), self._topicManagerLoaded)
-            self.Tabs.setTabEnabled(self.kTopicManagerTabId, False)
-            widget = self._topicManager.getWidget()
-            self.dockWidget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-            self.Tabs.addTab(widget, "Topics")
-            return True
-
-        except Exception as e:
-            Log.debug(e)
-
-
-    def _topicManagerLoaded(self, state, obj):
-        if state:
-            self.Tabs.setTabEnabled(self.kTopicManagerTabId, True)
-            self.connectApply.setEnabled(self.getTested() and self.dirty())
-        else:
-            Log.progress(obj)
-
 
     """ Setters """
 
-    def setTopicManager(self, tmid):
-        tmidx = self.connectTopicManager.findData(tmid)
-        if tmidx > 0:
-            self.connectTopicManager.setCurrentIndex(tmidx)
-        else:
-            self.connectTopicManager.setCurrentIndex(0)
 
     def setDirty(self,state):
         self._broker.setDirty(state)
-        if self.getTested():
-            self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
+        #if self.getTested():
+        self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
 
     def setName(self, name):
         self.connectName.setText(name)
@@ -388,17 +342,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
     def setTested(self, state=True):
         self._tested = state
-        if state and self._topicManager is None:
-            if self._loadTopicManager(self.getTopicManager()):
-                self.connectTopicManager.setEnabled(False)
-        else:
-            pass
-            # self.Tabs.setTabEnabled(1,False)
 
     """ Getters """
-    
-    def getTopicManager(self):
-        return self.connectTopicManager.itemData(self.connectTopicManager.currentIndex())
 
 
     def getHost(self):
@@ -453,14 +398,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         dirty = dirty or self._broker.useAltConnect() != self.getUseAltConnect()
         dirty = dirty or self._broker.poll() != self.getPoll()
         dirty = dirty or self._broker.keepAlive() != self.getKeepAlive()
-        dirty = dirty or self._broker.topics() != self.getTopics()
 
         return dirty or self._broker.dirty()
 
-    def getTopics(self):
-        if self._topicManager is None:
-            return []
-        return self._topicManager.getTopics()
 
     def getName(self):
         return self.connectName.text()
@@ -476,10 +416,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self._broker.setUseAltConnect(self.getUseAltConnect())
         self._broker.setPoll(self.getPoll())
         self._broker.setKeepAlive(self.getKeepAlive())
-        self._broker.setTopics(self.getTopics())
-        self._broker.setTopicManager(self.getTopicManager())
         return self._broker
-
 
     
     """ Validator """
@@ -490,9 +427,6 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             Log.alert("Please supply a name for this broker")
             return False
 
-        if self.getTopicManager() is None:
-            Log.alert("Please specify a Broker Type (Topic Manager)")
-            return False
 
         if not Brokers.instance().uniqName(self._broker.id(), self.getName()):
             Log.alert("A broker named " + self.getName() + " already exists")
@@ -534,6 +468,9 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                                 0, #qos
                                 self._on_test)
         # change to simple connection test?
+        QObject.connect(_client, SIGNAL("mqttOnConnect"), lambda:self._on_test(_client,True))
+  
+#        _client.mqttOnConnect.connect(lambda:self._on_test(_client,True))
         _client.run()
 
     
@@ -578,10 +515,12 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             #       tLayer.layer().featureDeleted.disconnect(self._updateFeatureList)
 
             self._connectedTLayers = []
+            
             QgsMapLayerRegistry.instance().layersRemoved.disconnect(self._updateFeatureList)
             QgsProject.instance().layerLoaded.disconnect(self._updateFeatureList)
-            self.tableFeatureList.doubleClicked.disconnect(self._showFeatureDialog)
-            self.tableFeatureList.clicked.disconnect(self._zoomToFeature)
+            if  self.tableFeatureList.isVisible():
+                self.tableFeatureList.doubleClicked.disconnect(self._showFeatureDialog)
+                self.tableFeatureList.clicked.disconnect(self._zoomToFeature)
 
 
     

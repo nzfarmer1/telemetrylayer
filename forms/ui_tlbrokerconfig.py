@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_tlbrokerconfig.ui'
+# Form implementation generated from reading ui file 'forms/ui_tlbrokerconfig.ui'
 #
-# Created: Fri Apr 24 16:42:19 2015
+# Created: Fri Jun  5 11:01:36 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,12 +102,6 @@ class Ui_tlBrokerConfig(object):
         self.connectPassword.setMaxLength(24)
         self.connectPassword.setEchoMode(QtGui.QLineEdit.Password)
         self.connectPassword.setObjectName(_fromUtf8("connectPassword"))
-        self.connectTopicManagerLabel = QtGui.QLabel(self.tabConnect)
-        self.connectTopicManagerLabel.setGeometry(QtCore.QRect(30, 40, 41, 16))
-        self.connectTopicManagerLabel.setObjectName(_fromUtf8("connectTopicManagerLabel"))
-        self.connectTopicManager = QtGui.QComboBox(self.tabConnect)
-        self.connectTopicManager.setGeometry(QtCore.QRect(79, 33, 141, 26))
-        self.connectTopicManager.setObjectName(_fromUtf8("connectTopicManager"))
         self.connectKeepAliveLabel = QtGui.QLabel(self.tabConnect)
         self.connectKeepAliveLabel.setGeometry(QtCore.QRect(30, 231, 101, 16))
         self.connectKeepAliveLabel.setObjectName(_fromUtf8("connectKeepAliveLabel"))
@@ -210,9 +204,6 @@ class Ui_tlBrokerConfig(object):
         self.connectHelp.setToolTip(_translate("tlBrokerConfig", "Test and edit the connection settings", None))
         self.connectHelp.setText(_translate("tlBrokerConfig", "Help", None))
         self.connectPassword.setToolTip(_translate("tlBrokerConfig", "MQTT Broker Password", None))
-        self.connectTopicManagerLabel.setToolTip(_translate("tlBrokerConfig", "Set the Topic Manager. This is the module that manages available topics", None))
-        self.connectTopicManagerLabel.setText(_translate("tlBrokerConfig", "Type", None))
-        self.connectTopicManager.setToolTip(_translate("tlBrokerConfig", "Set the Topic Manager. This is the module that manages available topics", None))
         self.connectKeepAliveLabel.setToolTip(_translate("tlBrokerConfig", "Reconnect after how many seconds", None))
         self.connectKeepAliveLabel.setText(_translate("tlBrokerConfig", "Keep Alive", None))
         self.connectKeepAlive.setToolTip(_translate("tlBrokerConfig", "Keep Alive values for MQTT Connection settings - default 60 seconds", None))

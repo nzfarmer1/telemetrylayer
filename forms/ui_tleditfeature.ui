@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>150</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>360</width>
-    <height>150</height>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -40,17 +40,23 @@
      <x>0</x>
      <y>0</y>
      <width>360</width>
-     <height>150</height>
+     <height>300</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>360</width>
+     <height>300</height>
+    </size>
    </property>
    <widget class="QWidget" name="dockWidgetContents">
     <widget class="QLabel" name="payload">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>10</y>
-       <width>151</width>
-       <height>121</height>
+       <x>20</x>
+       <y>150</y>
+       <width>331</width>
+       <height>111</height>
       </rect>
      </property>
      <property name="toolTip">

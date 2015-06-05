@@ -16,7 +16,7 @@ from forms.ui_tlayerconfig import Ui_tLayerConfig
 from tlbrokers import tlBrokers as Brokers
 from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
-
+from tltopicmanagerfactory import tlTopicManagerFactory as tmFactory
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -43,10 +43,11 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
 
         self._creator = creator
         self._brokers = Brokers.instance().list()
+        self._brokers = Brokers.instance().list()
         self._invalidTypes = []
         self.setupUi()
         self.selectBroker.currentIndexChanged.connect(self._brokerChanged)
-        self.selectTopicType.currentIndexChanged.connect(self._topicTypeChanged)
+#        self.selectTopicManager.currentIndexChanged.connect(self._topicManagerChanged)
 
 
     def setupUi(self):
@@ -59,33 +60,25 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         self.buttonCreate.clicked.connect(self.accept)
         self.buttonCancel.clicked.connect(self.reject)
         self.buttonCreate.setEnabled(False)
-        for  tLayer in self._creator.getTLayers().itervalues():
-            self._invalidTypes.append((tLayer.brokerId(),tLayer.topicType()))
+
+        for tm in tmFactory.getTopicManagers():
+            self.selectTopicManager.addItem(tm.name(),tm)
  
-        # Note: tLayerConfig - add code to get currently selected broker")
         return
 
     def _brokerChanged(self, idx):
  
-        self.selectTopicType.clear()
         broker = self.selectBroker.itemData(idx)
-        if broker is None:
-            self.selectTopicType.setEnabled(False)
-            return
-        for ttype in broker.uniqTopicTypes():
-            if not (broker.id(),ttype) in self._invalidTypes:
-                self.selectTopicType.addItem(ttype)
 
-        self.selectTopicType.setEnabled(True)
+        self.buttonCreate.setEnabled(idx > 0)
+        self.selectTopicManager.setEnabled(idx > 0)
 
-    def _topicTypeChanged(self, idx):
-        self.buttonCreate.setEnabled(idx >= 0)
 
     def getBroker(self):
         return self.selectBroker.itemData(self.selectBroker.currentIndex())
 
-    def getTopicType(self):
-        return self.selectTopicType.itemText(self.selectTopicType.currentIndex())
+    def getTopicManager(self):
+        return self.selectTopicManager.itemData(self.selectTopicManager.currentIndex())
 
 
     def accept(self):
