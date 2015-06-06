@@ -448,12 +448,13 @@ class tLayer(MQTTClient):
         if not found:
             Log.debug("No feature to Apply")
             return
-        fmap = self._layer.dataProvider().fieldNameMap()
-        mmax = self._layer.dataProvider().fieldNameIndex("context")
 
         try:
+            fmap = self._layer.dataProvider().fieldNameMap()
+            fmax = self._layer.dataProvider().fieldNameIndex("context")
+
             for key,fieldId in fmap.iteritems():
-                if key in ['qos','visible'] or fieldId > mmax:
+                if key in ['qos','visible'] or fieldId > fmax:
                 #   Log.debug("changing value " + key + " " + str(feat[key]) + " to " + str(feature[key]))
                    self._layer.changeAttributeValue(feat.id(), fieldId, feature[key])
             self._layer.deleteFeature(feature.id())
@@ -477,7 +478,7 @@ class tLayer(MQTTClient):
         feat = QgsFeature(fid)
         try:
             telemetryLayer.instance().checkBrokerConfig()
-            tlAddFeature = AddFeature(self._broker, self._topicType)
+            tlAddFeature = AddFeature(self.topicManager())
             result = tlAddFeature.exec_()
             if result == 0:
                 self._layer.deleteFeature(fid)
@@ -499,18 +500,8 @@ class tLayer(MQTTClient):
                     visible,
                     'map']
             
-            attrs = self.topicManager().setAttributes(self._layer,attrs)
 
-            feat.setAttributes([topic['name'],
-                                topic['topic'],
-                                qos,
-                                topic['topic'],  # gets updated with topic
-                                "No updates",
-                                int(time.time()),
-                                int(time.time()),
-                                self.isRunning(),
-                                visible,
-                                'map'])
+            feat.setAttributes(self.topicManager().setAttributes(self._layer,attrs))
             # Add Params
 
             self._layer.updateFeature(feat)

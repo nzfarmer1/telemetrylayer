@@ -35,9 +35,8 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
     Dialog to manage Add Features
     """
 
-    def __init__(self, broker, topicManager):
+    def __init__(self, topicManager):
         super(tlAddFeature, self).__init__()
-        self._broker = broker
         self._topicManager = topicManager
         self._nameChanged = False
 
@@ -45,17 +44,17 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
         pass
 
     def setupUi(self):
-        self.timer = QTimer()
 
         super(tlAddFeature, self).setupUi(self)
 
         self.setTopic.setValidator(QRegExpValidator(QRegExp("^[\$a-zA-Z0-9\-\_\/\-\#\+]+"), self))
         self.setTopic.textChanged.connect(self._topicChanged)
+        self.setName.setValidator(QRegExpValidator(QRegExp("^[\ \$a-zA-Z0-9\-\_\/\-\#\+]+"), self))
         self.setName.textEdited.connect(self._setNameChanged)
 
         self.buttonAdd.clicked.connect(self._validateApply)
         self.buttonAdd.setEnabled(False)
-        
+        self.setTopic.setFocus()
         
     def getVisible(self):
         if self.chkBoxVisible.checkState() == Qt.Checked:

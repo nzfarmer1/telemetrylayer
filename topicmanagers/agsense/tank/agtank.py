@@ -23,14 +23,13 @@ class agTankTopicManager(agTopicManager):
         pass
 
     def setEditorWidgetsV2(self,layer):
-        Log.debug("setEditorWidgetV2 ")
         fid = layer.dataProvider().fieldNameIndex("lowater")
-        Log.debug("setEditorWidgetV2 "  + str(fid))
         layer.setEditorWidgetV2(fid, 'Range')
         layer.setEditorWidgetV2Config(fid, {"Style": "Slider", "Min": 0,"Max":100,"Step":1})
-        #layer.setEditorWidgetV2(fid, 'ValueMap')
-        #layer.setEditorWidgetV2Config(fid, {"True": 1, "False": 0})
-
+        fid = layer.dataProvider().fieldNameIndex("height")
+        layer.setEditorWidgetV2(fid, 'Range')
+        layer.setEditorWidgetV2Config(fid, {"Style": "Slider", "Min": 1,"Max":5000,"Step":100})
+ 
     def setLayerStyle(self, layer):
         Log.debug("agTankTopicManager setLayerStyle " + os.path.join(self.path(), "rules.qml"))
         #_path = os.path.join(self.path(), "../")
@@ -49,10 +48,12 @@ class agTankTopicManager(agTopicManager):
 
     def setAttributes(self,layer,attrs): 
         fid = layer.dataProvider().fieldNameIndex("lowater")
-        attrs.append(0)
+        attrs.append(10) # start value of lowwater
+        attrs.append(300) # start value of height
         return attrs
 
     def getAttributes(self): 
-        attributes = [QgsField("lowater", QVariant.Int, "Alert", 1, 0, "Low water alert level")]
+        attributes = [QgsField("lowater", QVariant.Int, "Alert", 1, 0, "Low water alert level (%)"),
+                      QgsField("height", QVariant.Int, "Height", 1, 0, "Tank height (mm)")]
         return attributes
 
