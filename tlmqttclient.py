@@ -11,6 +11,7 @@
 import sys
 from PyQt4 import QtCore
 from PyQt4.QtCore import QTimer, QThread, QObject, SIGNAL
+from PyQt4.QtCore import pyqtSignal
 
 #from lib import mosquitto as mqtt # mosquitto
 from lib import client as mqtt # paho
@@ -38,15 +39,14 @@ class MQTTClient(QtCore.QObject):
     kMinKeepAlive   = 5
     kResetTimer     = 60
 
-    mqttOnConnect = SIGNAL('mqttOnConnect(QObject,QObject,QObject)')
-    mqttOnDisConnect = SIGNAL('mqttOnDisconnect(QObject,QObject,QObject)')
-    mqttOnMessage = SIGNAL('mqttOnMessage(QObject,QObject,QObject)')
-    mqttOnPublish = SIGNAL('mqttOnPublish(QObject,QObject,QObject)')
-    mqttOnSubscribe = SIGNAL('mqttOnSubscribe(QObject,QObject,QObject,QObject)')
-    mqttOnLog = SIGNAL('mqttOnLog(QObject,QObject)')
-    mqttOnTimeout = SIGNAL('mqttOnTimeout(QObject)')
-
-    mqttConnectionError = SIGNAL('mqttConnectionError(QObject,QObject)')
+    mqttOnConnect       = pyqtSignal(QObject,QObject,int)
+    mqttOnDisConnect    = pyqtSignal(QObject,QObject,int)
+    mqttOnMessage       = pyqtSignal(QObject,QObject,QObject)
+    mqttOnPublish       = pyqtSignal(QObject,QObject,int)
+    mqttOnSubscribe     = pyqtSignal(QObject,QObject,int,int)
+    mqttOnLog           = pyqtSignal(str,int)
+    mqttOnTimeout       = pyqtSignal(QObject)
+    mqttConnectionError = pyqtSignal(QObject,str)
 
     # Hmmm new style signals cause problems with multiple parameters
     #    mqttConnectionError =  QtCore.pyqtSignal([str])
@@ -183,40 +183,43 @@ class MQTTClient(QtCore.QObject):
         self._connected = False
 
     def onConnect(self, client, obj, rc):
-        QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
+        self.mqttOnConnect.emit(self, obj, rc)
+#        QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
         pass
 
     def onDisConnect(self, client, obj, rc):
-        QObject.emit(self, SIGNAL('mqttOnDisConnect'), self, obj, rc)
+        self.mqttOnDisConnect.emit(self,obj,rc)
+#        QObject.emit(self, SIGNAL('mqttOnDisConnect'), self, obj, rc)
         pass
 
 
     def onMessage(self, client, obj, msg):
-        QObject.emit(self, SIGNAL('mqttOnMessage'), self, obj, msg)
+        self.mqttOnMessage.emit(self,obj,msg)
+#        QObject.emit(self, SIGNAL('mqttOnMessage'), self, obj, msg)
         # Log.debug('super ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
     def onPublish(self, client, obj, mid):
-        QObject.emit(self._creator, SIGNAL('mqttOnPublish'), self, obj, mid)
-        Log.debug("mid: " + str(mid))
+        self.mqttOnPublish.emit(self,obj,mid)
+        # QObject.emit(self._creator, SIGNAL('mqttOnPublish'), self, obj, mid)
+        Log.debug("onPublish - Message ID: " + str(mid))
 
     def onSubscribe(self, client, obj, mid, granted_qos):
-        QObject.emit(self, SIGNAL('mqttOnSubscribe'), self, obj, mid, granted_qos)
+        self.mqttOnSubscribe.emit(self, obj, mid, granted_qos)
         Log.info("Subscribed: " + str(mid) + " " + str(granted_qos))
 
-    def onLog(self, client, obj, level, string):
-        QObject.emit(self, SIGNAL('mqttOnLog'), string, level)
+    def onLog(self, client, obj, level, msg):
+        self.mqttOnLog.emit(msg, level)
         #Log.debug(string,level)
 
     def isConnected(self):
         return self.mqttc.socket() is not None and self._connected
 
-    def publish(self, topic, msg, qos=0, retain=True):
-        self.mqttc.publish(str(topic), msg, int(qos), retain)   
+    def publish(self, topic, payload, qos=0, retain=True):
+        self.mqttc.publish(str(topic), payload, int(qos), retain)   
 
     def subscribe(self, topic, qos):
         if self.isConnected():
             try:
-                Log.debug('Subscribing to ' + topic + " " + str(qos))
                 self.mqttc.subscribe(str(topic), int(qos))
                 Log.debug('Subscribed to ' + topic + " " + str(qos))
             except Exception as e:
@@ -225,11 +228,10 @@ class MQTTClient(QtCore.QObject):
 
     def unsubscribe(self, topic):
         if self.isConnected():
-            Log.debug('Unsubscribing to ' + topic)
             self.mqttc.unsubscribe(topic)
+            Log.debug('Unsubscribed to ' + topic)
 
     def loop(self, timeout=0.1):
-
         if not self.isConnected():
             if not self._killing:
                 self._connect()
@@ -244,14 +246,14 @@ class MQTTClient(QtCore.QObject):
             self._attempts += 1
             
             Log.warn("MQTT: An error occurred while looping")
-            QObject.emit(self, SIGNAL('mqttConnectionError'), self, mqtt.error_string(connResult))
+            self.mqttConnectionError.emit(self, mqtt.error_string(connResult))
         except ValueError as e:
             if e == 'Invalid timeout.':
-                QObject.emit(self, SIGNAL('mqttOnTimeout'), self, "Connection Timeout")
+                self.mqttOnTimeout.emit(self, "Connection Timeout")
             else:
                 Log.debug("Paho Client ValueError" + str(e))
         except Exception as e:
-            QObject.emit(self, SIGNAL('mqttConnectionError'), self, str(e))
+            self.mqttConnectionError.emit(self, str(e))
             Log.debug("MQTT Connect: Unknown exception raised "  + str(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             Log.debug(repr(traceback.format_exception(exc_type, exc_value,
@@ -294,12 +296,12 @@ class MQTTClient(QtCore.QObject):
                 if not self._connected:
                     self._attempts += 1
                     Log.progress(mqtt.connack_string(connResult))
-                    QObject.emit(self, SIGNAL('mqttConnectionError'), self, mqtt.connack_string(connResult))
+                    self.mqttConnectionError.emit(self, mqtt.connack_string(connResult))
  
         except Exception as e:
             msg = 'MQTT: ' + str(e)
 
-            QObject.emit(self, SIGNAL('mqttConnectionError'), self, msg)
+            self.mqttConnectionError.emit(self, msg)
             #Log.progress(msg)
             Log.debug(msg)
             #exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -376,8 +378,8 @@ class tlMqttSingleShot(MQTTClient):
     def run(self):
         self._timer.start(int(self._broker.keepAlive()) * 1000)
         
-        QObject.connect(self, SIGNAL("mqttConnectionError"), self._connectError)
-        QObject.connect(self, SIGNAL("mqttOnTimeout"), lambda: self._connectError(self,"Timeout waiting for the broker"))
+        self.mqttConnectionError.connect(self._connectError)
+        self.mqttOnTimeout.connect(lambda: self._connectError(self,"Timeout waiting for the broker"))
         super(tlMqttSingleShot, self).run()
 
     def onDisConnect(self, mqtt, obj, rc):
@@ -396,7 +398,8 @@ class tlMqttSingleShot(MQTTClient):
 
     def onConnect(self, mqtt, obj, rc):
         Log.debug("Connect rc = " + str(rc))
-        QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
+        self.mqttOnConnect.emit(self, obj, rc)
+#        QObject.emit(self, SIGNAL('mqttOnConnect'), self, obj, rc)
         if len(self._subTopics) == 0:
 #            self._connectError(False, "No Subcription Topic defined")
             return

@@ -29,10 +29,8 @@ from TelemetryLayer.lib.tlsettings import tlConstants as Constants
 from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 
-    
-import os, zlib, datetime, json,imp,sys
+import os, imp
 
-import tank, relay
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -54,35 +52,8 @@ class agTopicManager(tlTopicManager):
     Implementation of tlTopicManager
     """
 
-
-    def __init__(self, iface = None):
-        super(agTopicManager, self).__init__(iface)
-
-
-    def _editTopicRow(self, modelIdx):
-        item = self.tableLogical.item(modelIdx.row(), 0)
-        self._handleUpdateButton(item.data(0))
-
-#    def getWidget(self):
-#        self.setupUi()
-#        return self.Tabs.widget(0)
-
-
-
-    # Add Alert flag
-    
-    def beforeCommit(self,tLayer,values):
-        """
-        values is a dict of values to be committed
-        the key is a tuple of feature Id and attribute Index
-        We implement alerts by checking if the payload value
-        contains a '!'. Crude but simple - no additional messages.
-        
-        """
-        pass
-
-    def validate(self):
-        return True
+    def __init__(self):
+        super(agTopicManager, self).__init__()
 
 
     def setLabelFormatter(self, layer): # remove topicType
@@ -91,7 +62,6 @@ class agTopicManager(tlTopicManager):
             palyr.readFromLayer(layer)
             palyr.enabled = True
             palyr.fontBold = True
-           # palyr.dataDefinedProperty(QgsPalLayerSettings.DataDefinedProperties.shapeBlendMode)
             palyr.shapeDraw = True
             palyr.shapeTransparency = 0
             palyr.shapeType = QgsPalLayerSettings.ShapeRectangle
@@ -109,8 +79,6 @@ class agTopicManager(tlTopicManager):
 
     def setLayerStyle(self, layer):
         Log.debug("agTopicManager setLayerStyle " + self.path() + "/agsense.qml")
-    #    if not self.path() in QgsApplication.svgPaths():
-     #       QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
         self.loadStyle(layer, os.path.join(self.path(), "agsense.qml"))
 
 
@@ -126,9 +94,6 @@ class agTopicManager(tlTopicManager):
         if not icons in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [icons])
 
-        # from qgsfuncs import format_label
-        pass
-    
     
 
     @staticmethod

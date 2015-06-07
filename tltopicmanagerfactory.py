@@ -109,8 +109,6 @@ class tlTopicManagerFactory():
         if not tmeta['id'] in tlTopicManagerFactory.registered:
             _obj = tlTopicManagerFactory.getTopicManagerById(tmeta['id'])
             if hasattr(_obj, "register"):
-                Log.debug("Registering")
-                Log.debug(_obj)
                 _obj.register()
                 _obj.setId(tmeta['id'])
                 _obj.setName(tmeta['name'])
@@ -122,7 +120,7 @@ class tlTopicManagerFactory():
             _obj = tlTopicManagerFactory.getTopicManagerById(_id)
             if hasattr(_obj, "unregister"):
                 _obj.unregister()
-            del _obj
+            del _obj    
             tlTopicManagerFactory.registered.remove(_id)
 
 
@@ -130,7 +128,7 @@ class tlTopicManagerFactory():
     def getTopicManagerList():
         return tlTopicManagerFactory.topicManagers
 
-    @staticmethod
+    @staticmethod   
     def getTopicManagers():
         objs = []
         for tm in tlTopicManagerFactory.topicManagers:

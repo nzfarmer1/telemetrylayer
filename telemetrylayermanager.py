@@ -327,7 +327,6 @@ class layerManager(QObject):
         #if 'QWidget' in str(type(child)):
         #   Log.debug(child.children())
 
-        pass
 
     def legendDblClicked(self, item):
 
@@ -579,7 +578,7 @@ class layerManager(QObject):
 
         tLayer = self.initLayer(layer, broker, topicManager)
         # self._iface.legendInterface().setCurrentLayer(layer)
-        Log.debug("telemetrylayermanager - set Current Layer")
+        # Log.debug("telemetrylayermanager - set Current Layer")
 
         self.rebuildLegend()
         layer.triggerRepaint()
@@ -677,11 +676,10 @@ class layerManager(QObject):
                 continue
             try:
                 dock = self._featureDocks[(lid,fid)]
-                Log.debug(dock)
                 if dock and dock.isVisible():
-                    Log.debug("Closing")
                     dock.saveGeometry()
                     reopen.append((lid,fid))
+                    dock.close()
             except Exception as e:
                 Log.debug(e)
         Settings.setp('featureDocks',json.dumps(reopen))

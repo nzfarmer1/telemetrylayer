@@ -97,13 +97,12 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
             
             self.symbol.setPixmap(self._images[state])
             feat['context'] = 'dock-title'
-            title = feat['name'] + ' - ' + self._palyr.getLabelExpression().evaluate(feat)
-            
-            self.dockWidget.setWindowTitle(title)
+            self.dockWidget.setWindowTitle(feat['match'])
             
             feat['context'] = 'dock-content'
             payload = self._palyr.getLabelExpression().evaluate(feat)
             self.payload.setText(payload)
+#            tlayer.publish("repub/test",str(feat['payload']))
         except Exception as e:
             Log.debug("FeatureDock " + str(e))
         pass

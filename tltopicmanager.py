@@ -33,14 +33,9 @@ class tlTopicManager(QObject):
     
     """
 
-    def __init__(self,  iface = None):
+    def __init__(self):
         super(tlTopicManager, self).__init__()
 
-        self._iface = iface
-
-
-    def getWidget(self):
-        pass
 
     def getAttributes(self):
         return []
@@ -52,9 +47,6 @@ class tlTopicManager(QObject):
         Log.debug("Default setEditorWidgetsV2")
         pass
 
-    # Todo
-    # Label not showing in Windows initially
-    # Add symbols (rules based)
 
     def setLabelFormatter(self, layer): # remove topicType
         try:
@@ -78,10 +70,8 @@ class tlTopicManager(QObject):
             Log.debug("Error setting Label Format " + str(e))
 
 
-
     def beforeCommit(self,tLayer,values):
         pass
-
 
     def path(self, _class=None):
         if _class is None:
@@ -89,7 +79,6 @@ class tlTopicManager(QObject):
         else:
             module = sys.modules[_class.__module__]
         return os.path.dirname(module.__file__)
-
 
     def loadStyle(self, layer, filename):
         qfile = QFile(filename)
@@ -99,7 +88,6 @@ class tlTopicManager(QObject):
         rules = qfile.readData(qfile.size())
         qfile.close()
         layer.loadNamedStyle(filename)
-        #
 
     def id(self):
         return self._id

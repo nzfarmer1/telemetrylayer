@@ -60,13 +60,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
     kBrokerSettingsTabId = 0
     kBrokerListTabId = 1
 
-    @staticmethod
-    def _getQtBoxStateValue(state):
-        if eval(str(state)):
-            return Qt.Checked
-        else:
-            return Qt.Unchecked
-
+  
     def __init__(self, creator):
         super(TelemetryLayer, self).__init__()
 
@@ -79,8 +73,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.dockWidget = None
         TelemetryLayer._this = self
 
-        self._brokers.brokersLoaded.connect(lambda: self.brokersLoaded())    
-        pass
+        self._brokers.brokersLoaded.connect(self.brokersLoaded)    
 
     @staticmethod
     def instance():
@@ -99,6 +92,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             # if self._brokerDlg.dockWidget.isVisible():
             #                self._brokerDlg.dockWidget.setVisible(False)
             # Add check to see if _brokerDlg is currently open and a prompt to change it if dirty!
+            broker = Brokers.instance().find(broker.id()) # reload from file
             self._updateBroker(broker, True)
 
 
@@ -116,7 +110,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.dockWidget.setFeatures(QtGui.QDockWidget.DockWidgetClosable)
         self.dockWidget.setWindowTitle(_translate("tlBrokerConfig", "Configure Telemetry Layer", None))
         self.ckShowLog.clicked.connect(self._showLog)
-        self.ckShowLog.setCheckState(self._getQtBoxStateValue(Log.logDockVisible()))
+        self.ckShowLog.setChecked(Log.logDockVisible())
 
         self.dockWidget.visibilityChanged.connect(self._visibilityChanged)
 
@@ -125,16 +119,16 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
         logStates = int(Settings.get('logStates', Log.CRITICAL))
 
-        self.logCritical.setCheckState(self._getQtBoxStateValue(logStates & Log.CRITICAL))
-        self.logInfo.setCheckState(self._getQtBoxStateValue(logStates & Log.INFO))
-        self.logWarn.setCheckState(self._getQtBoxStateValue(logStates & Log.WARN))
-        self.logDebug.setCheckState(self._getQtBoxStateValue(logStates & Log.DEBUG))
-        self.logStatus.setCheckState(self._getQtBoxStateValue(logStates & Log.STATUS))
+        self.logCritical.setChecked(logStates & Log.CRITICAL)
+        self.logInfo.setChecked(logStates & Log.INFO)
+        self.logWarn.setChecked(logStates & Log.WARN)
+        self.logDebug.setChecked(logStates & Log.DEBUG)
+        self.logStatus.setChecked(logStates & Log.STATUS)
         self.brokerManagerWidget.setCurrentIndex(self.kBrokerListTabId)
         self._buildBrokerTable()
 
     def checkBrokerConfig(self):
-        if len(self._brokers.list()) == 0:
+        if not self._brokers.list():
             raise BrokersNotDefined
 
         if self.dirty():
@@ -154,19 +148,19 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
     def _apply(self):
         logStates = 0
-        if self.logCritical.checkState() == self._getQtBoxStateValue(True):
+        if self.logCritical.isChecked():
             logStates |= Log.CRITICAL
 
-        if self.logWarn.checkState() == self._getQtBoxStateValue(True):
+        if self.logWarn.isChecked():
             logStates |= Log.WARN
 
-        if self.logInfo.checkState() == self._getQtBoxStateValue(True):
+        if self.logInfo.isChecked():
             logStates |= Log.INFO
 
-        if self.logDebug.checkState() == self._getQtBoxStateValue(True):
+        if self.logDebug.isChecked():
             logStates |= Log.DEBUG
 
-        if self.logStatus.checkState() == self._getQtBoxStateValue(True):
+        if self.logStatus.isChecked():
             logStates |= Log.STATUS
 
         Log.setLogStates(logStates)
@@ -190,8 +184,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
         tbl.setShowGrid(True)
 
-        row = 0
-        for broker in self._brokers.list():
+        for row, broker in enumerate(self._brokers.list()):
             item = QtGui.QTableWidgetItem(0)
             item.setText(broker.name())
             item.setFlags(Qt.NoItemFlags)
@@ -205,7 +198,6 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             button = QtGui.QPushButton('Delete', self)
             button.clicked.connect(self._callback(broker, Constants.Deleted))
             tbl.setCellWidget(row, 2, button)
-            row += 1
 
     def _callback(self, param, action):
         if action == Constants.Update:
@@ -226,7 +218,7 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
         self.dockWidget.setFixedHeight(25)  # paramterise
         # self.dockWidget.setMaximumHeight(25) # paramterise
         if groupClicked:
-            self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kBrokerConfigTabId) # was .kFeatureListTabId
+            self._brokerDlg.Tabs.setCurrentIndex(self._brokerDlg.kFeatureListTabId) #  kBrokerConfigTabId or kFeatureListTabId
         self.dockWidget.repaint()
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self._brokerDlg.dockWidget)
 

@@ -8,7 +8,8 @@ def agsense_format_label(values, feature, parent):
         context = feature['context']
     except:
         context  = 'map'
-
+    
+    
     if context == 'dock-title' or context == 'feature-list':
         try:
             payload = json.loads(feature.attribute('payload'))

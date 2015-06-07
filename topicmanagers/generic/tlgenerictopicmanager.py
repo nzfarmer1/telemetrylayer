@@ -24,14 +24,9 @@ from TelemetryLayer.tltopicmanager import tlTopicManager
 
 
 class tlGenericTopicManager(tlTopicManager):
-    def __init__(self,iface =None):
-        super(tlGenericTopicManager, self).__init__( iface)
+    def __init__(self):
+        super(tlGenericTopicManager, self).__init__( )
         self._topics = []
-
-    def getWidget(self):
-        super(tlGenericTopicManager, self).setupUi()
-        QObject.emit(self, QtCore.SIGNAL('topicManagerReady'), True, self)
-        return self.Tabs.widget(0)
 
  
     def setLayerStyle(self, layer):

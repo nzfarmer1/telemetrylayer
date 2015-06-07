@@ -43,7 +43,6 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
 
         self._creator = creator
         self._brokers = Brokers.instance().list()
-        self._brokers = Brokers.instance().list()
         self._invalidTypes = []
         self.setupUi()
         self.selectBroker.currentIndexChanged.connect(self._brokerChanged)

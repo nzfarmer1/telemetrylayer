@@ -64,11 +64,7 @@ class tlBrokers(QObject):
             if not filename:
                 filename = self._jsonfile
             if os.path.exists(filename):
-                qfile = QFile(filename)
-                qfile.open(QIODevice.ReadOnly)
-                jsonstr = qfile.readData(qfile.size())
-                qfile.close()
-                return json.loads(jsonstr)
+                return json.loads(open(filename).read())
             else:
                 # no file available
                 Log.debug("Broker file " + filename + " not found!")
@@ -126,11 +122,8 @@ class tlBrokers(QObject):
         if not self._dirty:
             return
         try:
-            qfile = QFile(self._file())
-            qfile.open(QIODevice.WriteOnly)
-            qfile.writeData(json.dumps(self._brokers))
-            qfile.flush()
-            qfile.close()
+            with open(self._file(), 'w') as f:
+                json.dump(f)
             self._dirty = False
             if load:
                 self.load()
@@ -138,9 +131,8 @@ class tlBrokers(QObject):
             Log.critical(e)
 
 
-
     def uniq(self):
-        if len(self._brokers) == 0:
+        if not self._brokers:
             return 1
         return int(max(self._brokers.keys(), key=int)) + 1
 
@@ -155,7 +147,7 @@ class tlBrokers(QObject):
 
     def list(self, reverse=False):
         brokers = []
-        if len(self._brokers) == 0:
+        if not self._brokers:
             return []
         for bid, brokerprops in self._brokers.iteritems():
             brokers.append(tlBroker(bid, brokerprops))
@@ -279,7 +271,6 @@ class tlBroker(QObject):
 
     def setKeepAlive(self, keepalive):
         self.set('keepalive', keepalive)
-
 
 
     """ Getters """

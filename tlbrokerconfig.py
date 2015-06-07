@@ -41,8 +41,6 @@ except AttributeError:
 
 
 
-
-
 class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     """
     Class to manage the addition/deletion/configuration of Brokers
@@ -92,6 +90,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
         
         self.Tabs.setCurrentIndex(self.kBrokerConfigTabId)  # First index
+        
 
 
         # if Modal create mode
@@ -150,11 +149,14 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         self.connectName.textChanged.connect(lambda: self.setDirty(True))
         self.connectHost.textChanged.connect(lambda: self.setDirty(True))
         self.connectPort.textChanged.connect(lambda: self.setDirty(True))
+        self.connectHostAlt.textChanged.connect(lambda: self.setDirty(True))
         self.connectPortAlt.textChanged.connect(lambda: self.setDirty(True))
         self.connectUsername.textChanged.connect(lambda: self.setDirty(True))
         self.connectPassword.textChanged.connect(lambda: self.setDirty(True))
         self.connectPoll.currentIndexChanged.connect(lambda: self.setDirty(True))
         self.connectKeepAlive.currentIndexChanged.connect(lambda: self.setDirty(True))
+        self.connectAlt.toggled.connect(lambda: self.setDirty(True))
+        self.connectDefault.toggled.connect(lambda: self.setDirty(True))
 
     def mode(self):
         return self._mode
@@ -267,7 +269,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 # Append the feature
                 self._featureListItems[(lid, feature.id())] = row
                 item = QTableWidgetItem()
-                item.setData(self.kLayerId, tLayer.layer().id())
+                item.setData(self.kLayerId, lid)
                 item.setData(self.kFeatureId, feature.id())
                 item.setData(self.kFeature, feature)
 
@@ -295,13 +297,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
         tbl.horizontalHeader().setStretchLastSection(True)
 
 
-
     """ Setters """
 
 
     def setDirty(self,state):
         self._broker.setDirty(state)
-        #if self.getTested():
         self.connectApply.setEnabled(self.connectApply.isEnabled() or state)
 
     def setName(self, name):
@@ -468,21 +468,26 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                                 0, #qos
                                 self._on_test)
         # change to simple connection test?
-        QObject.connect(_client, SIGNAL("mqttOnConnect"), lambda:self._on_test(_client,True))
+        _client.mqttOnConnect.connect(lambda:self._on_test(_client,True))
+#        QObject.connect(_client, SIGNAL("mqttOnConnect"), lambda:self._on_test(_client,True))
   
 #        _client.mqttOnConnect.connect(lambda:self._on_test(_client,True))
         _client.run()
 
     
     def _on_test(self, client, status = True, msg = None):
+        if self.connectTest.isEnabled():
+            return # ignore duplicate responses
+        
         self.connectTest.setEnabled(True)
         self.setTested(status)
         
-        #QApplication.setOverrideCursor(QCursor(Qt.ArrowCursor))
         Log.progressPop("Testing Connection")
-#        Log.progress(msg.payload)
-#        if status and self._mode == Constants.Update:
-        self.connectApply.setEnabled(status and self.dirty())
+        if not status:
+            Log.alert("Connection test failed\n\n" + str(msg))
+        else:
+            Log.alert("MQTT Connection successful")
+            
         client.kill();
 
 

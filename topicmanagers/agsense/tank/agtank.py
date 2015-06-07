@@ -18,8 +18,8 @@ from TelemetryLayer.topicmanagers.agsense.agtopicmanager import agTopicManager
 
     
 class agTankTopicManager(agTopicManager):
-    def __init__(self,iface=None):
-        super(agTopicManager, self).__init__( False)
+    def __init__(self):
+        super(agTopicManager, self).__init__( )
         pass
 
     def setEditorWidgetsV2(self,layer):
@@ -37,14 +37,6 @@ class agTankTopicManager(agTopicManager):
         #    QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [_path])
         self.loadStyle(layer, os.path.join(self.path(),  "rules.qml"))
 
-    """
-    getAttributes is no longer required for this manager.
-    Alert status is stored in the JSON expression in the payload.
-    Having a separate Alert attribute is just confusing. Similarly beforeCommit is no longer required.
-    In summary, JSON encapsulated payloads are the way to go, but I will leave this code below as an
-    example of adding a custom attribute on layer creation.
-    
-    """
 
     def setAttributes(self,layer,attrs): 
         fid = layer.dataProvider().fieldNameIndex("lowater")

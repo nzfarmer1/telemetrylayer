@@ -387,7 +387,7 @@
         </property>
        </item>
       </widget>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="connectSelect">
        <property name="geometry">
         <rect>
          <x>20</x>

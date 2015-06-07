@@ -3,7 +3,7 @@
 /***************************************************************************
   tLayer
   
-  Layers are children of MQTT Client and of course represent a single QGIS layer
+  Layers are children of MQTT Client and represent a single QGIS layer
   
   Broker connections are established when layer is visible
 
@@ -26,6 +26,8 @@ from telemetrylayer import TelemetryLayer as telemetryLayer
 from tladdfeature import tlAddFeature as AddFeature
 from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, BrokersNotDefined
 import time, os, zlib
+import Queue as Queue
+
 #import resource
 
 
@@ -39,9 +41,10 @@ class tLayer(MQTTClient):
     
     """
 
-    kLayerType = 'tlayer/Telemetry'
-    kBrokerId = 'tlayer/brokerid'
-    kTopicManager = 'tlayer/topicManager'
+    kLayerType      = 'tlayer/Telemetry'
+    kBrokerId       =  'tlayer/brokerid'
+    kTopicManager   = 'tlayer/topicManager'
+    kQueueSize      = 100
 
 
     # SIGNALS
@@ -77,13 +80,13 @@ class tLayer(MQTTClient):
         self._creator = creator
         self._dict = {}
 
-        self._mutex = QMutex(0)
+        self._mutex  = QMutex(0)
         self._values = {}
-        self._dirty = False
-        # self._topicChanged= []
+        self.Q       = Queue.Queue(self.kQueueSize)
+        self._dirty  = False
         self.establishedFeatures = []
-        self.restartScheduled = False 
-
+        self.restartScheduled = False
+ 
         self.isEditing = False
 
         self._iface     = creator._iface
@@ -105,7 +108,6 @@ class tLayer(MQTTClient):
                 raise BrokerNotFound("No MQTT Broker found when loading Telemetry Layer " + self.layer().name())
 
             self.setBroker(_broker)
-            self.topicManager()
             #self._setFormatters()
 
         super(tLayer, self).__init__(self,
@@ -137,6 +139,7 @@ class tLayer(MQTTClient):
         self._setFormatters(True)
         self._dict = {}
         self._values = {}
+        self.Q.queue.clear()
 
         super(tLayer, self).run()
 
@@ -154,15 +157,12 @@ class tLayer(MQTTClient):
             Log.debug(e)
 
 
-
     def onConnect(self, mosq, obj, rc):
         # Log.debug(self._layer.rendererV2().dump())
 
         self._dict = {}
         self.updateConnected(True)
-        feat = QgsFeature()
-        iter = self._layer.getFeatures()
-        while iter.nextFeature(feat):
+        for feat in self._layer.getFeatures():
             if feat.id() < 0:
                 continue
             try:
@@ -173,9 +173,7 @@ class tLayer(MQTTClient):
                     Log.warn("Topic QoS must be beween 0 and 2")
                     continue
     
-    
                 if topic is not None:
-                    Log.debug("Subscribing " + topic + " " + str(qos))
                     self.subscribe(topic, qos)
                 else:
                     Log.critical("Invalid topic")
@@ -193,12 +191,9 @@ class tLayer(MQTTClient):
 
     def onDisConnect(self, mosq, obj, rc):
 
-        feat = QgsFeature()
-        iter = self._layer.getFeatures()
-        while iter.nextFeature(feat):
+        for feat in self._layer.getFeatures():
             topic = str(feat.attribute("topic"))
             if topic is not None:
-                Log.debug("Unsubscribe " + topic)
                 self.unsubscribe(topic)
         self.updateConnected(False)
         self.triggerRepaint()
@@ -211,38 +206,42 @@ class tLayer(MQTTClient):
 
     def onMessage(self, mq, obj, msg):
         Log.debug('Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-        
+        if not self.Q.full():
+            self.Q.put(msg)
+            self._processQueue() # sets dirty flag as req.
+            self.triggerRepaint()
+    
+    def _processQueue(self):
+        if self.Q.empty():
+            return
         try:
-            with QMutexLocker(self._mutex):
-                feat = QgsFeature()
-                iter = self._layer.getFeatures()
-                while iter.nextFeature(feat):
+            while(not self.Q.empty() and not self._isEditing()):
+                msg =self.Q.get() 
+                for feat in self._layer.getFeatures():
                     topic = str(feat.attribute("topic"))
                     key = msg.topic + ':' + str(feat.id())
-                    if key in self._dict:
-                        self.updateFeature(feat, msg.topic, msg.payload)
-                    elif Mosquitto.topic_matches_sub(topic, msg.topic):
-                        self._dict[key] = feat.id()
-                        self.updateFeature(feat, msg.topic, msg.payload)
+                    with QMutexLocker(self._mutex):
+                        if key in self._dict:
+                            self.updateFeature(feat, msg.topic, msg.payload)
+                        elif Mosquitto.topic_matches_sub(topic, msg.topic):
+                            self._dict[key] = feat.id()
+                            self.updateFeature(feat, msg.topic, msg.payload)
 
-            if self._dirty:
-                self.triggerRepaint()
+        except Queue.Empty:
+            Log.debug("Empty Queue")
+            return
 
         except Exception as e:
             Log.critical("MQTT Client - Error updating features! " + str(e))
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
-                                                      exc_traceback)))
+
 
     def updateFeature(self, feat, topic, payload):
-        self._dirty = True
         _payload = str(feat.attribute("payload"))
         if zlib.crc32(_payload) == zlib.crc32(payload):  # no change
             self.changeAttributeValue(feat.id(), Constants.updatedIdx, int(time.time()), False)
         else:
-        #    fmt = self._topicManager.instance(self.topicType()).formatPayload(payload)
-         #   Log.status("Telemetry Layer " + self._broker.name() + ":" + self._layer.name() + ":" + feat.attribute(
-          #      "name") + ": now " + fmt)
+            self._dirty = True # don't trigger refresh or commit changes if payload unchanged
+            # note: this is a tradeoff - less screen refreshes, but less accurate timestamps
             self.changeAttributeValue(feat.id(), Constants.payloadIdx, payload, False)
             self.changeAttributeValue(feat.id(), Constants.matchIdx, topic, False)
             self.changeAttributeValue(feat.id(), Constants.updatedIdx, int(time.time()), False)
@@ -250,9 +249,7 @@ class tLayer(MQTTClient):
 
 
     def updateConnected(self, state):
-        feat = QgsFeature()
-        iter = self._layer.getFeatures()
-        while iter.nextFeature(feat):
+        for feat in self._layer.getFeatures():
             self.changeAttributeValue(feat.id(), Constants.connectedIdx, state, False)
 
 
@@ -264,37 +261,18 @@ class tLayer(MQTTClient):
 
 
     def commitChanges(self):
-        #Log.debug("Committing"  + str( QgsApplication.activeWindow()))
-        if not self._dirty:
+        self._processQueue()
+
+        if not self._dirty or self._isEditing():
             return
-        
+
         try:
-            if self._layer is None:
-                return
-            
-            #                Log.debug(QgsApplication.activeWindow().centralWidget().windowTitle())
-
-            #if QgsApplication.activeWindow() is None:
-            #is None \
-            #        or (
-            #                    not 'QMainWindow' in str(QgsApplication.activeWindow())
-            #                and not QgsApplication.activeWindow().windowTitle() == 'Feature Attributes'
-            #                    # Paramaterise?
-            #        ):
-            #    return
-
-            #  Todo: Check for valid Layer!!!!
-            if self.isEditing or self._layer.isReadOnly():
-                return
-
             fids = []
-
             with QMutexLocker(self._mutex):
 
                 if len(self._values) == 0:
                     return
                 
-
                 self._layer.startEditing()
                 self.topicManager().beforeCommit(self,self._values)
 
@@ -312,7 +290,6 @@ class tLayer(MQTTClient):
                 feat = next(self.layer().getFeatures(request), None)
                 if feat is not None:
                     self.featureUpdated.emit(self, feat)
-            self.triggerRepaint()
 
         except AttributeError:
             pass
@@ -340,6 +317,7 @@ class tLayer(MQTTClient):
         self.set(self.kLayerType, "true")
         self.set(self.kBrokerId, broker.id())
         self.set(self.kTopicManager, topicManager.id())
+
         attributes = self.getAttributes() + \
                      topicManager.getAttributes()
 
@@ -386,8 +364,6 @@ class tLayer(MQTTClient):
             self.topicManager().setLabelFormatter(self._layer)
             self._layer.commitChanges()
             
-        Log.debug("_setFormatters " + str(self.topicManager()))
-
         self._layer.startEditing()
         self.topicManager().setEditorWidgetsV2(self._layer)
         self._layer.commitChanges()
@@ -403,12 +379,8 @@ class tLayer(MQTTClient):
         function getAttributes(self) => array of attributes
         Default handler for adding attributes
 
-        # Todo
-        # Set lengths
-        # Set comments
-        # Set key fields uneditable http://qgis.org/api/classQgsVectorLayer.html#aa1585c854a22d545111a3a32d717c02f
-
         """
+ 
         attributes = [QgsField("name", QVariant.String, "Feature Name", 0, 0, "Name of Sensor/Device/Topic"),
                       QgsField("topic", QVariant.String, "MQTT Topic", 0, 0, "Topic path"),
                       QgsField("qos", QVariant.Int, "MQTT QoS", 1, 0, "Quality of Service"),
@@ -430,15 +402,7 @@ class tLayer(MQTTClient):
 
     def beforeRollBack(self):
         self._layer.destroyEditCommand() # Add this?
-        pass
-
-        # Log.debug("before rollback")
-
-    #               Log.debug(self._fid)
-    #                self._layer.dataProvider().deleteFeatures([self._fid])
-    #        self._layer.destroyEditCommand()
-
-
+ 
     def applyFeature(self,feature):
         found = False
         for feat in self.establishedFeatures:
@@ -465,15 +429,14 @@ class tLayer(MQTTClient):
 
     def addFeature(self, fid):
         Log.debug("add Feature")
-        if 0 > fid and not self._fid:
+        if fid < 0 and not self._fid:
             self._fid = fid
-        elif fid > 0 or fid == self._fid:
+        elif fid >= 0 or fid == self._fid:
             # handle roll back
             #self._fid = None
             return None
 
         # Look Up broker and topicType
-
 
         feat = QgsFeature(fid)
         try:
@@ -485,9 +448,9 @@ class tLayer(MQTTClient):
                 self._layer.commitChanges()
                 return None
 
-            topic = tlAddFeature.getTopic()
+            topic   = tlAddFeature.getTopic()
             visible = tlAddFeature.getVisible()
-            qos = tlAddFeature.getQoS()
+            qos     = tlAddFeature.getQoS()
             
             attrs = [topic['name'],
                     topic['topic'],
@@ -500,9 +463,8 @@ class tLayer(MQTTClient):
                     visible,
                     'map']
             
-
+            # merge with custom attributes
             feat.setAttributes(self.topicManager().setAttributes(self._layer,attrs))
-            # Add Params
 
             self._layer.updateFeature(feat)
             self._layer.commitChanges()
@@ -532,7 +494,6 @@ class tLayer(MQTTClient):
         self.setPort(broker.port())
         self.setKeepAlive(broker.keepAlive())
 
-
     def getBroker(self):
         return self._broker
 
@@ -556,7 +517,6 @@ class tLayer(MQTTClient):
             Log.progress("Starting MQTT client for " + self._broker.name() + " -> " + self.layer().name())
             self.run()
 
-
     def pause(self):
         if self.isRunning():
             Log.debug("Stopping client")
@@ -579,27 +539,25 @@ class tLayer(MQTTClient):
 
 
     def triggerRepaint(self):
-        if 'QDialog' in str( QgsApplication.activeWindow()): # Avoid nasty surprises
-            pass
+#        if 'QDialog' in str( QgsApplication.activeWindow()): # Avoid nasty surprises
+#            pass
         # Add additional checks?
-        else:
+#        else:
+        if self._dirty or not self.Q.empty():
             self._layer.triggerRepaint()
-            pass
-
+ 
     def layerEditStarted(self):
         self.establishedFeatures = []
-        feature = QgsFeature()
-        iter = self._layer.getFeatures()
-        while iter.nextFeature( feature ):
-            self.establishedFeatures.append( feature )
+        for feat in self._layer.getFeatures():
+            self.establishedFeatures.append( feat )
 
         self.isEditing = True
 
     def layerEditStopped(self):
         self.establishedFeatures = []
         self.isEditing = False
-        if self.restartScheduled:
-                self.triggerRepaint()
+#        if self.restartScheduled:
+        self.triggerRepaint()
 
         
     def topicManager(self):
@@ -608,17 +566,14 @@ class tLayer(MQTTClient):
     def topicType(self):
         return self._topicType
 
+    def _isEditing(self):
+        return  (self.isEditing or self._layer.isReadOnly())
+
     def _canRun(self):
-        return  self._hasFeatures() and not (self.isEditing or self._layer.isReadOnly())
+        return  self._hasFeatures() and not self._isEditing()
 
     def _hasFeatures(self):
-        feat = QgsFeature()
-        count = 0
-        iter = self._layer.getFeatures()
-        while count == 0 and iter.nextFeature(feat):
-            if feat.id() > 0:
-                count += 1
-        return count > 0
+        return self._layer.getFeatures() is not None
 
     def tearDown(self):
         Log.debug("Tear down TLayer")

@@ -33,20 +33,7 @@ def get_modules(module):
     return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
 
 
-# Recipe adapted from http://stackoverflow.com/users/1736389/sam-p
-
-def reload_classx(class_obj):
-    module_name = class_obj.__module__
-    module = sys.modules[module_name]
-    Log.debug("Reloading modules")
-    for modile_pycfile in get_modules(module):
-        os.remove(os.path.join(os.path.dirname(module.__file__), modile_pycfile))
-    pycfile = module.__file__
-    modulepath = pycfile.replace(".pyc", ".py")
-    code = open(modulepath, 'rU').read()
-    compile(code, module_name, "exec")
-    module = reload(module)
-    return getattr(module, class_obj.__name__)
+# Adapted from recipe adapted from http://stackoverflow.com/users/1736389/sam-p
 
 
 def reload_class(class_obj):
@@ -95,8 +82,7 @@ def register():
 
         for m in meta:
             m['id'] = m['name'].replace(" ","_").lower()
-            Log.debug("Loading topic manager ")
-            Log.debug(m)
+            Log.debug("Loading topic manager " + m['id'])
             topicManagers.append(m)
     Log.debug("Done")
     return topicManagers
