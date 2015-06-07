@@ -666,10 +666,9 @@ class layerManager(QObject):
 
     def _writeMapLayer(self,layer,elem,doc):
         Log.debug("Write Map Layer")
-        self.tearDownDocks(layer.id())
-
-    def tearDownDocks(self,layerId = None):
-        Log.debug("tearDownDocks")
+        self.saveDocks(layer.id())
+        
+    def saveDocks(self,layerId = None,close = False):
         reopen = []
         for (lid,fid) in self._featureDocks.keys():
             if layerId is not None and lid != layerId:
@@ -679,10 +678,15 @@ class layerManager(QObject):
                 if dock and dock.isVisible():
                     dock.saveGeometry()
                     reopen.append((lid,fid))
-                    dock.close()
+                    if close:
+                        dock.close()
             except Exception as e:
                 Log.debug(e)
         Settings.setp('featureDocks',json.dumps(reopen))
+
+    def tearDownDocks(self,layerId = None):
+        self.saveDocks(layerId,True)
+
 
     def tearDown(self):
         
