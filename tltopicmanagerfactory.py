@@ -17,8 +17,7 @@ from lib.tllogging import tlLogging as Log
 from lib.tlsettings import tlSettings as Settings
 from tltopicmanager import tlTopicManager as TopicManager
 
-import traceback, sys, time
-
+import traceback, sys, time,os,imp,pkgutil,glob,types
 
 
 @qgsfunction(0, u"Telemetry Layer")
@@ -73,6 +72,45 @@ def is_silent(values, feature, parent):
 
 
 
+def get_subpackages(module):
+    dir = os.path.dirname(module.__file__)
+
+    def is_package(d):
+        d = os.path.join(dir, d)
+        return os.path.isdir(d) and glob.glob(os.path.join(d, '__init__.py*'))
+
+    return filter(is_package, os.listdir(os.path.dirname(module.__file__)))
+
+
+def get_modules(module):
+    dir = os.path.dirname(module.__file__)
+
+    def is_module(d):
+        d = os.path.join(dir, d)
+        return '.pyc' in os.path.splitext(d) and not ('__init__' in d or 'ui_' in d or 'qgsfuncs' in d)
+
+    return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
+
+
+# Adapted from recipe adapted from http://stackoverflow.com/users/1736389/sam-p
+
+
+def registerLocal():
+    _tms = []
+    package = topicmanagers
+    for package in get_subpackages(topicmanagers):
+        path = os.path.join(os.path.dirname(topicmanagers.__file__), package)
+        if path not in sys.path:
+            sys.path.append(path)
+        module = __import__(package)
+        meta = module.classFactory()
+        for m in meta:
+            m['id'] = m['name'].replace(" ","_").lower()
+            Log.debug("Loading topic manager " + str(m['class']))
+            _tms.append(m)
+    return _tms
+
+
 
 class tlTopicManagerFactory():
     """
@@ -81,7 +119,6 @@ class tlTopicManagerFactory():
     """
     registered = []
     topicManagers = []
-    classObjects = {}
 
 
     @staticmethod
@@ -91,8 +128,7 @@ class tlTopicManagerFactory():
     @staticmethod
     def registerAll():
 
-        Log.debug("Loading Topic Managers")
-        tlTopicManagerFactory.topicManagers = topicmanagers.register()
+        tlTopicManagerFactory.topicManagers = registerLocal()
 
         for tmeta in tlTopicManagerFactory.topicManagers:
            tlTopicManagerFactory.registerTopicManager(tmeta)

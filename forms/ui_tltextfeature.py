@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'forms/ui_tltextfeature.ui'
 #
-# Created: Mon Jun  8 12:12:53 2015
+# Created: Mon Jun  8 15:55:46 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_tlTextFeature(object):
     def setupUi(self, tlTextFeature):
         tlTextFeature.setObjectName(_fromUtf8("tlTextFeature"))
-        tlTextFeature.resize(360, 300)
+        tlTextFeature.resize(315, 300)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -49,6 +49,9 @@ class Ui_tlTextFeature(object):
         self.symbol.setMaximumSize(QtCore.QSize(128, 128))
         self.symbol.setText(_fromUtf8(""))
         self.symbol.setObjectName(_fromUtf8("symbol"))
+        self.name = QtGui.QLabel(self.dockWidgetContents)
+        self.name.setGeometry(QtCore.QRect(160, 50, 141, 51))
+        self.name.setObjectName(_fromUtf8("name"))
         self.dockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(tlTextFeature)
@@ -61,4 +64,6 @@ class Ui_tlTextFeature(object):
         self.payload.setToolTip(_translate("tlTextFeature", "Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)", None))
         self.payload.setText(_translate("tlTextFeature", "Payload", None))
         self.symbol.setToolTip(_translate("tlTextFeature", "<html><head/><body><p>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</p></body></html>", None))
+        self.name.setToolTip(_translate("tlTextFeature", "Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)", None))
+        self.name.setText(_translate("tlTextFeature", "Name", None))
 

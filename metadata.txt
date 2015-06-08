@@ -14,7 +14,7 @@ qgisMinimumVersion=2.4
 #qgisMaximumVersion=2.8
 description=MQTT Messaging integration with support for custom Topic Managers
 about="Manage a list of MQTT brokers. Select a topic manager (generic and proprietory examples provided). Create a new Telemetry Layer (Layers are placed under a Broker Group in the Legend and represent a set of topics by type). Add topics as features. Apply Rules based formatting. Note: Plugin is at a beta stage of development and being actively improved. Please ensure to check regularly for updates and get in touch if you are keen to join the project."
-version=1.1.2
+version=1.2.0
 author=Andrew McClure
 email=andrew@agsense.co.nz
 
@@ -23,7 +23,7 @@ email=andrew@agsense.co.nz
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog="Remove custom feature dialog (not stable on Ubuntu); make feature dialog modeless - fix issues with saving feature properties; refactored code; improved label formatting; change hot key for New Telemetry Layer (Shift+Cntl+T); "
+changelog="Refactor code to separate broker from topic manager. Add support for dock widgets. Add support for custom V2Widgets. Multiple optimisations and improvements. Note: old projects will no longer work. Please see README.md in github"
 
 # tags are comma separated with spaces allowed
 tags="SCADA, Telemetry, remote sensing,  MQTT, MQTT-SN, Internet of Things (I.o.T), Wireless Sensors, Zigbee, Modbus, AgSense, XBee, DigiMesh"

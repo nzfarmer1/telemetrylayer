@@ -56,26 +56,8 @@ class agTopicManager(tlTopicManager):
         super(agTopicManager, self).__init__()
 
 
-    def setLabelFormatter(self, layer): # remove topicType
-        try:
-            palyr = QgsPalLayerSettings()
-            palyr.readFromLayer(layer)
-            palyr.enabled = True
-            palyr.fontBold = True
-            palyr.shapeDraw = True
-            palyr.shapeTransparency = 0
-            palyr.shapeType = QgsPalLayerSettings.ShapeRectangle
-            palyr.textColor = QColor(255,255,255) # white
-            palyr.placement = QgsPalLayerSettings.OverPoint
-            palyr.quadOffset = QgsPalLayerSettings.QuadrantBelow
-            palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
-            palyr.yOffset = 2
-            palyr.labelOffsetInMapUnits = False
-            palyr.fieldName =  '$agsense_format_label'
-            palyr.writeToLayer(layer)
-            Log.debug("Palyr Settings updated")
-        except Exception as e:
-            Log.debug("Error setting Label Format " + str(e))
+    def setPalLabelSettings(self,palyr):
+        palyr.fieldName =  '$agsense_format_label'
 
     def setLayerStyle(self, layer):
         Log.debug("agTopicManager setLayerStyle " + self.path() + "/agsense.qml")
@@ -84,7 +66,6 @@ class agTopicManager(tlTopicManager):
 
     @staticmethod
     def register():
-
         if  not QgsExpression.isFunctionName("$agsense_format_label"): # check to make sure these are not already registered
             path = os.path.join(os.path.dirname(__file__), 'qgsfuncs.py')
             imp.load_source('qgsfuncs', path)
@@ -93,8 +74,6 @@ class agTopicManager(tlTopicManager):
 
         if not icons in QgsApplication.svgPaths():
             QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [icons])
-
-    
 
     @staticmethod
     def unregister():

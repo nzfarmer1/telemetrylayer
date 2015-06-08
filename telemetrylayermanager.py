@@ -17,7 +17,6 @@ from tlbrokers import tlBrokers as Brokers, BrokerNotFound, BrokerNotSynced, Bro
 from tltopicmanagerfactory import tlTopicManagerFactory as TopicManagerFactory
 from telemetrylayer import TelemetryLayer as telemetryLayer
 from tlayerconfig import tLayerConfig as layerConfig
-from tlfeaturedock import tlFeatureDock as FeatureDock
 import os.path,sys,traceback,json
 
 try:
@@ -77,13 +76,19 @@ class layerManager(QObject):
                         Log.debug(str(dock) + ' show') 
                         dock.show()
                         return
-            
-            self._featureDocks[key] = FeatureDock(self._iface,
-                                            self.getTLayer(layer.id(),False),
-                                            feature)
-            pass
+            tlayer = self.getTLayer(layer.id(),False);
+            try:
+                self._featureDocks[key] =  tlayer.topicManager().getFeatureDock(self._iface,
+                                                                                tlayer,
+                                                                                feature)
+            except AttributeError:
+                Log.warn("Unable to load feature dock")
+                
         except Exception as e:
             Log.debug('showFeatureDock: ' + str(e))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                      exc_traceback)))
 
     def _showFeatureDocks(self):
         for (lid,fid) in self._featureDocks.keys():

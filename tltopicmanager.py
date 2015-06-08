@@ -20,6 +20,7 @@ from lib.tlsettings import tlSettings as Settings
 from lib.tllogging import tlLogging as Log
 import TelemetryLayer
 
+from tlfeaturedock import tlTextFeatureDock as FeatureDock
 
 
 class tlTopicManager(QObject):
@@ -35,6 +36,9 @@ class tlTopicManager(QObject):
 
     def __init__(self):
         super(tlTopicManager, self).__init__()
+
+    def getFeatureDock(self,iface,tlayer,feature):
+        return FeatureDock(iface,tlayer,feature)
 
 
     def getAttributes(self):
@@ -63,7 +67,7 @@ class tlTopicManager(QObject):
             palyr.multilineAlign = QgsPalLayerSettings.MultiCenter
             palyr.yOffset = 2
             palyr.labelOffsetInMapUnits = False
-            palyr.fieldName = '$format_label'
+            self.setPalLabelSettings(palyr) # obj so pass by reference
             palyr.writeToLayer(layer)
             Log.debug("Palyr Settings updated")
         except Exception as e:
@@ -79,6 +83,9 @@ class tlTopicManager(QObject):
         else:
             module = sys.modules[_class.__module__]
         return os.path.dirname(module.__file__)
+
+    def setPalLabelSettings(self,palyr):
+        palyr.fieldName = '$format_label'
 
     def loadStyle(self, layer, filename):
         qfile = QFile(filename)

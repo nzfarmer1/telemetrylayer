@@ -8,24 +8,24 @@ Target platform QGIS 2.4
 
 Latest changes:
 
-1. Added support for V2 style attribute widgets
-2. Added support for visible/invisible features (partial)
-3. Added support to change  Granted QoS value (not supported by Mosquitto)
-4. Removed Broker ID and Type from layer attributes and hid remaining attributes
+1. Refactored code - seperate topic managers from brokers
+2. Examples of V2EditWidgets in topic managers provided
+3. Added Dock Views
+4. Multiple minor enhancements
 
 Features:
 
 1. Broker manager to manage a list of brokers and connection parameters
 2. Topic Managers (extensible) to support different "types" of Topics and Layer Formats
-3. Integration with MQTT via Mosquitto client library
+3. Integration with MQTT via Mosquitto/Paho client library
 4. Connections and updates within dedicated thread
 
 Usage:
  
 1. Enter Settings to start adding your brokers
-2. Select a Generic MQTT broker for a topic manager
-3. Create a New Telemetry (Point) Layer - selecting the Broker and Topic Type
-4. Add Features based on topics generated via the Topic Manager (i.e. Broker Uptime)
+2. Create a New Telemetry (Point) Layer - selecting the Broker and Topic Type
+3. Add Features - enter name, topic
+4. Edit features (double click on Broker Group in legend then double click on feature (respects edit layer edit mode)
 
 Installation:
 

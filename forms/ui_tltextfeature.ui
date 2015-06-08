@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
+    <width>315</width>
     <height>300</height>
    </rect>
   </property>
@@ -92,6 +92,22 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="name">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>50</y>
+       <width>141</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Hide from layer - payload values will only be visible via Features under the Broker (double click on a broker within the legend)</string>
+     </property>
+     <property name="text">
+      <string>Name</string>
      </property>
     </widget>
    </widget>

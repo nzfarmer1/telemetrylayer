@@ -135,8 +135,13 @@ class tLayer(MQTTClient):
             return
 
         Log.debug("Running " + self.layer().name())
+        try:
+            self._setFormatters(True)
+        except AttributeError:
+            Log.warn("Error running telemetry layer")
+            self.kill()
+            return
 
-        self._setFormatters(True)
         self._dict = {}
         self._values = {}
         self.Q.queue.clear()
@@ -302,7 +307,7 @@ class tLayer(MQTTClient):
             self.commitChanges()
 
     def layer(self):
-        return self._layer
+        return self._layer  
 
     def _prepare(self, broker, topicManager):
 
@@ -331,7 +336,7 @@ class tLayer(MQTTClient):
     
      
     def _setFormatters(self,update = False ): # change to bitmask
-
+    
 
         if self._formattersSet:
             return

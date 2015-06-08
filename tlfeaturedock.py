@@ -15,7 +15,8 @@ import webbrowser,pickle,json
 from lib.tlsettings import tlSettings as Settings
 from lib.tlsettings import tlConstants as Constants
 from lib.tllogging import tlLogging as Log
-from forms.ui_tleditfeature import Ui_tlEditFeature
+from forms.ui_tltextfeature import Ui_tlTextFeature
+from forms.ui_tlsvgfeature import Ui_tlSVGFeature
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -31,20 +32,48 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+_symbols = {}  # store symbols
 
-class tlFeatureDock(QDialog,Ui_tlEditFeature):
+
+def ActiveLayerSymbolPixmap(layer,feat):
+    """
+     Return active layer symbol for feature as a pixmap
+     use cache
+    """
+
+    r       = layer.rendererV2()
+    items   = r.legendSymbologyItems(QSize(32,32))
+    pos     = map(lambda(rule):
+                rule.isFilterOK(feat), r.rootRule().children()).index(True,0)
+
+    (state,pixmap) = items[pos]
+
+    if not _symbols.has_key(state):
+        symbol  = r.rootRule().children()[pos].symbol().clone()
+        symbol.setSize(50)
+        symbol.symbolLayer(0).setVerticalAnchorPoint(QgsMarkerSymbolLayerV2.VCenter)
+        symbol.symbolLayer(0).setHorizontalAnchorPoint(QgsMarkerSymbolLayerV2.HCenter)
+        image = symbol.bigSymbolPreviewImage()
+        _symbols[state] = QPixmap.fromImage(image)
+
+    return _symbols[state]
+
+
+class tlFeatureDock(QDialog):
     """
     Dialog to manage a feature within a dock
     """
 
-    def __init__(self, iface, tlayer, feature):
+    def __init__(self, iface, tlayer, feature,show = True):
         self._iface =iface
         self._feature = feature
         self._tlayer = tlayer
         self._layer =tlayer.layer()
         self._key = 'featureDock-' + str(self._layer.id()) + '-' + str(feature.id())
         super(tlFeatureDock,self).__init__()
+        
         self.setupUi(self)
+
         self.dockWidget.setWindowTitle(feature['name'])
         self.dockWidget.setAllowedAreas(Qt.AllDockWidgetAreas)
         self._iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
@@ -58,55 +87,27 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
         self._tlayer.featureUpdated.connect(self._featureUpdated)
         self.dockWidget.visibilityChanged.connect(self._visibilityChanged)
         self.dockWidget.dockLocationChanged.connect(self._dockLocationChanged)
-        self._images = {}
        
-        self.dockWidget.resizeEvent = self._dockLocationChanged       
-        self.dockWidget.show()
-        #self.payload.setStyleSheet('font-size: 72pt; font-family: Arial;')
+        self.dockWidget.resizeEvent = self._dockLocationChanged
         
-#        font = QFont()
- #       font.setPointSize(200);
-  #      font.setBold(True);
-   #     self.payload.setFont(font)
-        self.payload.setAutoFillBackground(True)
-        
-        self._featureUpdated(self._tlayer,feature)
-        pass
+        if show:
+            self.featureUpdated(self._tlayer,feature)
+            self.dockWidget.show()
+        #self.payload.setAutoFillBackground(True)
     
     
     def _featureUpdated(self,tlayer,feat):
-        try:
-            if not self.isVisible():
-                return
+        if not self.isVisible():
+            return
 
-            if feat.id() != self._feature.id():
-                return
-    
-            r =  self._tlayer.layer().rendererV2()
-            items = r.legendSymbologyItems(QSize(32,32))
-            pos = map(lambda(rule):
-                rule.isFilterOK(feat), r.rootRule().children()).index(True,0)
-            (state,pixmap) = items[pos]
-            if not self._images.has_key(state):
-                symbol  = r.rootRule().children()[pos].symbol().clone()
-                symbol.setSize(50.0)
-                symbol.symbolLayer(0).setVerticalAnchorPoint(QgsMarkerSymbolLayerV2.VCenter)
-                symbol.symbolLayer(0).setHorizontalAnchorPoint(QgsMarkerSymbolLayerV2.HCenter)
-                image = symbol.bigSymbolPreviewImage()
-                self._images[state] = QPixmap.fromImage(image)
-            
-            self.symbol.setPixmap(self._images[state])
-            feat['context'] = 'dock-title'
-            self.dockWidget.setWindowTitle(feat['match'])
-            
-            feat['context'] = 'dock-content'
-            payload = self._palyr.getLabelExpression().evaluate(feat)
-            self.payload.setText(payload)
-#            tlayer.publish("repub/test",str(feat['payload']))
-        except Exception as e:
-            Log.debug("FeatureDock " + str(e))
+        if feat.id() != self._feature.id():
+            return
+        
+        self.featureUpdated(tlayer,feat)
+
+    def featureUpdated(self,tlayer,feat):
         pass
-
+    
     
     def saveGeometry(self):
             Settings.setp(self._key,pickle.dumps(self.dockWidget.saveGeometry()))
@@ -137,19 +138,122 @@ class tlFeatureDock(QDialog,Ui_tlEditFeature):
 
     def _visibilityChanged(self,visible):
         visible = visible | self.isVisible()
-        Log.debug("Visibility changed " + str(self.isVisible()))
-        Log.debug("Focus" + str(self.dockWidget.hasFocus()))
-        Log.debug(self.frameSize())
-        Log.debug(self.dockWidget.frameSize())
+#        Log.debug("Visibility changed " + str(self.isVisible()))
+#        Log.debug("Focus" + str(self.dockWidget.hasFocus()))
+#        Log.debug(self.frameSize())
+#        Log.debug(self.dockWidget.frameSize())
         if not visible:
             self.saveGeometry()
         else:
             self.restoreGeometry()
         pass
     
-    def _resizeFeatureDialog(self):
+
+class tlFormFeatureDock(tlFeatureDock):
+
+    def __init__(self, iface, tlayer, feature,show = False):
+        super(tlFormFeatureDock,self).__init__(iface,tlayer,feature,show)
+
+    def setupUi(self, tlFormFeature):
+        tlFormFeature.setObjectName(_fromUtf8("tlFormFeature"))
+        tlFormFeature.resize(360, 300)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(tlFormFeature.sizePolicy().hasHeightForWidth())
+        tlFormFeature.setSizePolicy(sizePolicy)
+        tlFormFeature.setMaximumSize(QtCore.QSize(360, 300))
+        self.dockWidget = QtGui.QDockWidget(tlFormFeature)
+        self.dockWidget.setEnabled(True)
+        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 300))
+        self.dockWidget.setMinimumSize(QtCore.QSize(360, 300))
+        self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
+        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
+
+        self.symbol = QtGui.QLabel(self.dockWidgetContents)
+        self.symbol.setGeometry(QtCore.QRect(20, 10, 128, 128))
+        self.symbol.setMinimumSize(QtCore.QSize(128, 128))
+        self.symbol.setMaximumSize(QtCore.QSize(128, 128))
+        self.symbol.setText(_fromUtf8(""))
+        self.symbol.setObjectName(_fromUtf8("symbol"))
+        self.name = QtGui.QLabel(self.dockWidgetContents)
+        self.name.setGeometry(QtCore.QRect(160, 50, 141, 51))
+        self.name.setObjectName(_fromUtf8("name"))
+        self.dockWidget.setWidget(self.dockWidgetContents)
+
+        self.retranslateUi(tlFormFeature)
+        QtCore.QMetaObject.connectSlotsByName(tlFormFeature)
+
+    def retranslateUi(self, tlFormFeature):
         pass
 
-    def _accepted(self):
-        Log.debug("Accepted")
+    def featureUpdated(self,tlayer,feat):
+        try:
+            self.symbol.setPixmap(ActiveLayerSymbolPixmap(self._layer,feat))
+            self.dockWidget.setWindowTitle(feat['match'])
+            feat['context'] = 'dock-content'
+            payload = self._palyr.getLabelExpression().evaluate(feat)
+#            self.payload.setText(payload)
+#            self.name.setText(feat['name'])
+        except Exception as e:
+            Log.debug("TextFeatureDock - featureUpdated: " + str(e))
+        pass
+
+
+class tlTextFeatureDock(tlFeatureDock):
+
+    def __init__(self, iface, tlayer, feature):
+        super(tlTextFeatureDock,self).__init__(iface,tlayer,feature)
+
+    def setupUi(self, tlTextFeature):
+        tlTextFeature.setObjectName(_fromUtf8("tlTextFeature"))
+        tlTextFeature.resize(360, 300)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(tlTextFeature.sizePolicy().hasHeightForWidth())
+        tlTextFeature.setSizePolicy(sizePolicy)
+        tlTextFeature.setMaximumSize(QtCore.QSize(360, 300))
+        self.dockWidget = QtGui.QDockWidget(tlTextFeature)
+        self.dockWidget.setEnabled(True)
+        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 300))
+        self.dockWidget.setMinimumSize(QtCore.QSize(360, 300))
+        self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
+        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
+        self.payload = QtGui.QLabel(self.dockWidgetContents)
+        self.payload.setGeometry(QtCore.QRect(20, 150, 331, 111))
+        self.payload.setObjectName(_fromUtf8("payload"))
+        self.symbol = QtGui.QLabel(self.dockWidgetContents)
+        self.symbol.setGeometry(QtCore.QRect(20, 10, 128, 128))
+        self.symbol.setMinimumSize(QtCore.QSize(128, 128))
+        self.symbol.setMaximumSize(QtCore.QSize(128, 128))
+        self.symbol.setText(_fromUtf8(""))
+        self.symbol.setObjectName(_fromUtf8("symbol"))
+        self.name = QtGui.QLabel(self.dockWidgetContents)
+        self.name.setGeometry(QtCore.QRect(160, 50, 141, 51))
+        self.name.setObjectName(_fromUtf8("name"))
+        self.dockWidget.setWidget(self.dockWidgetContents)
+
+        self.retranslateUi(tlTextFeature)
+        QtCore.QMetaObject.connectSlotsByName(tlTextFeature)
+
+    def retranslateUi(self, tlTextFeature):
+        self.payload.setText(_translate("tlTextFeature", "Payload", None))
+
+    def featureUpdated(self,tlayer,feat):
+        try:
+            self.symbol.setPixmap(ActiveLayerSymbolPixmap(self._layer,feat))
+            self.dockWidget.setWindowTitle(feat['match'])
+            feat['context'] = 'dock-content'
+            payload = self._palyr.getLabelExpression().evaluate(feat)
+            self.payload.setText(payload)
+            self.name.setText(feat['name'])
+        except Exception as e:
+            Log.debug("TextFeatureDock - featureUpdated: " + str(e))
+        pass
+
+
+
 

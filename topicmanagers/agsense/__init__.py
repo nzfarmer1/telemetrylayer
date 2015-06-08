@@ -2,10 +2,12 @@
 import os
 
 
-def classFactory(iface):
+def classFactory():
     from tank.agtank import agTankTopicManager
     from relay.agrelay import agRelayTopicManager
+    from text.agtext import agTextTopicManager
 
-    return [{"name": "AgSense Tank", "class": agTankTopicManager()},
-            {"name": "AgSense Relay", "class": agRelayTopicManager()}]
+    return [{"name": "Tank", "class": agTankTopicManager()},
+            {"name": "Text", "class": agTextTopicManager()},
+            {"name": "Relay", "class": agRelayTopicManager()}]
 

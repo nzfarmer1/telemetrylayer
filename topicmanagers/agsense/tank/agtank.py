@@ -12,14 +12,13 @@ from TelemetryLayer.lib.tllogging import tlLogging as Log
 from TelemetryLayer.tlmqttclient import *
 import os, json
 
-from TelemetryLayer.topicmanagers.agsense.ui_agtopicmanager import Ui_agTopicManager
 from TelemetryLayer.topicmanagers.agsense.agtopicmanager import agTopicManager
 
 
     
 class agTankTopicManager(agTopicManager):
     def __init__(self):
-        super(agTopicManager, self).__init__( )
+        super(agTankTopicManager, self).__init__( )
         pass
 
     def setEditorWidgetsV2(self,layer):
