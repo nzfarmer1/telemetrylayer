@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>tlEditFeature</class>
- <widget class="QDialog" name="tlEditFeature">
+ <class>tlSVGFeature</class>
+ <widget class="QDialog" name="tlSVGFeature">
   <property name="geometry">
    <rect>
     <x>0</x>
