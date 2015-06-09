@@ -27,11 +27,24 @@ Usage:
 3. Add Features - enter name, topic
 4. Edit features (double click on Broker Group in legend then double click on feature (respects edit layer edit mode)
 
-Installation:
+Note:
 
-To install and run locally, copy recursively into a ~/.qgis2/python/plugins/TelemetryLayer directory then enable the plugin
+Right now I have on 3 types of topic manager/widget interfaces.  And the logic for controlling the SVG gauge is not written.
 
-A public repo will be created soon
+However, as this release represents a major refactor with many fixes - and flags the shape of things to come - I release it now so that the Plugin can be reviewed and those interested to assist can come on board.
+
+The architecture now is quite solid with much flexibility in determining the representation of a widget
+
+Some architectural insights below:
+
+- Topic managers are sub singleton stateless classes sub classes from the main tltopicmanager.py package
+- They allow fine grain configuration of the layer's rules, symbols, addtional feature fields, widgets and formatters
+- qgsfunctions are used extensively - feature['context'] field is used so that the formatting of the payload can be context sensitive
+- to view data within the dock view (see Feature List then double click a feature) FeatureDock is sub classed.  Instead of subclassing the base class you can subclass the Text, Form, or SVG FeatureDock.  See examples under topicmanager.
+
+Notes on version numbers:  these have been handled badly. The code < 1 but we were forced to use 1 when moving to a.b.c version format.  Please consider 1.x.x to be alpha.  2.x.x beta. And 3.x.x production when we get there.
+
+
 
 Issues:
 
@@ -52,10 +65,11 @@ TODO:
 This is my top list. There's lots more of course!
 
 - integrate with QGIS native help with splash screen showing new features
-- linux testing of custom feature form (done. needed to replace inbuilt custom feature form)
 - document topic manager API
 - Add support for 3rd party registration of topic managers
-- Address Nathan's code review
+- Add additioanl FeatureDock/TopicManager types. Get SVG graphics for instruments working
+- Change reading .qml files to programmable declarations when formatting a layer's symbols and rules
+- Create / extend SVG Feature Dock functionality
 
 
 
