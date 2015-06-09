@@ -4,7 +4,7 @@ telemetrylayer
 QGIS Plugin to integrate QGIS with MQTT
 
 
-Target platform QGIS 2.4
+Target platform QGIS 2.8
 
 Latest changes:
 
@@ -29,7 +29,7 @@ Usage:
 
 Note:
 
-Right now I have on 3 types of topic manager/widget interfaces.  And the logic for controlling the SVG gauge is not written.
+Right now I have only 3 types of topic manager/widget interfaces.  And the logic for controlling the SVG gauge is not written.
 
 However, as this release represents a major refactor with many fixes - and flags the shape of things to come - I release it now so that the Plugin can be reviewed and those interested to assist can come on board.
 
@@ -37,10 +37,10 @@ The architecture now is quite solid with much flexibility in determining the rep
 
 Some architectural insights below:
 
-- Topic managers are sub singleton stateless classes sub classes from the main tltopicmanager.py package
-- They allow fine grain configuration of the layer's rules, symbols, addtional feature fields, widgets and formatters
-- qgsfunctions are used extensively - feature['context'] field is used so that the formatting of the payload can be context sensitive
-- to view data within the dock view (see Feature List then double click a feature) FeatureDock is sub classed.  Instead of subclassing the base class you can subclass the Text, Form, or SVG FeatureDock.  See examples under topicmanager.
+- Topic managers are singleton stateless sub classes from the main tlTopicManager class 
+- They allow fine grained configuration of the layer's rules, symbols, addtional feature fields, widgets and formatters
+- qgsfunctions are used extensively - feature['context'] field is used so that the formatting of the payload can be context sensitive. Custom qgsfunctions can also be used to flag an alert state.
+- to view data within the dock view (see Feature List then double click a feature) FeatureDock is sub classed.  Instead of subclassing the base class you can subclass the Text, Form, or SVG FeatureDocks.  See examples under topicmanager folder.
 
 Notes on version numbers:  these have been handled badly. The code < 1 but we were forced to use 1 when moving to a.b.c version format.  Please consider 1.x.x to be alpha.  2.x.x beta. And 3.x.x production when we get there.
 
@@ -70,10 +70,10 @@ This is my top list. There's lots more of course!
 - Add additioanl FeatureDock/TopicManager types. Get SVG graphics for instruments working
 - Change reading .qml files to programmable declarations when formatting a layer's symbols and rules
 - Create / extend SVG Feature Dock functionality
+- Improve memory usage and Add plugin reloader support for dynamicly created topicmanagers
 
 
-
-If you want to help with any of this, please get in touch!!!
+If you want to help with any of this, please get in touch
 
 Andrew McClure <andrew@agsense.co.nz>
 
