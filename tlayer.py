@@ -211,13 +211,14 @@ class tLayer(MQTTClient):
 
     def onMessage(self, mq, obj, msg):
         Log.debug('Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-        if not self.Q.full():
+
+        if self._canRun and not self.Q.full():
             self.Q.put(msg)
-            self._processQueue() # sets dirty flag as req.
-            self.triggerRepaint()
-    
+        self._processQueue() # sets dirty flag as req.
+        self.triggerRepaint()
+
     def _processQueue(self):
-        if self.Q.empty():
+        if self.Q.empty() or self._isEditing():
             return
         try:
             while(not self.Q.empty() and not self._isEditing()):
@@ -548,15 +549,15 @@ class tLayer(MQTTClient):
 #            pass
         # Add additional checks?
 #        else:
-        if self._dirty or not self.Q.empty():
+        if not self.isEditing and (self._dirty or not self.Q.empty()):
             self._layer.triggerRepaint()
  
     def layerEditStarted(self):
+        self.isEditing = True
         self.establishedFeatures = []
         for feat in self._layer.getFeatures():
             self.establishedFeatures.append( feat )
 
-        self.isEditing = True
 
     def layerEditStopped(self):
         self.establishedFeatures = []

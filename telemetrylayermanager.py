@@ -83,6 +83,9 @@ class layerManager(QObject):
                                                                                 feature)
             except AttributeError:
                 Log.warn("Unable to load feature dock")
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                Log.debug(repr(traceback.format_exception(exc_type, exc_value,
+                                                          exc_traceback)))
                 
         except Exception as e:
             Log.debug('showFeatureDock: ' + str(e))

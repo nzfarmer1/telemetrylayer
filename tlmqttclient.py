@@ -127,7 +127,8 @@ class MQTTClient(QtCore.QObject):
         return self._thread.isRunning()
 
     def _loop(self):
-        self.loop()
+        if self._canRun():
+            self.loop()
 
     def setHost(self, host):
         self._host = host

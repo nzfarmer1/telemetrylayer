@@ -6,9 +6,10 @@
  Configure individual Brokers
  ***************************************************************************/
 """
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtSvg
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4.QtSvg import *
 from qgis.core import *
 import webbrowser,pickle,json
 
@@ -203,8 +204,8 @@ class tlFormFeatureDock(tlFeatureDock):
 
 class tlTextFeatureDock(tlFeatureDock):
 
-    def __init__(self, iface, tlayer, feature):
-        super(tlTextFeatureDock,self).__init__(iface,tlayer,feature)
+    def __init__(self, iface, tlayer, feature,show = True):
+        super(tlTextFeatureDock,self).__init__(iface,tlayer,feature,show)
 
     def setupUi(self, tlTextFeature):
         tlTextFeature.setObjectName(_fromUtf8("tlTextFeature"))
@@ -253,6 +254,50 @@ class tlTextFeatureDock(tlFeatureDock):
         except Exception as e:
             Log.debug("TextFeatureDock - featureUpdated: " + str(e))
         pass
+
+class tlSVGFeatureDock(tlFeatureDock):
+
+    def __init__(self, iface, tlayer, feature,show = True):
+        super(tlSVGFeatureDock,self).__init__(iface,tlayer,feature,show)
+
+    def setupUi(self, tlSVGFeature):
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(tlSVGFeature.sizePolicy().hasHeightForWidth())
+        tlSVGFeature.setSizePolicy(sizePolicy)
+        tlSVGFeature.setMaximumSize(QtCore.QSize(360, 300))
+        self.dockWidget = QtGui.QDockWidget(tlSVGFeature)
+        self.dockWidget.setEnabled(True)
+        self.dockWidget.setGeometry(QtCore.QRect(0, 0, 360, 300))
+        self.dockWidget.setMinimumSize(QtCore.QSize(360, 300))
+        self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
+        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
+        self.svgWidget = QtSvg.QSvgWidget(self.dockWidgetContents)
+        self.svgWidget.setGeometry(QtCore.QRect(0, 0, 300, 300))
+        self.svgWidget.setObjectName(_fromUtf8("svgWidget"))
+        self.dockWidget.setWidget(self.dockWidgetContents)
+
+        self.retranslateUi(tlSVGFeature)
+        QtCore.QMetaObject.connectSlotsByName(tlSVGFeature)
+
+    def retranslateUi(self, tlSVGFeature):
+        pass
+
+
+    def featureUpdated(self,tlayer,feat):
+        try:
+  #          self.symbol.setPixmap(ActiveLayerSymbolPixmap(self._layer,feat))
+            self.dockWidget.setWindowTitle(feat['match'])
+#            feat['context'] = 'dock-content'
+ #           self.name.setText(feat['name'])
+        except Exception as e:
+            Log.debug("SVGFeatureDock - featureUpdated: " + str(e))
+        pass
+
+
+
 
 
 

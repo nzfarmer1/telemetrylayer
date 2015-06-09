@@ -223,6 +223,10 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
 
         columns = ["Data", "Layer", "Feature", "Last"]
         createMode = tbl.rowCount() == 0
+        selectedRow =None
+        if tbl.rowCount() >0:
+            for item in tbl.selectedRanges():
+                 selectedRow = item
         tbl.clear()
         tbl.setRowCount(0)
         tbl.setStyleSheet("font: 10pt \"System\";")
@@ -289,9 +293,11 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 item.setToolTip("Double click to see feature, Shift-click to view on layer")
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kPayloadCol, item)
-
+                
                 row += 1
 
+        if selectedRow and selectedRow.topRow() <= row:
+            tbl.setRangeSelected(selectedRow,True)
         tbl.setColumnHidden(0, True)
         tbl.resizeColumnsToContents()
         tbl.horizontalHeader().setStretchLastSection(True)
