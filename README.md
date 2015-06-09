@@ -67,8 +67,8 @@ This is my top list. There's lots more of course!
 - integrate with QGIS native help with splash screen showing new features
 - document topic manager API
 - Add support for 3rd party registration of topic managers
-- Add additioanl FeatureDock/TopicManager types. Get SVG graphics for instruments working
-- Change reading .qml files to programmable declarations when formatting a layer's symbols and rules
+- Add additional FeatureDock/TopicManager types. Get SVG graphics for instruments working
+- Change reading .qml files to python code when formatting a layer's Rulei based renderer
 - Create / extend SVG Feature Dock functionality
 - Improve memory usage and Add plugin reloader support for dynamicly created topicmanagers
 
