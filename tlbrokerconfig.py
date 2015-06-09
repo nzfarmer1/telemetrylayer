@@ -294,10 +294,12 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kPayloadCol, item)
                 
+                if selectedRow and selectedRow.topRow() == row:
+                    tbl.setRangeSelected(selectedRow,True)
+                    selectedRow =None
+
                 row += 1
 
-        if selectedRow and selectedRow.topRow() <= row:
-            tbl.setRangeSelected(selectedRow,True)
         tbl.setColumnHidden(0, True)
         tbl.resizeColumnsToContents()
         tbl.horizontalHeader().setStretchLastSection(True)
