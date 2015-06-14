@@ -1,0 +1,29 @@
+# This file contains metadata for your plugin. Beginning
+# with version 1.8 this is the preferred way to supply information about a
+# plugin. The current method of embedding metadata in __init__.py will
+# be supported until version 2.0
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+
+[general]
+name=Telemetry Layer Sample Topic Manager
+qgisMinimumVersion=2.4
+#qgisMaximumVersion=2.8
+description=Sample Topic Manager Plugin to add functionality to Telemetry Layer
+about="Follow the example here to create your Telemetry Layer Topic Manager"
+version=0.0.1
+author=Andrew McClure
+email=andrew@agsense.co.nz
+
+# end of mandatory metadata
+
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version
+deprecated=False
+
+
+
