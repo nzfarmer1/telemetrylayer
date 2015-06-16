@@ -11,7 +11,7 @@
 """
 
 from PyQt4.QtXml import *
-
+    
 from PyQt4.QtCore import *
 from PyQt4 import QtGui
 from qgis.core import *
@@ -49,6 +49,7 @@ class tLayer(MQTTClient):
 
     # SIGNALS
     featureUpdated = pyqtSignal(object, object)
+    commitChanges = pyqtSignal()
     
 
     @staticmethod
@@ -108,6 +109,9 @@ class tLayer(MQTTClient):
                 raise BrokerNotFound("No MQTT Broker found when loading Telemetry Layer " + self.layer().name())
 
             self.setBroker(_broker)
+            
+            self.setTopicManager(topicManagerFactory.load(self.get(self.kTopicManager)))
+            
             #self._setFormatters()
 
         super(tLayer, self).__init__(self,
@@ -117,8 +121,8 @@ class tLayer(MQTTClient):
 
         self.updateConnected(False)
         self._broker.deletingBroker.connect(self.tearDown)
-        self.featureUpdated.connect(topicManagerFactory.featureUpdated)  # Tell dialog box to update a feature
         self.layer().attributeValueChanged.connect(self.attributeValueChanged)
+        self.commitChanges.connect(self._commitChanges)
 
 
     def attributeValueChanged(self, fid, idx, val):
@@ -151,6 +155,7 @@ class tLayer(MQTTClient):
 
     def kill(self):
         super(tLayer, self).kill()
+        #self._paused = True
 
     def stop(self):
         super(tLayer, self).stop()
@@ -204,25 +209,32 @@ class tLayer(MQTTClient):
         self.triggerRepaint()
 
 
-    """
-    Update values foreach topic:featureId
-
-    """
 
     def onMessage(self, mq, obj, msg):
-        Log.debug('Got ' + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+        """
+        onMessage handler for all incoming messages for this layer
+        """
+        Log.debug('Got ' + msg.topic+" "+str(msg.qos)+" "+str(len(msg.payload)) + " bytes")  
 
-        if self._canRun and not self.Q.full():
+        if not self.Q.full() and self._canRun():
             self.Q.put(msg)
-        self._processQueue() # sets dirty flag as req.
-        self.triggerRepaint()
+            self.commitChanges.emit() 
+
 
     def _processQueue(self):
-        if self.Q.empty() or self._isEditing():
+        """
+        Process incoming message queue
+        """
+        if not self._canRun():
             return
+        
         try:
-            while(not self.Q.empty() and not self._isEditing()):
-                msg =self.Q.get() 
+            while(not self.Q.empty()):
+                msg =self.Q.get()
+
+                if not self.topicManager().onMessage(self,msg):
+                    continue
+
                 for feat in self._layer.getFeatures():
                     topic = str(feat.attribute("topic"))
                     key = msg.topic + ':' + str(feat.id())
@@ -239,6 +251,10 @@ class tLayer(MQTTClient):
 
         except Exception as e:
             Log.critical("MQTT Client - Error updating features! " + str(e))
+            
+        finally:
+            if self._dirty:
+                self.triggerRepaint()
 
 
     def updateFeature(self, feat, topic, payload):
@@ -266,7 +282,7 @@ class tLayer(MQTTClient):
 
 
 
-    def commitChanges(self):
+    def _commitChanges(self):
         self._processQueue()
 
         if not self._dirty or self._isEditing():
@@ -280,7 +296,6 @@ class tLayer(MQTTClient):
                     return
                 
                 self._layer.startEditing()
-                self.topicManager().beforeCommit(self,self._values)
 
                 for key, val in self._values.iteritems():
                     fid, fieldId = key
@@ -305,7 +320,7 @@ class tLayer(MQTTClient):
 
     def focusChange(self, Qw1, Qw2):
         if Log is not None:
-            self.commitChanges()
+            self.commitChanges.emit()
 
     def layer(self):
         return self._layer  
@@ -416,7 +431,12 @@ class tLayer(MQTTClient):
                 found = True
                 break
         if not found:
-            Log.debug("No feature to Apply")
+            Log.debug("No feature to Apply") # must be an Add
+            self._lastFid = feature.id()
+#                self._deferredTimer= QTimer()
+ #               self._deferredTimer.setSingleShot(True)
+                #self._deferredTimer.timeout.connect(lambda:telemetryLayer.instance().showEditFeature(self._layer,feature.id()))
+  #              self._deferredTimer.start(3000)
             return
 
         try:
@@ -429,9 +449,12 @@ class tLayer(MQTTClient):
                    self._layer.changeAttributeValue(feat.id(), fieldId, feature[key])
             self._layer.deleteFeature(feature.id())
             self._layer.commitChanges()
+            
         except Exception as e:
             Log.debug("Error applying feature " + str(e))
+            
         
+            
 
     def addFeature(self, fid):
         Log.debug("add Feature")
@@ -458,6 +481,8 @@ class tLayer(MQTTClient):
             visible = tlAddFeature.getVisible()
             qos     = tlAddFeature.getQoS()
             
+            self._deferredEdit =  tlAddFeature.getEdit()
+            
             attrs = [topic['name'],
                     topic['topic'],
                     qos,
@@ -469,14 +494,19 @@ class tLayer(MQTTClient):
                     visible,
                     'map']
             
+            
             # merge with custom attributes
             feat.setAttributes(self.topicManager().setAttributes(self._layer,attrs))
 
             self._layer.updateFeature(feat)
             self._layer.commitChanges()
             self._feat = feat
+            
+            
+
+            
         except BrokerNotSynced:
-            Log.progress("Please save any unsaved Broker confugurations first")
+            Log.progress("Please save any unsaved Broker configurations first")
             self._layer.deleteFeature(fid)
             self._layer.commitChanges()
         except BrokersNotDefined:
@@ -492,6 +522,12 @@ class tLayer(MQTTClient):
             pass
 
         return feat
+
+
+
+    def setTopicManager(self,topicmanager):
+        self._topicManager = topicmanager
+
 
     def setBroker(self, broker, updateFeatures=True):
         self._broker = broker  # update broker object
@@ -522,6 +558,10 @@ class tLayer(MQTTClient):
         if self._canRun() and not self.isRunning():
             Log.progress("Starting MQTT client for " + self._broker.name() + " -> " + self.layer().name())
             self.run()
+            
+    def restart(self):
+        super(tLayer, self).restart()
+        
 
     def pause(self):
         if self.isRunning():
@@ -530,7 +570,7 @@ class tLayer(MQTTClient):
 
     def refresh(self, state):
         if self._canRun():
-            self.commitChanges()
+            self._commitChanges()
 
 # This is evil.  We need to capture the state between starting and running first!        
 #        if state and self.restartScheduled and self.isRunning():
@@ -545,11 +585,7 @@ class tLayer(MQTTClient):
 
 
     def triggerRepaint(self):
-#        if 'QDialog' in str( QgsApplication.activeWindow()): # Avoid nasty surprises
-#            pass
-        # Add additional checks?
-#        else:
-        if not self.isEditing and (self._dirty or not self.Q.empty()):
+        if self._canRun():
             self._layer.triggerRepaint()
  
     def layerEditStarted(self):
@@ -567,7 +603,11 @@ class tLayer(MQTTClient):
 
         
     def topicManager(self):
-        return topicManagerFactory.getTopicManagerById(self.get(self.kTopicManager))
+        if self._topicManager:
+            return self._topicManager
+        else:
+            self._topicManager = topicManagerFactory.load(self.get(self.kTopicManager))
+            return self._topicManager
 
     def topicType(self):
         return self._topicType
@@ -576,6 +616,8 @@ class tLayer(MQTTClient):
         return  (self.isEditing or self._layer.isReadOnly())
 
     def _canRun(self):
+        if self._killing or self._paused:
+            return False
         return  self._hasFeatures() and not self._isEditing()
 
     def _hasFeatures(self):
@@ -583,11 +625,13 @@ class tLayer(MQTTClient):
 
     def tearDown(self):
         Log.debug("Tear down TLayer")
-        self.featureUpdated.disconnect(topicManagerFactory.featureUpdated)
+        self.commitChanges.disconnect(self._commitChanges)
+
         self.layer().attributeValueChanged.disconnect(self.attributeValueChanged)
        
         self._dirty = False  # Don't commit any changes if we are being torn down
-        self.stop()
+        self.kill()
+        
         
 
 

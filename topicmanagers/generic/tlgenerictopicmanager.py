@@ -30,10 +30,11 @@ class tlGenericTopicManager(tlTopicManager):
 
  
     def setLayerStyle(self, layer):
-        if not self.path() in QgsApplication.svgPaths():
-            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path()])
-        Log.debug("Loading QML " +os.path.join(self.path(), "rules.qml"))
-        self.loadStyle(layer, os.path.join(self.path(), "rules.qml"))
+        if not self.path(tlGenericTopicManager) in QgsApplication.svgPaths():
+            QgsApplication.setDefaultSvgPaths(QgsApplication.svgPaths() + [self.path(tlGenericTopicManager)])
+        Log.debug("Loading QML " +os.path.join(self.path(tlGenericTopicManager), "rules.qml"))
+        rules = os.path.join(self.path(tlGenericTopicManager), "rules.qml")
+        self.loadStyle(layer, rules)
 
 
     @staticmethod

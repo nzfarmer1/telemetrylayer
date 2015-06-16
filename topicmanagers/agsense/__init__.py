@@ -7,7 +7,7 @@ def classFactory():
     from relay.agrelay import agRelayTopicManager
     from text.agtext import agTextTopicManager
 
-    return [{"name": "Gauge", "class": agTankTopicManager()},
-            {"name": "Text", "class": agTextTopicManager()},
-            {"name": "Relay", "class": agRelayTopicManager()}]
+    return [{"name": "Gauge", "class": agTankTopicManager},
+            {"name": "Text", "class": agTextTopicManager},
+            {"name": "Relay", "class": agRelayTopicManager}]
 

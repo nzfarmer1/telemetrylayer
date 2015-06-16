@@ -39,7 +39,7 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
         super(tlAddFeature, self).__init__()
         self._topicManager = topicManager
         self._nameChanged = False
-
+        self._edit      = False
         self.setupUi()
         pass
 
@@ -52,7 +52,9 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
         self.setName.setValidator(QRegExpValidator(QRegExp("^[\ \$a-zA-Z0-9\-\_\/\-\#\+]+"), self))
         self.setName.textEdited.connect(self._setNameChanged)
 
+        self.buttonAddEdit.clicked.connect(lambda:self._validateApply(True))
         self.buttonAdd.clicked.connect(self._validateApply)
+        self.buttonAddEdit.setEnabled(False)
         self.buttonAdd.setEnabled(False)
         self.setTopic.setFocus()
         
@@ -69,15 +71,20 @@ class tlAddFeature(QtGui.QDialog, Ui_tlAddFeature):
             self.setName.setText(self.setTopic.text())
         return {'topic':self.setTopic.text(),'name':self.setName.text()}
      
+    def getEdit(self):
+        return self._edit
+        
     def _setNameChanged(self,txt):
         self._nameChanged = len(txt) >0
 
     def _topicChanged(self, txt):
         self.buttonAdd.setEnabled(len(txt) >0)
+        self.buttonAddEdit.setEnabled(len(txt) >0)
         if len(txt) >0 and not self._nameChanged:
             self.setName.setText(txt.replace("/"," "))
 
-    def _validateApply(self):
+    def _validateApply(self,edit=False):
+        self._edit = edit
         self.accept()
 
         

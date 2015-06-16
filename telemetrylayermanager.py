@@ -42,7 +42,6 @@ class layerManager(QObject):
     _this = None
     _rebuildingLegend = False
 
-
     @staticmethod
     def getLayers():
         layers = []
@@ -251,7 +250,7 @@ class layerManager(QObject):
 
     def rebuildLegend(self):
         
-        if layerManager._rebuildingLegend:
+        if layerManager._rebuildingLegend :
             return
 
         layerManager._rebuildingLegend = True
@@ -428,10 +427,10 @@ class layerManager(QObject):
         except:
             pass
 
-    def initLayer(self, layer, broker=None, topicType=None):
+    def initLayer(self, layer, broker=None, topicManager=None):
 
         tLayer = None
-        if broker is not None and topicType is not None:
+        if broker is not None and topicManager is not None:
 
             QgsMapLayerRegistry.instance().addMapLayer(layer)  # API >= 1.9
             lid = layer.id()
@@ -439,7 +438,7 @@ class layerManager(QObject):
             tLayer = TLayer(self,
                             QgsMapLayerRegistry.instance().mapLayer(lid),
                             broker,
-                            topicType)
+                            topicManager)
 
             if tLayer is None:
                 Log.debug("Unable to create Telemetry Layer")
@@ -601,6 +600,7 @@ class layerManager(QObject):
 #        Log.debug("feature Added" + str(fid))
         request = QgsFeatureRequest(fid)
         layer = self._iface.activeLayer()
+        tLayer = self.getTLayer(layer.id())
         feature = next(layer.getFeatures(request), None)
         try:
             featureExists = feature and feature['topic']
@@ -613,22 +613,30 @@ class layerManager(QObject):
         #if fid >0:
          #   return
          
-        layer = self._iface.activeLayer()
-        if layer is None:
-            return
-        tLayer = self.getTLayer(layer.id())
 
         if featureExists:
+            Log.debug("feature Exists") 
             tLayer.applyFeature(feature)
             return
         
         if tLayer is None:
             Log.debug("Error Loading tLayer")
             return
-        result = tLayer.addFeature(fid)
+        feat = tLayer.addFeature(fid)
         Log.debug("Adding Feature")
-        if result is not None:
-            tLayer.restart()
+        
+        if feat is not None:
+            feature = next(layer.getFeatures(QgsFeatureRequest(tLayer._lastFid)), None)
+            if not feature:
+                return
+            if tLayer.isRunning():
+                tLayer.subscribe(feature['topic'],feature['qos'])
+            if tLayer._deferredEdit:
+                tLayer._deferredEdit = False
+                self._deferredTimer = QTimer()
+                self._deferredTimer.setSingleShot(True)
+                self._deferredTimer.timeout.connect(lambda:telemetryLayer.instance().showEditFeature(tLayer.layer(),tLayer._lastFid))
+                self._deferredTimer.start()
 
 
     def featureDeleted(self, fid):
@@ -655,7 +663,7 @@ class layerManager(QObject):
 
 
     def tearDownTLayers(self):
-
+        Log.debug("Tear down layers")
         for lid, tLayer in self.getTLayers(False).iteritems():
             QApplication.instance().focusChanged.disconnect(tLayer.focusChange)
             # if 0:
@@ -698,9 +706,10 @@ class layerManager(QObject):
 
     def tearDown(self):
         
+        self._iface.mapCanvas().renderStarting.disconnect(self.renderStarting)
+        self.tearDownTLayers()
         self.tearDownDocks()
         self._iface.legendInterface().groupRelationsChanged.disconnect(self.legendRelationsChanged)
-        self.tearDownTLayers()
         if 0:
             self._iface.legendInterface().removeLegendLayerAction(self.actions['config'])
             self._iface.legendInterface().removeLegendLayerAction(self.actions['pause'])
@@ -713,7 +722,6 @@ class layerManager(QObject):
 
         self._iface.legendInterface().currentLayerChanged.disconnect(
             self.currentLayerChanged)  # change to when layer is loaded also!
-        self._iface.mapCanvas().renderStarting.disconnect(self.renderStarting)
 
 
     def __del__(self):

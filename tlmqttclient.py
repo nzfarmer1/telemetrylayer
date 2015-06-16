@@ -175,12 +175,10 @@ class MQTTClient(QtCore.QObject):
 
     def on_disconnect(self, client, obj, rc):
         Log.debug("disconnecting rc: " + str(rc) + " " + str(self._connected))
-        #        self._connected = False
         if self._killing:
             Log.debug("killing")
             self._kill()
         self.onDisConnect(client, obj, rc)
-        #self._attempts = 0
         self._connected = False
 
     def onConnect(self, client, obj, rc):
@@ -218,7 +216,7 @@ class MQTTClient(QtCore.QObject):
     def publish(self, topic, payload, qos=0, retain=True):
         self.mqttc.publish(str(topic), payload, int(qos), retain)   
 
-    def subscribe(self, topic, qos):
+    def subscribe(self, topic, qos =0):
         if self.isConnected():
             try:
                 self.mqttc.subscribe(str(topic), int(qos))
@@ -267,7 +265,6 @@ class MQTTClient(QtCore.QObject):
         self._killing = False
         self._reset() # reset timer
         self.stop()
-        Log.debug("killed")
 
     def kill(self):
         try:

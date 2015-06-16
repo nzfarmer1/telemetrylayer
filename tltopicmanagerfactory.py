@@ -18,7 +18,7 @@ from lib.tlsettings import tlSettings as Settings
 from tltopicmanager import tlTopicManager as TopicManager
 
 import traceback, sys, time,os,imp,pkgutil,glob,types
-
+import collections
 
 @qgsfunction(0, u"Telemetry Layer")
 def is_connected(values, feature, parent):
@@ -82,17 +82,57 @@ def get_subpackages(module):
     return filter(is_package, os.listdir(os.path.dirname(module.__file__)))
 
 
-def get_modules(module):
+def get_modules(module,ext):
     dir = os.path.dirname(module.__file__)
 
     def is_module(d):
         d = os.path.join(dir, d)
-        return '.pyc' in os.path.splitext(d) and not ('__init__' in d or 'ui_' in d or 'qgsfuncs' in d)
+        return ext in os.path.splitext(d) and d != module.__file__ and not ('__init__' in d or 'ui_' in d or 'qgsfuncs' in d)
 
     return filter(is_module, os.listdir(os.path.dirname(module.__file__)))
 
 
-# Adapted from recipe adapted from http://stackoverflow.com/users/1736389/sam-p
+def reload_class(class_obj):
+    module_name = class_obj.__module__
+    module = sys.modules[module_name]
+    Log.debug("Reloading module " + module_name)
+    for module_pycfile in get_modules(module,'.pyc'):
+        Log.debug("reloading " + module_pycfile)
+        os.remove(os.path.join(os.path.dirname(module.__file__), module_pycfile))
+        # pycfile = module.__file__
+        pycfile = module_pycfile
+        Log.debug("Reloading " + pycfile)
+        modulepath = pycfile.replace(".pyc", ".py")
+        _module_name = modulepath.replace(".py", "")
+        Log.debug("importing " + os.path.join(os.path.dirname(module.__file__), modulepath))
+        code = open(os.path.join(os.path.dirname(module.__file__), modulepath), 'rU').read()
+        compile(code, _module_name, "exec")
+        _module = sys.modules[_module_name]
+        _module = reload(_module)
+    for module_pyfile in get_modules(module,'.py'):
+        Log.debug("xprocessing " + module_pyfile)
+        modulepath = module_pyfile
+        _module_name = modulepath.replace(".py", "")
+        Log.debug("ximporting " + os.path.join(os.path.dirname(module.__file__), modulepath))
+        code = open(os.path.join(os.path.dirname(module.__file__), modulepath), 'rU').read()
+        compile(code, _module_name, "exec")
+        _module = sys.modules[_module_name]
+        del _module
+        import module   
+        _module = reload(_module)
+    return getattr(module, class_obj.__name__)
+
+def import_class(_class):
+    from importlib import import_module
+    mod = import_module(_class.__module__)
+    try:
+        reload_class(_class)
+        #reload(sys.modules[_class.__module__])
+    except KeyError:
+      #  Log.debug("Failed to reload class " + str(_class))
+        pass
+    klass = getattr(mod, _class.__name__)
+    return klass()
 
 
 def registerLocal():
@@ -105,11 +145,7 @@ def registerLocal():
         module = __import__(package)
         meta = module.classFactory()
         for m in meta:
-            m['id'] = m['name'].replace(" ","_").lower()
-            Log.debug("Loading topic manager " + str(m['class']))
-            _tms.append(m)
-    return _tms
-
+            _tMF.register(m)
 
 
 class tlTopicManagerFactory():
@@ -117,89 +153,94 @@ class tlTopicManagerFactory():
     Factory class to keep register and keep track of all custom topic managers
     
     """
-    registered = []
-    topicManagers = []
+    topicManagers = {}
 
-
-    @staticmethod
-    def featureUpdated(layer, feature):
-        pass
 
     @staticmethod
     def registerAll():
+        registerLocal()
 
-        tlTopicManagerFactory.topicManagers = registerLocal()
-
-        for tmeta in tlTopicManagerFactory.topicManagers:
-           tlTopicManagerFactory.registerTopicManager(tmeta)
 
     @staticmethod
-    def unregisterAll():
-        print "topicmanagerfactory unregisterAll"
-        for _id in tlTopicManagerFactory.getTopicManagerIds():
-            tlTopicManagerFactory.unregisterTopicManager(_id)
-        tlTopicManagerFactory.unregister()
+    def tearDown():
+        try:
+            print "topicmanagerfactory tearDown"
+            for item in _tMF.list():
+                _tMF.unregister(item.id)
+            _tMF.unregisterFuncs()
+        except Exceptions as e:
+            Log.debug("Error tearing down Topic Managers: " + str(e))
 
     @staticmethod
-    def registerTopicManager(tmeta):
-        if not tmeta['id'] in tlTopicManagerFactory.registered:
-            _obj = tlTopicManagerFactory.getTopicManagerById(tmeta['id'])
-            if hasattr(_obj, "register"):
-                _obj.register()
-                _obj.setId(tmeta['id'])
-                _obj.setName(tmeta['name'])
-            tlTopicManagerFactory.registered.append(tmeta['id'])
+    def register(meta):
+        """
+        register a topic manager of the form {name:name,class:class} where class is a module.class string
+        add to internal dict of topic managers
+        defer actual loading until class is loaded via load method
+        """
+        if not (meta.has_key('name')  and meta.has_key('class')):
+            Log.debug("Telemetry Layer: Attempting to register a topic manager with out name or class")
+            return
+
+        if _tMF._findByClass(meta['class']):
+            Log.debug(meta['name'] + " already registered")
+            return
+
+        if hasattr(meta['class'],"register"):
+            meta['class'].register() # register itself
+        
+        meta['id'] = meta['name'].replace(" ","_").lower()
+        Log.debug("Loading topic manager " + str(meta['class']))
+        _tMF.topicManagers[meta['id']] = meta
 
     @staticmethod
-    def unregisterTopicManager(_id):
-        if _id in tlTopicManagerFactory.registered:
-            _obj = tlTopicManagerFactory.getTopicManagerById(_id)
+    def unregister(_id):
+        meta = _tMF._findById(_id)
+        if meta.has_key('obj'):
+            _obj = meta['obj']
             if hasattr(_obj, "unregister"):
                 _obj.unregister()
             del _obj    
-            tlTopicManagerFactory.registered.remove(_id)
+        del _tMF.topicManagers[_id]
+
+    @staticmethod
+    def _findById(_id):
+        return _tMF.topicManagers[_id]
+
+    @staticmethod
+    def _findByClass(_class):
+        return filter(lambda x: _class  == x['class'], _tMF.topicManagers.itervalues())
 
 
     @staticmethod
-    def getTopicManagerList():
-        return tlTopicManagerFactory.topicManagers
-
-    @staticmethod   
-    def getTopicManagers():
-        objs = []
-        for tm in tlTopicManagerFactory.topicManagers:
-            objs.append(tm['class'])
-        return objs
-
-    @staticmethod
-    def getTopicManagerIds():
-        ids = []
-        for tm in tlTopicManagerFactory.getTopicManagerList():
-            ids.append(tm['id'])
-        return ids
+    # return id and name (not class and obj)
+    def list():
+        metas = []
+        TopicManager = collections.namedtuple('TopicManager','name id')
+        map(lambda x: metas.append(TopicManager(id=x['id'],name=x['name'])),
+                    _tMF.topicManagers.itervalues())
+        return reversed(metas)
 
 
     @staticmethod
-    def getTopicManagerById(_id):
-        _obj = None
-        for topicManager in tlTopicManagerFactory.getTopicManagerList():
-            if topicManager['id'] == _id:
-                try:
-                    _obj = topicManager['class']
-                except Exception as e:
-                    Log.debug(str(e))
-                break
-        return _obj
+    def load(_id):
+        tm = _tMF._findById(_id)
+        if not tm:
+            return None # throw Topic Manager Not Found!
+        if not tm.has_key('obj'):
+            tm['obj'] = import_class(tm['class'])
+            tm['obj'].setName(tm['name'])
+            tm['obj'].setId(tm['id'])
+            _tMF.topicManagers[_id] = tm
+        return tm['obj']
+
 
     def __init__(self, iface):
         self.registerAll()
 
-    @staticmethod
-    def register():
-        pass
 
     @staticmethod
-    def unregister():
+    def unregisterFuncs():
         Log.debug("Un Registering Generic functions")
         if QgsExpression.isFunctionName("$is_connected"):
             QgsExpression.unregisterFunction("$is_connected")
@@ -216,4 +257,4 @@ class tlTopicManagerFactory():
         if QgsExpression.isFunctionName("$is_silent"):
             QgsExpression.unregisterFunction("$is_silent")
 
-_tmf = tlTopicManagerFactory #shortcut
+_tMF = tlTopicManagerFactory #shortcut

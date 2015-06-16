@@ -59,9 +59,9 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         self.buttonCreate.clicked.connect(self.accept)
         self.buttonCancel.clicked.connect(self.reject)
         self.buttonCreate.setEnabled(False)
-
-        for tm in tmFactory.getTopicManagers():
-            self.selectTopicManager.addItem(tm.name(),tm)
+        
+        for tm in tmFactory.list():
+            self.selectTopicManager.addItem(tm.name,tm.id)
  
         return
 
@@ -77,7 +77,7 @@ class tLayerConfig(QtGui.QDialog, Ui_tLayerConfig):
         return self.selectBroker.itemData(self.selectBroker.currentIndex())
 
     def getTopicManager(self):
-        return self.selectTopicManager.itemData(self.selectTopicManager.currentIndex())
+        return tmFactory.load(self.selectTopicManager.itemData(self.selectTopicManager.currentIndex()))
 
 
     def accept(self):

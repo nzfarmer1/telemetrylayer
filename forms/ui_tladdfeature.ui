@@ -45,13 +45,13 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>160</y>
-     <width>101</width>
+     <y>140</y>
+     <width>91</width>
      <height>32</height>
     </rect>
    </property>
    <property name="text">
-    <string>Add Feature</string>
+    <string>Add Topic</string>
    </property>
   </widget>
   <widget class="QComboBox" name="selectQoS">
@@ -101,7 +101,7 @@
   <widget class="QCheckBox" name="chkBoxVisible">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>180</x>
      <y>100</y>
      <width>85</width>
      <height>18</height>
@@ -157,6 +157,19 @@
    </property>
    <property name="text">
     <string>Name</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="buttonAddEdit">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>140</y>
+     <width>111</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add and Edit</string>
    </property>
   </widget>
  </widget>

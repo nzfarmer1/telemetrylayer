@@ -100,7 +100,7 @@ class tlFeatureDock(QDialog):
     def _featureUpdated(self,tlayer,feat):
         if not self.isVisible():
             return
-
+        self.saveGeometry()
         if feat.id() != self._feature.id():
             return
         
@@ -111,13 +111,18 @@ class tlFeatureDock(QDialog):
     
     
     def saveGeometry(self):
-            Settings.setp(self._key,pickle.dumps(self.dockWidget.saveGeometry()))
+            geometry = self.dockWidget.saveGeometry()
+            if self._geometry != geometry:
+                self._geometry = geometry
+                Settings.setp(self._key,pickle.dumps(geometry))
+                QgsProject.instance().setDirty(True)
+                Log.debug("dirty")
     
     def restoreGeometry(self):
-            geometry = pickle.loads(Settings.getp(self._key,pickle.dumps(None)))
-            if geometry is None:
+            self._geometry = pickle.loads(Settings.getp(self._key,pickle.dumps(None)))
+            if self._geometry is None:
                 return
-            self.dockWidget.restoreGeometry(geometry)
+            self.dockWidget.restoreGeometry(self._geometry)
 
     def featureId(self):
         return self._feature.id()

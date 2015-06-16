@@ -95,6 +95,15 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
             broker = Brokers.instance().find(broker.id()) # reload from file
             self._updateBroker(broker, True)
 
+    def showEditFeature(self,layer,fid):
+        layer = QgsMapLayerRegistry.instance().mapLayer(layer.id())
+        layer.commitChanges() 
+        layer.startEditing()
+        feature = next(layer.getFeatures(QgsFeatureRequest(fid)), None)
+        if feature:
+            self.iface.openFeatureForm(layer, feature, True,False)
+            #self.triggerRepaint()
+
 
     def hide(self):
         if self.dockWidget.isVisible():

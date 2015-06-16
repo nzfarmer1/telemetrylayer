@@ -187,6 +187,8 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
             self._iface.mapCanvas().refresh()
         pass
 
+
+
     def _showFeatureDialog(self, modelIdx):
         item = self.tableFeatureList.item(modelIdx.row(), self.kDataCol)
         layer = QgsMapLayerRegistry.instance().mapLayer(item.data(self.kLayerId))

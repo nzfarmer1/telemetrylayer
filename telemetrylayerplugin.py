@@ -185,11 +185,9 @@ class TelemetryLayerPlugin(QObject):
             self.iface.projectRead.disconnect(self.layerManager.rebuildLegend)
             self.iface.newProjectCreated.disconnect(self.layerManager.rebuildLegend)
 
-            TopicManagerFactory.unregisterAll()
             #Brokers.instance().brokersLoaded.disconnect(self.layerManager.brokersLoaded)
         except Exception as e:
             Log.debug(e)
-            TopicManagerFactory.unregisterAll()
             pass
         finally:
             if  self.layerManager:
@@ -198,6 +196,7 @@ class TelemetryLayerPlugin(QObject):
                 self.telemetryLayer.deleteLater()
             if Brokers:
                 Brokers.instance().deleteLater()
+            TopicManagerFactory.tearDown()
             gc.collect()
             Log.debug("Plugin unloaded")
 

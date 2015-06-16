@@ -74,8 +74,16 @@ class tlTopicManager(QObject):
             Log.debug("Error setting Label Format " + str(e))
 
 
-    def beforeCommit(self,tLayer,values):
-        pass
+    def onMessage(self,tlayer,msg):
+       """
+       Pre process any messages prior to feature['payload'] being updated
+       msg.payload is passed as reference and can be modified 
+       Return False if the data is not to be committed to the feature
+       Example Use case: save image data to file and replace payload with filename
+       
+       """
+       return True
+
 
     def path(self, _class=None):
         if _class is None:

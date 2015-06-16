@@ -40,6 +40,12 @@ class MyFeatureDock(TextFeatureDock):
             # do what you need here.  Draw it yourself if required!
             super(MyFeatureDock,self).featureUpdated(tlayer,feat)
             Log.debug("MyFeatureDock - featureUpdated: " + str(feat['payload']))
+            layer = tlayer.layer()
+            fieldId = layer.dataProvider().fieldNameIndex("context")
+            layer.startEditing()
+            layer.changeAttributeValue(feat.id(), fieldId, "fubar")
+            layer.commitChanges()
+
         except Exception as e:
             Log.debug("Error on MyFeatureDock - featureUpdated: " + str(e))
         pass
