@@ -44,8 +44,8 @@
   <widget class="QPushButton" name="buttonAdd">
    <property name="geometry">
     <rect>
-     <x>170</x>
-     <y>140</y>
+     <x>70</x>
+     <y>150</y>
      <width>91</width>
      <height>32</height>
     </rect>
@@ -162,8 +162,8 @@
   <widget class="QPushButton" name="buttonAddEdit">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>140</y>
+     <x>170</x>
+     <y>150</y>
      <width>111</width>
      <height>32</height>
     </rect>
@@ -173,6 +173,14 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>setTopic</tabstop>
+  <tabstop>setName</tabstop>
+  <tabstop>selectQoS</tabstop>
+  <tabstop>chkBoxVisible</tabstop>
+  <tabstop>buttonAdd</tabstop>
+  <tabstop>buttonAddEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

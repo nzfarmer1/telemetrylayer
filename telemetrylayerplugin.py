@@ -112,8 +112,6 @@ class TelemetryLayerPlugin(QObject):
 
 
     def initGui(self):
-        # Tree Widget test
-        Log.debug("initGUI")
 
         # Create action that will start plugin configuration
         self.aboutA = QAction(

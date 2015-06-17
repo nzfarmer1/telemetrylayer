@@ -97,8 +97,10 @@ class TelemetryLayer(QtGui.QDialog, Ui_TelemetryLayer):
 
     def showEditFeature(self,layer,fid):
         layer = QgsMapLayerRegistry.instance().mapLayer(layer.id())
-        layer.commitChanges() 
-        layer.startEditing()
+        layer.deselect(layer.selectedFeaturesIds())
+        layer.select([fid])
+        if not layer.isEditable():
+            layer.startEditing()
         feature = next(layer.getFeatures(QgsFeatureRequest(fid)), None)
         if feature:
             self.iface.openFeatureForm(layer, feature, True,False)

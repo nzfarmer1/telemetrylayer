@@ -92,6 +92,7 @@ class MQTTClient(QtCore.QObject):
         self._thread.finished.connect(lambda:Log.debug("Thread stopped"))
         self._thread.terminated.connect(lambda:Log.debug("Thread terminated"))
         self._restarting = False
+        self._subscribed =[]
         
 #        self.mqttc = mqtt.Client(self._clientId, self._cleanSession)
         self.mqttc = mqtt.Mosquitto(self._clientId, self._cleanSession)
@@ -104,6 +105,7 @@ class MQTTClient(QtCore.QObject):
         self.mqttc.on_message = self.onMessage
         self.mqttc.on_publish = self.onPublish
         self.mqttc.on_subscribe = self.onSubscribe
+#        self.mqttc.on_unsubscribe = self.onSubscribe - not implemented - remove element from self._subscribed
         self.mqttc.on_log = self.onLog
 
     def run(self):
@@ -159,6 +161,8 @@ class MQTTClient(QtCore.QObject):
             return
         self._connected = True
         self._attempts = 0
+        self._subscribed =[]
+
         self.onConnect(client, obj, rc)
 
     def restart(self):
@@ -217,9 +221,10 @@ class MQTTClient(QtCore.QObject):
         self.mqttc.publish(str(topic), payload, int(qos), retain)   
 
     def subscribe(self, topic, qos =0):
-        if self.isConnected():
+        if self.isConnected() and not str(topic) in self._subscribed:
             try:
                 self.mqttc.subscribe(str(topic), int(qos))
+                self._subscribed.append(str(topic))
                 Log.debug('Subscribed to ' + topic + " " + str(qos))
             except Exception as e:
                 Log.debug("Error on subscribe " + str(e))
@@ -228,7 +233,7 @@ class MQTTClient(QtCore.QObject):
     def unsubscribe(self, topic):
         if self.isConnected():
             self.mqttc.unsubscribe(topic)
-            Log.debug('Unsubscribed to ' + topic)
+            Log.debug('Un_subscribed to ' + topic)
 
     def loop(self, timeout=0.1):
         if not self.isConnected():

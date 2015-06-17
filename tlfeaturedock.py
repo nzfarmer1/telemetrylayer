@@ -116,7 +116,6 @@ class tlFeatureDock(QDialog):
                 self._geometry = geometry
                 Settings.setp(self._key,pickle.dumps(geometry))
                 QgsProject.instance().setDirty(True)
-                Log.debug("dirty")
     
     def restoreGeometry(self):
             self._geometry = pickle.loads(Settings.getp(self._key,pickle.dumps(None)))

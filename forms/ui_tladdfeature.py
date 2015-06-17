@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'forms/ui_tladdfeature.ui'
 #
-# Created: Tue Jun 16 22:13:35 2015
+# Created: Wed Jun 17 10:52:16 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -37,7 +37,7 @@ class Ui_tlAddFeature(object):
         self.setTopicLabel.setGeometry(QtCore.QRect(30, 40, 41, 16))
         self.setTopicLabel.setObjectName(_fromUtf8("setTopicLabel"))
         self.buttonAdd = QtGui.QPushButton(tlAddFeature)
-        self.buttonAdd.setGeometry(QtCore.QRect(170, 140, 91, 32))
+        self.buttonAdd.setGeometry(QtCore.QRect(70, 150, 91, 32))
         self.buttonAdd.setObjectName(_fromUtf8("buttonAdd"))
         self.selectQoS = QtGui.QComboBox(tlAddFeature)
         self.selectQoS.setGeometry(QtCore.QRect(70, 96, 104, 26))
@@ -62,11 +62,16 @@ class Ui_tlAddFeature(object):
         self.setNameLabel.setGeometry(QtCore.QRect(30, 70, 41, 16))
         self.setNameLabel.setObjectName(_fromUtf8("setNameLabel"))
         self.buttonAddEdit = QtGui.QPushButton(tlAddFeature)
-        self.buttonAddEdit.setGeometry(QtCore.QRect(60, 140, 111, 32))
+        self.buttonAddEdit.setGeometry(QtCore.QRect(170, 150, 111, 32))
         self.buttonAddEdit.setObjectName(_fromUtf8("buttonAddEdit"))
 
         self.retranslateUi(tlAddFeature)
         QtCore.QMetaObject.connectSlotsByName(tlAddFeature)
+        tlAddFeature.setTabOrder(self.setTopic, self.setName)
+        tlAddFeature.setTabOrder(self.setName, self.selectQoS)
+        tlAddFeature.setTabOrder(self.selectQoS, self.chkBoxVisible)
+        tlAddFeature.setTabOrder(self.chkBoxVisible, self.buttonAdd)
+        tlAddFeature.setTabOrder(self.buttonAdd, self.buttonAddEdit)
 
     def retranslateUi(self, tlAddFeature):
         tlAddFeature.setWindowTitle(_translate("tlAddFeature", "Add Feature", None))

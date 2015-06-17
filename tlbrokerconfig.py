@@ -21,6 +21,7 @@ from tlmqttclient import *
 import traceback, sys, os, imp, json, zlib
 import copy, pickle
 
+
 # Todo
 # Add Help Button
 
@@ -192,13 +193,16 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
     def _showFeatureDialog(self, modelIdx):
         item = self.tableFeatureList.item(modelIdx.row(), self.kDataCol)
         layer = QgsMapLayerRegistry.instance().mapLayer(item.data(self.kLayerId))
-        request = QgsFeatureRequest(item.data(self.kFeatureId))
-        feature = next(layer.getFeatures(request), None)
+        modifiers = QtGui.QApplication.keyboardModifiers()
+         
+            
 
         try:
-            if layer.isEditable() and not layer.isReadOnly():
-                self._iface.openFeatureForm(layer, feature, True,False)
+            if layer.isEditable() or modifiers == QtCore.Qt.ControlModifier:
+                self._creator.showEditFeature(layer,item.data(self.kFeatureId))
+                #self._iface.openFeatureForm(layer, feature, True,False)
             else:
+                feature = next(layer.getFeatures(QgsFeatureRequest(item.data(self.kFeatureId))), None)
                 self._layerManager.showFeatureDock(layer,
                                                 feature)
 #            self._fd = tlFeatureDialogWrapper(self._iface,
@@ -263,6 +267,7 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 self._connectedTLayers.append(tLayer)
 
             features = tLayer.layer().getFeatures()
+            tooltip = "Double click to see feature; Shift-click to view on layer; Command-click to edit the feature"
             for feat in features:
 
                 if feat.id() <= 0:
@@ -282,17 +287,17 @@ class tlBrokerConfig(QtGui.QDialog, Ui_tlBrokerConfig):
                 tbl.setItem(row, self.kDataCol, item)
 
                 item = QtGui.QLabel(tLayer.layer().name())
-                item.setToolTip("Double click to see feature, Shift-click to view on layer")
+                item.setToolTip(tooltip)
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kLayerNameCol, item)
 
                 item = QtGui.QLabel(feature['name'])
-                item.setToolTip("Double click to see feature, Shift-click to view on layer")
+                item.setToolTip(tooltip)
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kFeatureNameCol, item)
 
                 item = QtGui.QLabel(_palyr.getLabelExpression().evaluate(feature))
-                item.setToolTip("Double click to see feature, Shift-click to view on layer")
+                item.setToolTip(tooltip)
                 item.setStyleSheet("padding: 4px")
                 tbl.setCellWidget(row, self.kPayloadCol, item)
                 

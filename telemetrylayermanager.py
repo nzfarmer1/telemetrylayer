@@ -484,6 +484,7 @@ class layerManager(QObject):
 
         # layer.beforeRollBack.connect(self.beforeRollBack) #implement
         layer.featureAdded.connect(self.featureAdded)  # implement
+        layer.committedFeaturesAdded.connect(self.committedFeaturesAdded)  # implement
         layer.featureDeleted.connect(self.featureDeleted)  # implement
 
         # layer.repaintRequested.connect(tLayer.repaintRequested) # Refresh method was better
@@ -596,47 +597,33 @@ class layerManager(QObject):
         tLayer = self.getTLayer(layer.id())
         tLayer.beforeRollBack()
 
+    def committedFeaturesAdded(self,layerId, addedFeatures ):
+        tLayer = self.getTLayer(layerId)
+        for feature in addedFeatures:
+            if tLayer.isRunning():
+                tLayer.subscribe(feature['topic'],feature['qos'])
+
+
     def featureAdded(self, fid):
-#        Log.debug("feature Added" + str(fid))
         request = QgsFeatureRequest(fid)
         layer = self._iface.activeLayer()
         tLayer = self.getTLayer(layer.id())
+
+        if tLayer is None:
+            return
+
         feature = next(layer.getFeatures(request), None)
         try:
             featureExists = feature and feature['topic']
         except IndexError:
             featureExists = False
         
-        #if fid < 0 and "Feature Attributes" in QgsApplication.activeWindow().windowTitle():
-         #   return
-        
-        #if fid >0:
-         #   return
-         
-
         if featureExists:
-            Log.debug("feature Exists") 
-            tLayer.applyFeature(feature)
+            tLayer.applyFeature(feature) # Apply updates
             return
         
-        if tLayer is None:
-            Log.debug("Error Loading tLayer")
-            return
-        feat = tLayer.addFeature(fid)
-        Log.debug("Adding Feature")
-        
-        if feat is not None:
-            feature = next(layer.getFeatures(QgsFeatureRequest(tLayer._lastFid)), None)
-            if not feature:
-                return
-            if tLayer.isRunning():
-                tLayer.subscribe(feature['topic'],feature['qos'])
-            if tLayer._deferredEdit:
-                tLayer._deferredEdit = False
-                self._deferredTimer = QTimer()
-                self._deferredTimer.setSingleShot(True)
-                self._deferredTimer.timeout.connect(lambda:telemetryLayer.instance().showEditFeature(tLayer.layer(),tLayer._lastFid))
-                self._deferredTimer.start()
+        if tLayer.addFeature(fid):
+            pass
 
 
     def featureDeleted(self, fid):

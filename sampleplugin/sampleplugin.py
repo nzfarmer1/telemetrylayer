@@ -94,13 +94,12 @@ class TelemetryLayerSampleTopicManager(QObject):
     """
 
     def __init__(self, iface):
-        Log.debug("Invoking " + str(self))
         super(TelemetryLayerSampleTopicManager, self).__init__(iface)
         self.iface = iface
    
     def initGui(self):
         # Tree Widget test
-        Log.debug("Sample Plugin initGUI")
+        Log.debug("Sample Plugin init")
 
         self.iface.newProjectCreated.connect(
             lambda: TopicManagerFactory.register({'name':"Sample TM",'class':sampleTopicManager})

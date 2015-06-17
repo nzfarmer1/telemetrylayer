@@ -98,7 +98,8 @@ class tLayer(MQTTClient):
         self._topicType = None
         self._topicManager = None
         self._formattersSet = False
-            
+        self._deferredEdit = False
+
         if broker is not None and topicManager is not None:
             self.setBroker(broker, False)
             if not self.isTLayer(self._layer):
@@ -201,10 +202,10 @@ class tLayer(MQTTClient):
 
     def onDisConnect(self, mosq, obj, rc):
 
-        for feat in self._layer.getFeatures():
-            topic = str(feat.attribute("topic"))
-            if topic is not None:
-                self.unsubscribe(topic)
+    #    for feat in self._layer.getFeatures():
+    #        topic = str(feat.attribute("topic"))
+    #        if topic is not None:
+    #            self.unsubscribe(topic)
         self.updateConnected(False)
         self.triggerRepaint()
 
@@ -426,18 +427,22 @@ class tLayer(MQTTClient):
  
     def applyFeature(self,feature):
         found = False
-        for feat in self.establishedFeatures:
-            if feat['topic'] == feature['topic']:
-                found = True
-                break
-        if not found:
-            Log.debug("No feature to Apply") # must be an Add
+        if feature.id() > 0 and not feature.id() in self.establishedFeatures:
+#            Log.debug("No feature to Apply") # must be an Add
             self._lastFid = feature.id()
-#                self._deferredTimer= QTimer()
- #               self._deferredTimer.setSingleShot(True)
-                #self._deferredTimer.timeout.connect(lambda:telemetryLayer.instance().showEditFeature(self._layer,feature.id()))
-  #              self._deferredTimer.start(3000)
+            if self._deferredEdit:
+                self._deferredEdit = False
+                self._deferredTimer = QTimer()
+                self._deferredTimer.setSingleShot(True)
+                self._deferredTimer.timeout.connect(lambda:telemetryLayer.instance().showEditFeature(self.layer(),feature.id()))
+                self._deferredTimer.start(100)
             return
+        
+        fid = next(iter(self.layer().selectedFeaturesIds()),None)
+        if not fid:
+            return
+            
+        feat = next(self.layer().getFeatures(QgsFeatureRequest(fid)), None)
 
         try:
             fmap = self._layer.dataProvider().fieldNameMap()
@@ -449,6 +454,7 @@ class tLayer(MQTTClient):
                    self._layer.changeAttributeValue(feat.id(), fieldId, feature[key])
             self._layer.deleteFeature(feature.id())
             self._layer.commitChanges()
+            self._layer.deselect(self.layer().selectedFeaturesIds())
             
         except Exception as e:
             Log.debug("Error applying feature " + str(e))
@@ -457,7 +463,7 @@ class tLayer(MQTTClient):
             
 
     def addFeature(self, fid):
-        Log.debug("add Feature")
+        Log.debug("Add Feature")
         if fid < 0 and not self._fid:
             self._fid = fid
         elif fid >= 0 or fid == self._fid:
@@ -494,16 +500,12 @@ class tLayer(MQTTClient):
                     visible,
                     'map']
             
-            
             # merge with custom attributes
             feat.setAttributes(self.topicManager().setAttributes(self._layer,attrs))
 
             self._layer.updateFeature(feat)
             self._layer.commitChanges()
             self._feat = feat
-            
-            
-
             
         except BrokerNotSynced:
             Log.progress("Please save any unsaved Broker configurations first")
@@ -592,7 +594,7 @@ class tLayer(MQTTClient):
         self.isEditing = True
         self.establishedFeatures = []
         for feat in self._layer.getFeatures():
-            self.establishedFeatures.append( feat )
+            self.establishedFeatures.append( feat.id() )
 
 
     def layerEditStopped(self):
@@ -621,16 +623,19 @@ class tLayer(MQTTClient):
         return  self._hasFeatures() and not self._isEditing()
 
     def _hasFeatures(self):
-        return self._layer.getFeatures() is not None
+        try:
+            return self.layer().getFeatures() is not None
+        except:
+            return False
 
     def tearDown(self):
         Log.debug("Tear down TLayer")
+        self._dirty = False  # Don't commit any changes if we are being torn down
+        if self.isRunning():    
+            self.stop()
         self.commitChanges.disconnect(self._commitChanges)
-
         self.layer().attributeValueChanged.disconnect(self.attributeValueChanged)
        
-        self._dirty = False  # Don't commit any changes if we are being torn down
-        self.kill()
         
         
 
