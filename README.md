@@ -27,6 +27,11 @@ Usage:
 3. Add Features - enter name, topic
 4. Edit features (double click on Broker Group in legend then double click on feature (respects edit layer edit mode)
 
+To install and use the Sample Plugin:
+1. Clone the git
+2. Copy the sampleplugin folder to your QGIS plugins folder (i.e. ~/.qgis2/python/plugins)
+3. Enable it via the Plugins menu
+
 Note:
 
 Right now I have only 3 types of topic manager/widget interfaces.  And the logic for controlling the SVG gauge is not written.
