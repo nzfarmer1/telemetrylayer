@@ -333,6 +333,7 @@ class MQTTClient(QtCore.QObject):
 class tlMqttSingleShot(MQTTClient):
     mqttOnCompletion = SIGNAL('mqttOnCompletion(QObject,QObject,QObject)')
 
+        
     def __init__(self,
                  creator,
                  broker,
@@ -368,6 +369,9 @@ class tlMqttSingleShot(MQTTClient):
         super(tlMqttSingleShot, self).__init__(self,
                                                str(self),
                                                broker)  # keep alive
+
+    def _canRun(self):
+           return True
 
     def _connectError(self,client, msg):
         Log.debug(msg)
@@ -435,8 +439,11 @@ class tlMqttTest(MQTTClient):
         _broker.setPoll(1)
         _broker.setKeepAlive(10)
 
+
         super(tlMqttTest, self).__init__(self,
                                          str(_broker),
                                          _broker)
     
     
+    def _canRun(self):
+           return True
