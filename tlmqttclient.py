@@ -440,7 +440,6 @@ class tlMqttTest(MQTTClient):
         _broker.setPoll(1)
         _broker.setKeepAlive(10)
 
-
         super(tlMqttTest, self).__init__(self,
                                          str(_broker),
                                          _broker)
