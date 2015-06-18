@@ -108,6 +108,9 @@ class MQTTClient(QtCore.QObject):
 #        self.mqttc.on_unsubscribe = self.onSubscribe - not implemented - remove element from self._subscribed
         self.mqttc.on_log = self.onLog
 
+    def _canRun(self):
+           return True
+
     def run(self):
         Log.debug("MQTT client run")
 
@@ -370,8 +373,6 @@ class tlMqttSingleShot(MQTTClient):
                                                str(self),
                                                broker)  # keep alive
 
-    def _canRun(self):
-           return True
 
     def _connectError(self,client, msg):
         Log.debug(msg)
@@ -445,5 +446,3 @@ class tlMqttTest(MQTTClient):
                                          _broker)
     
     
-    def _canRun(self):
-           return True
